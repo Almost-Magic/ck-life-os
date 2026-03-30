@@ -1,0 +1,20 @@
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ck-life-os</title>
+<style>
+:root { --bg: #0A0E14; --gold: #C9944A; --text: #E8E8E8; }
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 18px; margin: 0; }
+.pulse-bar { background: var(--gold); height: 4px; width: 100%; }
+h1 { font-family: 'Lora', serif; color: var(--gold); padding: 2rem; }
+.toggle { position: fixed; top: 1rem; right: 1rem; background: var(--gold); border: none; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="pulse-bar"></div>
+<button class="toggle" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">Toggle</button>
+<h1>ck-life-os</h1>
+<p>API running on port 5420. See <a href="/docs" style="color:var(--gold)">/docs</a> for API documentation.</p>
+</body>
+</html>

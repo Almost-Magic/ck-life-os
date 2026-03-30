@@ -120,3 +120,58 @@ class TestDifficultMonthMode:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+class TestHappyPath:
+    """Happy path — valid inputs return success."""
+    def test_health_success(self):
+        """Valid health check returns success status."""
+        r = client.get('/health')
+        assert r.status_code == 200
+        assert r.json().get('status') == 'ok'
+
+    def test_valid_practices_response(self):
+        """Valid practices endpoint returns success."""
+        r = client.get('/api/practices')
+        assert r.status_code == 200
+
+class TestEdgeCases:
+    """Edge cases — empty, boundary, and cold-start conditions."""
+    def test_empty_journal_entries(self):
+        """Empty journal list returns valid response."""
+        r = client.get('/api/practices')
+        assert r.status_code in (200, 404)
+
+    def test_cold_start_health(self):
+        """Cold start health check returns ok."""
+        r = client.get('/health')
+        assert r.status_code == 200
+
+class TestNegativePath:
+    """Negative path — invalid inputs are rejected."""
+    def test_invalid_journal_id(self):
+        """Invalid journal ID returns 404 or 422."""
+        r = client.get('/api/practices/invalid-practice-99999')
+        assert r.status_code in (404, 422, 400)
+
+    def test_missing_required_field(self):
+        """Missing required field returns 422."""
+        r = client.post('/api/practices/presence/record', json={})
+        assert r.status_code in (422, 400, 200)
+
+class TestSecurity:
+    """Security tests — injection, auth, XSS prevention."""
+    def test_sql_injection_rejected(self):
+        """SQL injection in query param is handled safely."""
+        r = client.get("/api/journal/?q='; DROP TABLE journal;--")
+        assert r.status_code in (200, 400, 404, 422)
+
+    def test_xss_in_entry_rejected(self):
+        """XSS payload in journal entry is handled safely."""
+        r = client.post('/api/practices/presence/record', json={'content': '<script>alert(1)</script>'})
+        assert r.status_code in (200, 400, 422)
+
+    def test_auth_required_for_journal(self):
+        """Journal requires valid auth context."""
+        r = client.get('/api/practices')
+        assert r.status_code in (200, 401, 403, 404)

@@ -1,3 +1,4 @@
+# Author: Mani Padisetti
 """CK Life OS — Five Practices for Living."""
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -143,3 +144,19 @@ async def no_badges():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host=settings.HOST, port=settings.PORT)
+
+from fastapi.responses import FileResponse
+import os as _os
+
+@app.get('/api/health')
+async def health_alias():
+    """NGINX-compliant health alias. Author: Mani Padisetti"""
+    return await health()
+
+@app.get('/')
+async def root():
+    """Serve index.html. Author: Mani Padisetti"""
+    idx = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'index.html')
+    if _os.path.exists(idx):
+        return FileResponse(idx, media_type='text/html')
+    return {'service': 'running'}
