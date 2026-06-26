@@ -1,20 +1,716 @@
-<html lang="en" data-theme="dark">
+<!doctype html>
+<html lang="en-AU">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ck-life-os</title>
+<title>CK Life OS</title>
+<link rel="icon" href="assets/ck-life-os-logo.svg">
 <style>
-:root { --bg: #0A0E14; --gold: #C9944A; --text: #E8E8E8; }
-body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 18px; margin: 0; }
-.pulse-bar { background: var(--gold); height: 4px; width: 100%; }
-h1 { font-family: 'Lora', serif; color: var(--gold); padding: 2rem; }
-.toggle { position: fixed; top: 1rem; right: 1rem; background: var(--gold); border: none; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px; }
+:root {
+  --bg: #090d12;
+  --shell: #0e141b;
+  --panel: #121a23;
+  --panel-soft: #17212c;
+  --line: #2d3947;
+  --gold: #c9944a;
+  --gold-dark: #8c652f;
+  --text: #f4efe7;
+  --muted: #b9c2cc;
+  --ok: #8fc6a5;
+  --warn: #dfb36a;
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+button, textarea, select, input { font: inherit; }
+button { min-height: 40px; }
+h1, h2, h3, p { margin: 0; }
+h1 { font-size: 1.65rem; color: var(--gold); letter-spacing: 0; line-height: 1.1; }
+h2 { font-size: 1.1rem; margin-bottom: 10px; }
+h3 { font-size: .98rem; margin-bottom: 7px; }
+
+.app {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: minmax(320px, .9fr) minmax(260px, .9fr) minmax(260px, .75fr) 82px;
+  gap: 18px;
+  align-items: center;
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--line);
+  background: #0b1118;
+}
+
+.brand-pair, .product-pair {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.amtl-logo {
+  width: 150px;
+  height: 46px;
+  object-fit: contain;
+  display: block;
+}
+
+.product-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.product-name strong {
+  display: block;
+  color: var(--gold);
+  font-size: 1.05rem;
+}
+
+.product-name span, .muted, .small { color: var(--muted); }
+.small { font-size: .9rem; }
+
+.today-signal {
+  border-left: 3px solid var(--gold);
+  padding-left: 12px;
+  color: var(--muted);
+}
+
+.clock {
+  display: grid;
+  gap: 2px;
+  justify-items: end;
+  color: var(--muted);
+}
+.clock strong { color: var(--text); }
+
+.seal-img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  display: block;
+}
+
+.layout {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 252px minmax(0, 1fr) 326px;
+  gap: 18px;
+  padding: 18px;
+}
+
+.left, .context-rail {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--shell);
+  min-height: 0;
+  overflow: auto;
+}
+
+.left { padding: 14px; }
+.context-rail { padding: 16px; display: grid; gap: 14px; align-content: start; }
+.workspace { min-width: 0; overflow: auto; display: grid; gap: 14px; align-content: start; }
+
+details.menu-group {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  background: #0b1118;
+}
+
+details.menu-group > summary {
+  cursor: pointer;
+  padding: 10px 12px;
+  color: var(--gold);
+  list-style: none;
+}
+
+details.menu-group > summary::before { content: "+ "; color: var(--muted); }
+details.menu-group[open] > summary::before { content: "- "; }
+
+.menu-buttons { display: grid; gap: 7px; padding: 0 10px 10px; }
+.menu-buttons button, .plain-button, .button {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 9px 11px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.menu-buttons button[aria-current="true"], .plain-button:hover, .menu-buttons button:hover {
+  border-color: var(--gold);
+  background: #17212c;
+}
+
+.button {
+  border-color: var(--gold-dark);
+  background: var(--gold);
+  color: #111111;
+  text-align: center;
+  font-weight: 750;
+}
+.button.secondary { background: transparent; color: var(--text); border-color: var(--line); }
+.button:active, .plain-button:active, .menu-buttons button:active { transform: translateY(1px); }
+
+.panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.subtle {
+  border: 1px solid var(--line);
+  background: var(--panel-soft);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 14px;
+}
+
+.actions, .stack, .list { display: grid; gap: 10px; }
+.inline { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+
+textarea {
+  width: 100%;
+  min-height: 86px;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #0a1017;
+  color: var(--text);
+  padding: 11px;
+  margin-top: 12px;
+}
+
+.truth-grid, .proof-grid, .guide-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.proof-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.guide-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.metric strong { display: block; font-size: 1.35rem; color: var(--gold); }
+.view.hidden { display: none; }
+
+.practice-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  gap: 10px;
+}
+.practice-card { min-height: 286px; display: grid; gap: 10px; align-content: start; }
+.practice-card .actions { margin-top: auto; }
+
+.two-col { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 14px; }
+.row { border: 1px solid var(--line); border-radius: var(--radius); background: #0c1219; padding: 11px; }
+label { display: grid; gap: 6px; color: var(--muted); }
+select, input {
+  min-width: 170px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #0a1017;
+  color: var(--text);
+  padding: 9px 10px;
+}
+pre { white-space: pre-wrap; margin: 0; }
+
+.receipt { border-left: 4px solid var(--ok); padding-left: 12px; }
+.warning { border-left: 4px solid var(--warn); padding-left: 12px; }
+.context-card strong { color: var(--gold); }
+
+@media (max-width: 1180px) {
+  .topbar { grid-template-columns: 1fr 1fr; }
+  .seal-img { width: 62px; height: 62px; }
+  .layout { grid-template-columns: 220px minmax(0, 1fr); }
+  .context-rail { grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero-grid, .two-col { grid-template-columns: 1fr; }
+  .practice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 720px) {
+  body { font-size: 15px; }
+  .topbar, .layout { grid-template-columns: 1fr; padding: 12px; }
+  .clock { justify-items: start; }
+  .left, .context-rail { max-height: none; }
+  .truth-grid, .proof-grid, .guide-grid, .practice-grid, .context-rail { grid-template-columns: 1fr; }
+  .amtl-logo { width: 134px; }
+}
 </style>
 </head>
 <body>
-<div class="pulse-bar"></div>
-<button class="toggle" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">Toggle</button>
-<h1>ck-life-os</h1>
-<p>API running on port 5420. See <a href="/docs" style="color:var(--gold)">/docs</a> for API documentation.</p>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand-pair">
+        <img class="amtl-logo" src="assets/amtl-logo.svg" alt="Almost Magic Tech Lab">
+        <div class="product-pair">
+          <img class="product-logo" src="assets/ck-life-os-logo.svg" alt="CK Life OS">
+          <div class="product-name"><strong>CK Life OS</strong><span>Five practices. No pressure.</span></div>
+        </div>
+      </div>
+      <div class="today-signal" id="todaySignal">Today: choose one tiny practice, then stop before it becomes performance.</div>
+      <div class="clock">
+        <strong id="dateLine">--/--/--</strong>
+        <span id="timeLine">Loading local time</span>
+        <span id="statusLine">Local status: no provider or weather call</span>
+      </div>
+      <img class="seal-img" src="assets/amtl-seal.svg" alt="AMTL local internal seal">
+    </header>
+
+    <div class="layout">
+      <aside class="left" aria-label="CK Life OS menu">
+        <details class="menu-group" open>
+          <summary>Practice</summary>
+          <div class="menu-buttons">
+            <button data-view="practice" aria-current="true">Practice desk</button>
+            <button data-view="journal">Encrypted journal</button>
+            <button data-view="guide">Guide me</button>
+            <button data-view="ideas">Idea explorer</button>
+            <button data-view="reports">Reports and gates</button>
+          </div>
+        </details>
+        <details class="menu-group">
+          <summary>Admin / Proof</summary>
+          <div class="menu-buttons">
+            <button data-view="evidence">Evidence summaries</button>
+            <button data-proof-direct="matrix">Delivery matrix</button>
+            <button data-proof-direct="r2d2">R2D2 equivalent</button>
+            <button data-proof-direct="dependency">Dependency fallback</button>
+            <button data-proof-direct="ai">OpenRouter routing</button>
+            <button data-proof-direct="oss">OSS adoption</button>
+          </div>
+        </details>
+      </aside>
+
+      <main class="workspace">
+        <section class="panel hero-grid">
+          <div>
+            <h1>Five practices for living</h1>
+            <p class="muted" style="margin-top:10px">A calm internal practice OS for presence, reflection, intention, gratitude, and equanimity. It helps you choose one small practice without turning life into a scoreboard.</p>
+            <textarea id="note" aria-label="Practice note" placeholder="Write a small note if you want. Leaving this blank is allowed."></textarea>
+            <div class="inline" style="margin-top:12px">
+              <button class="button" id="difficultMonthButton">Make today gentler</button>
+              <button class="button secondary" data-guided-target="practice">Explain first step</button>
+            </div>
+          </div>
+          <div class="stack">
+            <h2>Today's truth</h2>
+            <div class="truth-grid">
+              <button class="plain-button metric" data-count="practices"><strong id="practiceCount">5</strong><span>Practices</span></button>
+              <button class="plain-button metric" data-count="scores"><strong>0</strong><span>Scores</span></button>
+              <button class="plain-button metric" data-count="streaks"><strong>0</strong><span>Streaks</span></button>
+              <button class="plain-button metric" data-count="ideas"><strong id="ideaCount">500</strong><span>Seed ideas</span></button>
+            </div>
+            <div id="lastResult" class="receipt muted">No entry recorded in this browser session yet.</div>
+          </div>
+        </section>
+
+        <section id="practice" class="view stack">
+          <div class="practice-grid" id="practiceGrid"></div>
+        </section>
+
+        <section id="journal" class="view stack hidden">
+          <div class="panel two-col">
+            <div>
+              <h2>Encrypted journal</h2>
+              <p class="muted">Private reflections are encrypted at rest in the local runtime folder. The local UI can decrypt them here; external send and source write stay off.</p>
+              <label>Practice
+                <select id="journalPractice"></select>
+              </label>
+              <label>Title
+                <input id="journalTitle" type="text" maxlength="80" placeholder="Optional title">
+              </label>
+              <textarea id="journalContent" aria-label="Encrypted journal entry" placeholder="Write the private note you want encrypted locally."></textarea>
+              <div class="inline" style="margin-top:12px">
+                <button class="button" id="saveJournal">Save encrypted entry</button>
+                <button class="button secondary" id="loadJournal">Refresh journal</button>
+              </div>
+            </div>
+            <div class="subtle" id="journalStatus">Encrypted journal status has not been checked yet.</div>
+          </div>
+          <div class="two-col">
+            <div class="panel list" id="journalRows">Refresh journal to load entries.</div>
+            <div class="panel" id="journalDetail">Choose an encrypted entry to decrypt locally.</div>
+          </div>
+        </section>
+
+        <section id="guide" class="view stack hidden">
+          <div class="panel two-col">
+            <div>
+              <h2>Guide me</h2>
+              <p class="muted">Screen-specific help for a tired user. It tells you what to click, what writes locally, and what not to overclaim.</p>
+              <div class="inline" style="margin-top:14px">
+                <button class="button secondary" data-guided-target="practice">Practice</button>
+                <button class="button secondary" data-guided-target="ideas">Ideas</button>
+                <button class="button secondary" data-guided-target="reports">Reports</button>
+                <button class="button secondary" data-guided-target="evidence">Evidence</button>
+              </div>
+            </div>
+            <div class="subtle" id="guidedPanel">Choose a guide area.</div>
+          </div>
+          <div class="panel">
+            <h2>Practice 6W and ELI10</h2>
+            <div class="guide-grid" id="guideGrid"></div>
+          </div>
+        </section>
+
+        <section id="ideas" class="view stack hidden">
+          <div class="panel">
+            <h2>Idea explorer</h2>
+            <p class="muted">The 500 seed ideas are synthetic prompts, not lived history and not 500 implemented features. The list stays collapsed to matching rows.</p>
+            <div class="inline" style="margin-top:14px">
+              <label>Practice
+                <select id="ideaPractice"><option value="">All practices</option></select>
+              </label>
+              <label>Situation
+                <select id="ideaSituation">
+                  <option value="">All situations</option>
+                  <option>morning</option><option>midday</option><option>evening</option><option>difficult-day</option><option>low-energy</option>
+                  <option>family</option><option>work</option><option>body</option><option>creative</option><option>repair</option>
+                </select>
+              </label>
+              <button class="button" id="loadIdeas">Open matching ideas</button>
+            </div>
+          </div>
+          <div class="two-col">
+            <div class="panel list" id="ideaRows">Open matching ideas to load rows.</div>
+            <div class="panel" id="ideaDetail">Choose an idea to see What, Who, Why, When, How, Where, and ELI10.</div>
+          </div>
+        </section>
+
+        <section id="reports" class="view stack hidden">
+          <div class="panel two-col">
+            <div>
+              <h2>Reports and handoff gates</h2>
+              <p class="muted">Reports are local. Handoffs are staged gates only; nothing is sent to Elaine, Chronicle, Beast, Workshop, CRM/Ripple, Spark, CK Writer, CKLA/Data Control Room, Momentum, or any external system without human approval.</p>
+              <div class="inline" style="margin-top:14px">
+                <button class="button" id="openReport">Open local report</button>
+                <button class="button secondary" id="exportMarkdown">Export markdown summary</button>
+                <button class="button secondary" id="stageHandover">Stage Elaine local gate</button>
+              </div>
+            </div>
+            <div class="subtle" id="reportPanel">No report opened yet.</div>
+          </div>
+          <div class="panel">
+            <h2>Synthetic data hygiene</h2>
+            <p class="muted">The seed catalogue is generated fixture data. It stays labelled and separated from local receipts.</p>
+            <div class="inline" style="margin-top:14px">
+              <button class="button secondary" id="syntheticStatus">Check boundary</button>
+              <button class="button secondary" id="syntheticPreview">Preview cleanup</button>
+              <button class="button secondary" id="syntheticCleanup">Run cleanup verification</button>
+            </div>
+            <div class="subtle" id="syntheticPanel" style="margin-top:12px">No synthetic-data check opened yet.</div>
+          </div>
+        </section>
+
+        <section id="evidence" class="view stack hidden">
+          <div class="panel">
+            <h2>Evidence summaries</h2>
+            <p class="muted">Admin proof is behind this section. Normal practice work does not expose raw build JSON.</p>
+            <div class="proof-grid">
+              <button class="plain-button" data-proof="matrix">Product Bible matrix</button>
+              <button class="plain-button" data-proof="r2d2">R2D2 equivalent</button>
+              <button class="plain-button" data-proof="dependency">Dependency fallback</button>
+              <button class="plain-button" data-proof="data">Data truth</button>
+              <button class="plain-button" data-proof="ui">Button/drilldown truth</button>
+              <button class="plain-button" data-proof="oss">OSS adoption</button>
+              <button class="plain-button" data-proof="cost">Cost and effort reduction</button>
+              <button class="plain-button" data-proof="field">Field utilities</button>
+              <button class="plain-button" data-proof="ai">OpenRouter model routing</button>
+            </div>
+            <div class="subtle" id="proofOutput" style="margin-top:14px">Choose an evidence summary.</div>
+          </div>
+        </section>
+      </main>
+
+      <aside class="context-rail" aria-label="Context rail">
+        <div class="context-card subtle">
+          <h2 id="contextTitle">Practice desk</h2>
+          <p id="contextNext"><strong>Next action:</strong> Record one practice or explain the first step.</p>
+        </div>
+        <div class="context-card subtle" id="contextDetails">Selected details will appear here.</div>
+        <div class="context-card subtle" id="contextSixW">Contextual What / Who / Why / When / How / Where / ELI10 changes with selection.</div>
+        <div class="context-card subtle" id="contextReceipt">Receipt/evidence: no local write yet.</div>
+      </aside>
+    </div>
+  </div>
+
+<script>
+const practices = ["presence", "reflection", "intention", "gratitude", "equanimity"];
+const labels = { presence: "Presence", reflection: "Reflection", intention: "Intention", gratitude: "Gratitude", equanimity: "Equanimity" };
+const meanings = {
+  presence: "Awareness, attention, and showing up for this moment.",
+  reflection: "Contemplation, processing, and understanding.",
+  intention: "Direction, values alignment, and deliberate choices.",
+  gratitude: "Appreciation, perspective, and recognising good.",
+  equanimity: "Balance, acceptance, and steady perspective."
+};
+const api = async (path, options = {}) => {
+  const route = path.startsWith("/") ? path.slice(1) : path;
+  const response = await fetch(route, { headers: { "Content-Type": "application/json" }, ...options });
+  const data = path.endsWith(".md") ? await response.text() : await response.json();
+  if (!response.ok) throw new Error(path.endsWith(".md") ? data : JSON.stringify(data));
+  return data;
+};
+const summaryList = items => `<div class="list">${items.map(item => `<div class="row">${item}</div>`).join("")}</div>`;
+const setResult = (message, kind = "receipt") => {
+  const el = document.getElementById("lastResult");
+  el.className = kind;
+  el.textContent = message;
+};
+const setContext = ({ title, next, details, sixw, receipt }) => {
+  if (title) document.getElementById("contextTitle").textContent = title;
+  if (next) document.getElementById("contextNext").innerHTML = `<strong>Next action:</strong> ${next}`;
+  if (details) document.getElementById("contextDetails").innerHTML = details;
+  if (sixw) document.getElementById("contextSixW").innerHTML = sixw;
+  if (receipt) document.getElementById("contextReceipt").innerHTML = receipt;
+};
+const updateClock = () => {
+  const now = new Date();
+  const date = now.toLocaleDateString("en-AU", { day: "2-digit", month: "2-digit", year: "2-digit" });
+  const day = now.toLocaleDateString("en-AU", { weekday: "long" });
+  const time = now.toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" });
+  document.getElementById("dateLine").textContent = `${date} ${day}`;
+  document.getElementById("timeLine").textContent = time;
+};
+setInterval(updateClock, 30000);
+updateClock();
+
+const renderPractices = () => {
+  document.getElementById("practiceGrid").innerHTML = practices.map(practice => `
+    <article class="panel practice-card">
+      <h3>${labels[practice]}</h3>
+      <p class="muted">${meanings[practice]}</p>
+      <p class="small">Helper: choose one small action, then decide whether reflection is useful.</p>
+      <div class="actions">
+        <button class="button" data-record="${practice}">Record ${labels[practice]}</button>
+        <button class="button secondary" data-prompt="${practice}">Explain prompt</button>
+        <button class="button secondary" data-guide="${practice}">Details</button>
+      </div>
+    </article>
+  `).join("");
+  document.getElementById("ideaPractice").innerHTML += practices.map(practice => `<option value="${practice}">${labels[practice]}</option>`).join("");
+  document.getElementById("journalPractice").innerHTML = practices.map(practice => `<option value="${practice}">${labels[practice]}</option>`).join("");
+};
+const renderGuides = async () => {
+  const guides = await Promise.all(practices.map(practice => api(`/api/contextual-guide/${practice}`)));
+  document.getElementById("guideGrid").innerHTML = guides.map(item => `
+    <article class="subtle">
+      <h3>${labels[item.practice]}</h3>
+      <p><strong>Why:</strong> ${item.why}</p>
+      <p><strong>How:</strong> ${item.how}</p>
+      <p><strong>ELI10:</strong> ${item.eli10}</p>
+    </article>
+  `).join("");
+};
+const openView = viewName => {
+  document.querySelectorAll(".menu-buttons button[data-view]").forEach(item => item.setAttribute("aria-current", String(item.dataset.view === viewName)));
+  document.querySelectorAll(".view").forEach(view => view.classList.add("hidden"));
+  document.getElementById(viewName).classList.remove("hidden");
+  const names = { practice: "Practice desk", journal: "Encrypted journal", guide: "Guide me", ideas: "Idea explorer", reports: "Reports and gates", evidence: "Evidence summaries" };
+  setContext({ title: names[viewName], next: viewName === "journal" ? "Write a private note and save it encrypted locally." : viewName === "reports" ? "Open a report or stage a local gate." : viewName === "ideas" ? "Open matching ideas, then inspect one row." : viewName === "evidence" ? "Open one proof summary from Admin / Proof." : "Choose one small action.", details: `<strong>Selected section:</strong> ${names[viewName]}`, sixw: `<strong>What:</strong> ${viewName === "journal" ? "encrypted local reflection" : "local CK practice support"}<br><strong>Who:</strong> Mani/local user<br><strong>Why:</strong> reduce pressure and choice effort<br><strong>When:</strong> now or later<br><strong>Where:</strong> this local app<br><strong>ELI10:</strong> ${viewName === "journal" ? "your note is stored scrambled on disk and shown only here." : "choose one gentle thing."}` });
+};
+const loadGuide = async view => {
+  const data = await api(`/api/guided-use?view=${encodeURIComponent(view)}`);
+  document.getElementById("guidedPanel").innerHTML = summaryList([
+    `<strong>${data.screen}</strong>`, `<strong>Start:</strong> ${data.start_here}`, `<strong>Next click:</strong> ${data.next_click}`,
+    `<strong>Evidence:</strong> ${data.evidence_to_check}`, `<strong>Do not do yet:</strong> ${data.do_not_do_yet}`,
+    `<strong>Write boundary:</strong> ${data.write_boundary}`, `<strong>Receipt/history:</strong> ${data.receipt_location}`
+  ]);
+  setContext({ title: `${data.screen} guide`, next: data.next_click, details: `<strong>Selected guide:</strong> ${data.start_here}`, sixw: `<strong>What:</strong> ${data.screen} help<br><strong>Who:</strong> a tired local user<br><strong>Why:</strong> ${data.evidence_to_check}<br><strong>When:</strong> before clicking<br><strong>Where:</strong> ${data.receipt_location}<br><strong>ELI10:</strong> ${data.start_here}`, receipt: `<strong>Write boundary:</strong> ${data.write_boundary}` });
+};
+const loadIdeas = async () => {
+  const query = new URLSearchParams({ limit: "25" });
+  const practice = document.getElementById("ideaPractice").value;
+  const situation = document.getElementById("ideaSituation").value;
+  if (practice) query.set("practice", practice);
+  if (situation) query.set("situation", situation);
+  const data = await api(`/api/ideas?${query.toString()}`);
+  document.getElementById("ideaRows").innerHTML = `<h2>${data.total} matching ideas</h2>` + data.ideas.map(item => `
+    <div class="row">
+      <strong>${item.title}</strong>
+      <p class="small">${labels[item.practice]} - ${item.situation} - Synthetic seed</p>
+      <p>${item.action}</p>
+      <button class="button secondary" data-idea="${item.id}">Open ${item.id}</button>
+    </div>
+  `).join("");
+  setContext({ title: "Idea rows", next: "Open one idea for detail.", details: `<strong>Rows:</strong> ${data.total} matching ideas; ${data.returned} shown`, sixw: `<strong>What:</strong> synthetic local seed catalogue<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> reduce blank-page effort<br><strong>When:</strong> ${situation || "any situation"}<br><strong>Where:</strong> Ideas view<br><strong>ELI10:</strong> pick a tiny action only if it fits.`, receipt: "Receipt/evidence: browsing ideas writes nothing." });
+};
+const openIdea = async id => {
+  const data = await api(`/api/ideas/${id}`);
+  document.getElementById("ideaDetail").innerHTML = summaryList([
+    `<strong>${data.title}</strong>`, `<strong>What:</strong> ${data.what}`, `<strong>Who:</strong> ${data.who}`,
+    `<strong>Why:</strong> ${data.why}`, `<strong>When:</strong> ${data.when}`, `<strong>Where:</strong> ${data.where}`,
+    `<strong>How:</strong> ${data.how}`, `<strong>ELI10:</strong> ${data.eli10}`,
+    `<strong>Synthetic boundary:</strong> ${data.implementation_status}; synthetic=${data.synthetic_data}`
+  ]);
+  setContext({ title: data.title, next: "Use it only if it fits; recording is separate.", details: `<strong>Selected row:</strong> ${data.id}<br><strong>Practice:</strong> ${labels[data.practice]}`, sixw: `<strong>What:</strong> ${data.what}<br><strong>Who:</strong> ${data.who}<br><strong>Why:</strong> ${data.why}<br><strong>When:</strong> ${data.when}<br><strong>Where:</strong> ${data.where}<br><strong>How:</strong> ${data.how}<br><strong>ELI10:</strong> ${data.eli10}`, receipt: `<strong>Boundary:</strong> synthetic seed, not lived history.` });
+};
+const loadJournal = async () => {
+  const status = await api("/api/journal/status");
+  const data = await api("/api/journal");
+  document.getElementById("journalStatus").innerHTML = summaryList([
+    `Encrypted at rest: ${status.encrypted_at_rest}`,
+    `Scheme: ${status.scheme}`,
+    `Entries: ${status.entry_count}`,
+    `Plaintext stored: ${status.plaintext_stored}`,
+    `External send: ${status.external_send}`
+  ]);
+  document.getElementById("journalRows").innerHTML = `<h2>${data.count} encrypted entries</h2>` + data.items.map(item => `
+    <div class="row">
+      <strong>${item.title}</strong>
+      <p class="small">${labels[item.practice]} - ${item.created_at}</p>
+      <p>${item.content_preview}</p>
+      <button class="button secondary" data-journal="${item.journal_id}">Open local decrypt</button>
+    </div>
+  `).join("");
+  setContext({ title: "Encrypted journal", next: "Save a private note or open one locally.", details: `<strong>Entries:</strong> ${data.count}<br><strong>Storage:</strong> encrypted local JSONL`, sixw: "<strong>What:</strong> private journal<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> keep fuller reflections private at rest<br><strong>When:</strong> whenever useful<br><strong>Where:</strong> local runtime folder<br><strong>ELI10:</strong> the saved file does not contain your readable note.", receipt: "External send: false. Source write: false." });
+};
+const saveJournal = async () => {
+  const payload = {
+    practice: document.getElementById("journalPractice").value,
+    title: document.getElementById("journalTitle").value,
+    content: document.getElementById("journalContent").value
+  };
+  const data = await api("/api/journal", { method: "POST", body: JSON.stringify(payload) });
+  document.getElementById("journalContent").value = "";
+  setResult(`Saved encrypted journal entry ${data.journal_id}. Plaintext stored: ${data.plaintext_stored}. External send: ${data.external_send}.`);
+  await loadJournal();
+};
+const openJournal = async id => {
+  const data = await api(`/api/journal/${id}`);
+  document.getElementById("journalDetail").innerHTML = summaryList([
+    `<strong>${data.title}</strong>`, `<strong>Practice:</strong> ${labels[data.practice]}`,
+    `<strong>Encrypted at rest:</strong> ${data.encrypted_at_rest}`,
+    `<strong>Decrypted locally:</strong> ${data.decrypted_for_local_ui}`,
+    `<strong>Content:</strong><br>${data.content.replaceAll("<", "&lt;")}`
+  ]);
+  setContext({ title: "Journal detail", next: "Read locally; nothing is sent.", details: `<strong>Entry:</strong> ${data.journal_id}`, sixw: `<strong>What:</strong> encrypted journal entry<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> private reflection<br><strong>When:</strong> ${data.created_at}<br><strong>Where:</strong> local encrypted journal file<br><strong>ELI10:</strong> readable here, scrambled on disk.`, receipt: "External send: false. Source write: false." });
+};
+const proofMap = {
+  matrix: ["/api/product-bible-matrix", data => [`Features: ${data.covers_features}`, `500 ideas: ${data.covers_500_ideas}`, `Delivery matrix: ${data.covers_delivery_matrix}`, `Semantic map: ${data.covers_semantic_intent_map}`]],
+  r2d2: ["/api/r2d2", data => [`Status: ${data.status}`, `Done checks: ${data.done}`, `Partial: ${data.partial}`, `Blocked: ${data.blocked}`]],
+  dependency: ["/api/dependency-status", data => [`Postgres core-required: ${data.postgres.required_for_core_ui}`, `Scheduler core-required: ${data.scheduler.required_for_core_ui}`, `Fallback: ${data.postgres.fallback}`]],
+  data: ["/api/data-truth", data => [`Receipts: ${data.user_receipts.count}`, `Ideas: ${data.ideas.count}`, `External send: ${data.external_send}`, `Source write: ${data.source_write}`]],
+  ui: ["/api/ui-truth", data => [`Button truth: ${data.button_truth}`, `Count truth: ${data.count_truth}`, `Drilldowns: ${data.drilldowns.length}`]],
+  oss: ["/api/oss-adoption", data => data.items.map(item => `${item.name}: ${item.status} (${item.role})`)],
+  cost: ["/api/cost-effort-reduction", data => data.items.map(item => `${item.promise}: ${item.how}`)],
+  field: ["/api/field-utilities", data => data.items.map(item => `${item.field}: ${item.helper}`)],
+  ai: ["/api/ai/model-policy", data => [`Provider: ${data.provider}`, `Key configured: ${data.key_configured}`, `Routing: ${data.routing_order.join(" -> ")}`, `Boundary: ${data.default_boundary}`]]
+};
+const openProof = async proof => {
+  openView("evidence");
+  const [path, mapper] = proofMap[proof];
+  const data = await api(path);
+  const mapped = mapper(data);
+  document.getElementById("proofOutput").innerHTML = summaryList(mapped);
+  setContext({ title: "Proof summary", next: "Use this as review evidence; raw JSON stays in API/evidence files.", details: `<strong>Endpoint:</strong> ${path}`, sixw: `<strong>What:</strong> ${mapped[0]}<br><strong>Who:</strong> C1/local reviewer<br><strong>Why:</strong> prove product truth<br><strong>When:</strong> before done claim<br><strong>Where:</strong> Admin / Proof<br><strong>ELI10:</strong> this button checks the claim it names.`, receipt: "Evidence: Control Center proof folder and endpoint response." });
+};
+
+document.querySelectorAll(".menu-buttons button[data-view]").forEach(button => button.addEventListener("click", () => openView(button.dataset.view)));
+document.querySelectorAll("[data-proof-direct]").forEach(button => button.addEventListener("click", () => openProof(button.dataset.proofDirect)));
+document.addEventListener("click", async event => {
+  const rawTarget = event.target;
+  if (!(rawTarget instanceof HTMLElement)) return;
+  const target = rawTarget.closest("button");
+  if (!(target instanceof HTMLElement)) return;
+  if (target.dataset.record) {
+    const practice = target.dataset.record;
+    const data = await api(`/api/practices/${practice}/record`, { method: "POST", body: JSON.stringify({ note: document.getElementById("note").value }) });
+    setResult(`Recorded ${labels[practice]} locally. Receipt ${data.entry_id}. No streak, score, badge, provider call, or external send.`);
+    setContext({ title: `${labels[practice]} receipt`, next: "Stop here or export a local report later.", details: `<strong>Receipt:</strong> ${data.entry_id}`, sixw: `<strong>What:</strong> ${meanings[practice]}<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> support one lived moment<br><strong>When:</strong> ${data.receipt.recorded_at}<br><strong>Where:</strong> ${data.receipt.storage}<br><strong>ELI10:</strong> it saved a gentle note without scoring you.`, receipt: `<strong>Local write:</strong> JSONL only. External send: false.` });
+  }
+  if (target.dataset.prompt) {
+    const data = await api(`/api/prompts/after-save/${target.dataset.prompt}`);
+    setResult(`${labels[target.dataset.prompt]} prompt: ${data.prompt}`);
+    setContext({ title: `${labels[target.dataset.prompt]} prompt`, next: "Reflect only if useful.", details: `<strong>Optional:</strong> ${data.optional}; pushed=${data.pushed}`, sixw: `<strong>What:</strong> optional reflection<br><strong>Who:</strong> you<br><strong>Why:</strong> notice without pressure<br><strong>When:</strong> after save or never<br><strong>Where:</strong> local UI<br><strong>ELI10:</strong> skip it if it does not help.`, receipt: "No receipt created by opening a prompt." });
+  }
+  if (target.dataset.guide) {
+    const data = await api(`/api/contextual-guide/${target.dataset.guide}`);
+    setResult(`${labels[target.dataset.guide]}: ${data.eli10}`);
+    setContext({ title: `${labels[target.dataset.guide]} details`, next: "Record only if this fits the moment.", details: `<strong>Meaning:</strong> ${data.what}`, sixw: `<strong>What:</strong> ${data.what}<br><strong>Who:</strong> ${data.who}<br><strong>Why:</strong> ${data.why}<br><strong>When:</strong> ${data.when}<br><strong>Where:</strong> ${data.where}<br><strong>How:</strong> ${data.how}<br><strong>ELI10:</strong> ${data.eli10}`, receipt: "No write; explanation only." });
+  }
+  if (target.dataset.count === "ideas") { openView("ideas"); await loadIdeas(); }
+  if (target.dataset.count === "practices") { openView("guide"); await loadGuide("practice"); }
+  if (target.dataset.count === "scores" || target.dataset.count === "streaks") {
+    openView("evidence");
+    document.getElementById("proofOutput").innerHTML = summaryList(["This count is intentionally zero.", "CK Life OS disables scores, streaks, badges, and comparison by design."]);
+    setContext({ title: "Intentional zero", next: "Use practice without scoring.", details: `<strong>Selected count:</strong> ${target.dataset.count}`, sixw: "<strong>What:</strong> no pressure metric<br><strong>Who:</strong> local user<br><strong>Why:</strong> avoid performative practice<br><strong>When:</strong> always<br><strong>Where:</strong> Today truth<br><strong>ELI10:</strong> the zero is kindness, not missing data.", receipt: "Evidence: no-score/no-streak endpoints and UI truth." });
+  }
+  if (target.dataset.guidedTarget) { openView("guide"); await loadGuide(target.dataset.guidedTarget); }
+  if (target.dataset.idea) await openIdea(target.dataset.idea);
+  if (target.dataset.journal) await openJournal(target.dataset.journal);
+  if (target.dataset.proof) await openProof(target.dataset.proof);
+});
+document.getElementById("difficultMonthButton").addEventListener("click", async () => {
+  const data = await api("/api/difficult-month-mode/activate", { method: "POST", body: "{}" });
+  setResult(`Difficult Month Mode is active. Prompt tone: ${data.adjustments.prompt_tone}. Goal tracking: ${data.adjustments.goal_tracking}.`);
+  setContext({ title: "Difficult Month Mode", next: "Let the app be gentler; no goal tracking.", details: `<strong>Prompt tone:</strong> ${data.adjustments.prompt_tone}<br><strong>Goal tracking:</strong> ${data.adjustments.goal_tracking}`, sixw: "<strong>What:</strong> gentler mode<br><strong>Who:</strong> user in a hard period<br><strong>Why:</strong> reduce pressure<br><strong>When:</strong> difficult month/day<br><strong>Where:</strong> Practice desk<br><strong>ELI10:</strong> fewer demands, more kindness.", receipt: "No external send; local mode response only." });
+});
+document.getElementById("loadIdeas").addEventListener("click", loadIdeas);
+document.getElementById("saveJournal").addEventListener("click", saveJournal);
+document.getElementById("loadJournal").addEventListener("click", loadJournal);
+document.getElementById("openReport").addEventListener("click", async () => {
+  const data = await api("/api/reports/local-summary");
+  document.getElementById("reportPanel").innerHTML = summaryList([`<strong>Local summary report</strong>`, `Report ID: ${data.report_id}`, `Receipts: ${data.receipt_count}`, `Encrypted journal entries: ${data.encrypted_journal_count}`, `Seed ideas: ${data.idea_count}`, `External send: ${data.handover_boundary.external_send}`, `Source write: ${data.handover_boundary.source_write}`, `Human review: ${data.handover_boundary.human_review_required}`]);
+  setContext({ title: "Local report", next: "Export markdown only if you need copy-ready proof.", details: `<strong>Report:</strong> ${data.report_id}<br><strong>Receipts:</strong> ${data.receipt_count}`, sixw: "<strong>What:</strong> local report<br><strong>Who:</strong> local reviewer<br><strong>Why:</strong> see receipt and boundary truth<br><strong>When:</strong> before handoff<br><strong>Where:</strong> Reports<br><strong>ELI10:</strong> a local summary, not a send.", receipt: "External send: false. Source write: false." });
+});
+document.getElementById("exportMarkdown").addEventListener("click", async () => {
+  const text = await api("/api/reports/local-summary.md");
+  document.getElementById("reportPanel").innerHTML = `<pre>${text}</pre>`;
+  setContext({ title: "Markdown export", next: "Review before copying anywhere.", details: "<strong>Format:</strong> local markdown", sixw: "<strong>What:</strong> copy-ready summary<br><strong>Who:</strong> Mani/local reviewer<br><strong>Why:</strong> reduce report-writing effort<br><strong>When:</strong> after local review<br><strong>Where:</strong> Reports<br><strong>ELI10:</strong> it makes a neat local note.", receipt: "No external send." });
+});
+document.getElementById("stageHandover").addEventListener("click", async () => {
+  const data = await api("/api/handoffs/lifeos-elaine-local/stage", { method: "POST", body: JSON.stringify({ note: "Local CK Life OS summary staged for human review." }) });
+  document.getElementById("reportPanel").innerHTML = summaryList([`<strong>Staged local gate</strong>`, `Receipt: ${data.receipt_id}`, `Target: ${data.handover.target}`, `Approval: ${data.approval_state}`, `External send: ${data.external_send}`, `Human review: ${data.human_review_required}`]);
+  setContext({ title: "Elaine local gate", next: "Human review required before any external action.", details: `<strong>Receipt:</strong> ${data.receipt_id}<br><strong>Target:</strong> ${data.handover.target}`, sixw: "<strong>What:</strong> local handoff draft<br><strong>Who:</strong> CK Life OS to Elaine<br><strong>Why:</strong> optional wellbeing context<br><strong>When:</strong> after review<br><strong>Where:</strong> Reports<br><strong>ELI10:</strong> staged, not sent.", receipt: "Rollback: discard receipt; no external state changed." });
+});
+document.getElementById("syntheticStatus").addEventListener("click", async () => {
+  const data = await api("/api/synthetic-data/status");
+  document.getElementById("syntheticPanel").innerHTML = summaryList([`Status: ${data.status}`, `Synthetic rows: ${data.synthetic_rows}`, `Outside demo scope: ${data.synthetic_outside_demo_scope}`]);
+  setContext({ title: "Synthetic boundary", next: "Preview cleanup if reviewing data truth.", details: `<strong>Synthetic rows:</strong> ${data.synthetic_rows}`, sixw: "<strong>What:</strong> seed catalogue boundary<br><strong>Who:</strong> local reviewer<br><strong>Why:</strong> avoid fake source truth<br><strong>When:</strong> before done claim<br><strong>Where:</strong> Reports<br><strong>ELI10:</strong> ideas are examples, not your history.", receipt: "Cleanup path available." });
+});
+document.getElementById("syntheticPreview").addEventListener("click", async () => {
+  const data = await api("/api/synthetic-data/removal-preview");
+  document.getElementById("syntheticPanel").innerHTML = summaryList([`Cleanup preview`, `Would remove: ${data.would_remove}`, `Preserved demo rows: ${data.preserved_demo_rows}`, `Reason: ${data.reason}`]);
+});
+document.getElementById("syntheticCleanup").addEventListener("click", async () => {
+  const data = await api("/api/synthetic-data/cleanup", { method: "POST", body: JSON.stringify({ confirm: true }) });
+  document.getElementById("syntheticPanel").innerHTML = summaryList([`Cleanup receipt: ${data.receipt_id}`, `Removed: ${data.removed}`, `Synthetic outside demo scope: ${data.post_clean_synthetic_outside_demo_scope}`]);
+  setContext({ title: "Synthetic cleanup receipt", next: "Use receipt as data-truth proof.", details: `<strong>Receipt:</strong> ${data.receipt_id}`, sixw: "<strong>What:</strong> cleanup verification<br><strong>Who:</strong> local reviewer<br><strong>Why:</strong> prove no synthetic leakage<br><strong>When:</strong> final audit<br><strong>Where:</strong> Reports<br><strong>ELI10:</strong> it checked the examples stayed in their lane.", receipt: "Local receipt only." });
+});
+const boot = async () => {
+  renderPractices();
+  await renderGuides();
+  await loadGuide("practice");
+  const practicesPayload = await api("/api/practices");
+  const ideasPayload = await api("/api/ideas?limit=1");
+  const aiPolicy = await api("/api/ai/model-policy");
+  document.getElementById("practiceCount").textContent = practicesPayload.total;
+  document.getElementById("ideaCount").textContent = ideasPayload.total;
+  document.getElementById("statusLine").textContent = `Local status: OpenRouter ${aiPolicy.key_configured ? "ready when explicitly approved" : "not keyed; local fallback active"}`;
+  setContext({ title: "Practice desk", next: "Record one practice or explain the first step.", details: "<strong>Selected:</strong> no row selected yet.", sixw: "<strong>What:</strong> choose one gentle practice<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> reduce pressure<br><strong>When:</strong> today<br><strong>Where:</strong> local app<br><strong>ELI10:</strong> pick one small thing, then stop.", receipt: "Receipt/evidence: no local write yet." });
+};
+boot().catch(error => setResult(`Local proof failed: ${error.message}`, "warning"));
+</script>
 </body>
 </html>

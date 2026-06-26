@@ -1,82 +1,80 @@
 # CK Life OS v1.0
 
-**Five Practices for Living — No Gamification, No Pressure, No Comparison**
+**Five Practices for Living - No Gamification, No Pressure, No Comparison**
 
 - **Port:** 5420
-- **Status:** ✅ P7 Complete
-- **Tests:** All passing
-- **Practices:** 5 universal (Presence, Reflection, Intention, Gratitude, Equanimity)
-- **Gamification:** DISABLED (structural)
+- **Status:** DONE_LOCAL_INTERNAL_REGISTERED_OPENROUTER_ROUTING_ENCRYPTED_JOURNAL for the approved local/internal scope
+- **Tests:** Beast/FastAPI tests, smoke, route, gateway, browser QA, matrix, and semantic map proof
+- **Practices:** 5 universal practices: Presence, Reflection, Intention, Gratitude, Equanimity
+- **Gamification:** Disabled structurally
 - **Difficult Month Mode:** First-class feature
+- **Runtime Independence:** Core local UI works without unrelated AMTL apps, providers, paid services, PostgreSQL, or scheduler
+
+## Product Bible
+
+CK Life OS is a calm personal practice OS. It helps a user record and reflect on five universal practices without pressure mechanics.
+
+The app must never turn practice into performance. It should support a lived moment, not manufacture attention.
 
 ## Five Practices
 
-CK Life OS centers on five universal practices that support wellbeing and resilience:
+1. **Presence** - Awareness, attention, showing up.
+2. **Reflection** - Contemplation, processing, understanding.
+3. **Intention** - Direction, values alignment, deliberate choices.
+4. **Gratitude** - Appreciation, perspective, recognising good.
+5. **Equanimity** - Balance, acceptance, steady perspective.
 
-1. **Presence** — Awareness, attention, showing up
-2. **Reflection** — Contemplation, processing, understanding
-3. **Intention** — Direction, values alignment, deliberate choices
-4. **Gratitude** — Appreciation, perspective, recognizing good
-5. **Equanimity** — Balance, acceptance, steady perspective
+No philosophical tradition is named in the UI. These practices are presented in secular, accessible language.
 
-No philosophical tradition is named in the UI. These practices are universal—drawn from wisdom across cultures but presented in secular, accessible language.
+## Non-Negotiables
 
-## Core Philosophy: No Gamification
+- No streaks.
+- No scores.
+- No badges.
+- No comparison view.
+- Reflection prompts are offered after save, never pushed.
+- A user can disable all prompts.
+- Difficult Month Mode is visible and first-class.
+- Unknown practices are rejected. Only the five canonical practices are valid.
+- Synthetic data is labelled as synthetic data.
+- Buttons and counts must have backend truth.
 
-CK Life OS is intentionally *anti-gamification*:
+## Local/Internal Runtime
 
-### ❌ No Streaks
-- Streaks create unhealthy pressure and fear of "breaking the chain"
-- They prioritize consistency over authenticity
-- Missing a day becomes a failure rather than a rest day
+The delivered local/internal app includes:
 
-### ❌ No Scores
-- Quantifying lived experience corrupts genuine practice
-- Scores turn reflection into performance
-- Numbers create comparison and judgment
-
-### ❌ No Badges
-- Achievement symbols encourage performative practice
-- They prioritize external validation over internal growth
-- Badges shift motivation from intrinsic to extrinsic
-
-**Why?** Because real practice is about *being*, not *doing*. The moment you're chasing metrics, you've lost the practice.
-
-## Reflection Prompts: Offered, Never Pushed
-
-After recording a practice entry, CK Life OS *offers* a reflection prompt:
-
-- **Opt-in**: You choose whether to respond
-- **Never pushed**: No notifications, no reminders, no pressure
-- **Can be dismissed**: Click away anytime
-- **Can be disabled completely**: Toggle all prompts off in settings
-
-Prompts are suggestions, not requirements. Genuine reflection can't be forced.
-
-## Difficult Month Mode (First-Class Feature)
-
-Life gets hard. CK Life OS has a dedicated mode for when you're struggling:
-
-### What Changes
-- **Reflection frequency**: Optional (no pressure to daily practice)
-- **Prompt tone**: More compassionate, gentler language
-- **Goal tracking**: Disabled (no additional pressure)
-- **Comparison view**: Hidden (don't compare to "normal" patterns)
-
-### How to Use
-Simply activate Difficult Month Mode in settings. Everything adjusts immediately. Exit anytime—there's no judgment.
-
-This isn't a hidden "sad mode"—it's a first-class feature because difficult months are part of life.
+- A calm product UI at `/`.
+- Canonical five-practice validation on record and prompt routes.
+- Local JSONL practice receipts stored outside the repo by default.
+- Local encrypted journal stored outside the repo by default; journal title/content are encrypted at rest with Fernet and a server-side local key.
+- 6W and ELI10 contextual guide drilldowns for every practice.
+- Field-level helper text for each practice card.
+- A 500-item local synthetic seed idea catalogue.
+- Product Bible matrix, R2D2-equivalent, UI truth, data truth, dependency-status, and receipt proof endpoints.
+- Guided-use, report/export, synthetic-data hygiene, OSS adoption truth, cost/effort-reduction truth, local handoff gate, delivery matrix, and semantic intent map artifacts.
+- Dependency-down behaviour: PostgreSQL and scheduler are optional for the core local UI, with local receipt fallback.
+- OpenRouter AI routing for approved AI tasks: free-tier preference for low reasoning, modest-cost tier for medium reasoning, expensive/full tier for high reasoning. Live calls require `OPENROUTER_API_KEY`, `execute=true`, and `allow_paid_provider=true`; otherwise the app returns a local fallback and records no provider call.
+- AMTL calm operating layout: top header, grouped left menu, middle work area, dynamic right context rail, and Admin/Proof separated from normal use.
 
 ## API
 
+### Health
+
+```bash
+GET /health
+GET /api/health
+```
+
 ### Practices
+
 ```bash
 GET /api/practices
+GET /api/practices/{practice}
 POST /api/practices/{practice}/record
 ```
 
 ### Reflection Prompts
+
 ```bash
 GET /api/prompts/settings
 GET /api/prompts/after-save/{practice}
@@ -84,52 +82,109 @@ POST /api/prompts/disable
 ```
 
 ### Difficult Month Mode
+
 ```bash
 GET /api/difficult-month-mode
 POST /api/difficult-month-mode/activate
 ```
 
-## Design Philosophy
+### Local/Internal Proof
 
-> *"Your practice should amplify your genuine reflection, not manufacture your attention."*
-
-CK Life OS is built on **trust and introspection**, not engagement metrics:
-
-- No streaks = freedom to rest without guilt
-- No scores = focus on being, not doing
-- No badges = practice for its own sake
-- Difficult Month Mode = compassion when you're struggling
-- Optional prompts = reflection that respects your autonomy
+```bash
+GET /api/product-bible-matrix
+GET /api/r2d2
+GET /api/ui-truth
+GET /api/data-truth
+GET /api/dependency-status
+GET /api/contextual-guide/{practice}
+GET /api/ideas
+GET /api/receipts
+GET /api/journal/status
+GET /api/journal
+POST /api/journal
+GET /api/journal/{journal_id}
+GET /api/guided-use
+GET /api/ideas/{idea_id}
+GET /api/reports/local-summary
+GET /api/reports/local-summary.md
+GET /api/synthetic-data/status
+GET /api/synthetic-data/removal-preview
+POST /api/synthetic-data/cleanup
+GET /api/handoffs
+POST /api/handoffs/{handover_id}/stage
+GET /api/field-utilities
+GET /api/cost-effort-reduction
+GET /api/oss-adoption
+GET /api/ai/model-policy
+POST /api/ai/route
+POST /api/ai/complete
+```
 
 ## Tech Stack
 
 | Component | Technology |
-|-----------|-----------|
+| --- | --- |
 | Backend | FastAPI |
-| Database | PostgreSQL 5433 |
-| Frontend | AMTL Midnight theme |
-| Scheduler | APScheduler (for daily practice reminders, opt-in) |
+| Frontend | Static calm AMTL Midnight UI |
+| Receipts | Local JSONL file outside the repo by default |
+| Encrypted Journal | Local encrypted JSONL with Fernet and runtime key file or `CK_LIFE_OS_JOURNAL_KEY` |
+| Database | Optional PostgreSQL 5433 adapter |
+| Scheduler | Optional APScheduler upgrade path |
 
-## Deployment
+## Run Locally
 
 ```bash
 python main.py
-# Listens on http://localhost:5420
+```
 
-# Requires
-- PostgreSQL 5433 (ck_life_os database)
-- AMTL Midnight theme (#0A0E14, #C9944A)
+The app listens on:
+
+```text
+http://127.0.0.1:5420/
+```
+
+Smoke check:
+
+```bash
+python main.py smoke
+```
+
+Tests:
+
+```bash
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest beast_test.py -q
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; python -m pytest beast_test.py -q
 ```
 
 ## Standards
 
-- **Port:** 5420
-- **Database:** PostgreSQL `ck_life_os`
-- **Language:** Australian English
-- **Theme:** AMTL Midnight
-- **Accessibility:** WCAG AA
+- **Language:** Australian English for user-facing copy.
+- **Theme:** AMTL Midnight, `#0A0E14` background and `#C9944A` gold accent.
+- **Accessibility:** Calm, readable, no pressure mechanics, no fake clickable elements.
+- **External actions:** No provider call, external send, source write, deploy, push, or publish is required for local/internal core use.
+- **Public/channel truth:** CK Life OS is a local/internal personal practice OS. The Product Bible excludes public publishing, YouTube/social/channel discovery, paid discovery, ad claims, and external customer/source writes from this local/internal completion claim.
+- **RAG/Postgres/pgvector truth:** CK Life OS does not need uploaded files, private document retrieval, semantic search, or customer/source knowledge for its approved local/internal scope. RAG and pgvector are therefore explicitly out of scope for this product slice; PostgreSQL remains an optional future adapter, not a core runtime dependency.
 
----
+## Current Evidence
 
-**CK Life OS v1.0** — Almost Magic Tech Lab — March 2026
-*"Five Practices for Living. No Metrics. No Pressure. Just Practice."*
+The C1 local/internal closure evidence is recorded in:
+
+```text
+C:\Users\Mani\AMTL-docs\AMTL-AGENT-CONTROL-CENTER\evidence\ck-life-os-local-internal-270626
+```
+
+Full reopened Mani 100 local/internal proof uses these Product Bible artifacts:
+
+```text
+C:\AMTL\repos\ck-life-os\CK-LIFE-OS-PRODUCT-BIBLE-DELIVERY-MATRIX-270626.md
+C:\AMTL\repos\ck-life-os\CK-LIFE-OS-SEMANTIC-PRODUCT-INTENT-ACCEPTANCE-MAP-270626.md
+```
+
+The final route, browser, audit-loop, port-truth, and endpoint evidence receipts are written to the same AMTL Agent Control Center evidence folder.
+
+**CK Life OS v1.0** - Almost Magic Tech Lab.
