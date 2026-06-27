@@ -284,7 +284,7 @@ pre { white-space: pre-wrap; margin: 0; }
             <button data-view="practice" aria-current="true">Practice desk</button>
             <button data-view="journal">Encrypted journal</button>
             <button data-view="guide">Guide me</button>
-            <button data-view="ideas">Idea explorer</button>
+            <button data-view="ideas">Innovation lens</button>
             <button data-view="reports">Reports and gates</button>
           </div>
         </details>
@@ -318,7 +318,7 @@ pre { white-space: pre-wrap; margin: 0; }
               <button class="plain-button metric" data-count="practices"><strong id="practiceCount">5</strong><span>Practices</span></button>
               <button class="plain-button metric" data-count="scores"><strong>0</strong><span>Scores</span></button>
               <button class="plain-button metric" data-count="streaks"><strong>0</strong><span>Streaks</span></button>
-              <button class="plain-button metric" data-count="ideas"><strong id="ideaCount">500</strong><span>Seed ideas</span></button>
+              <button class="plain-button metric" data-count="ideas"><strong id="ideaCount">500</strong><span>Lens items</span></button>
             </div>
             <div id="lastResult" class="receipt muted">No entry recorded in this browser session yet.</div>
           </div>
@@ -375,8 +375,8 @@ pre { white-space: pre-wrap; margin: 0; }
 
         <section id="ideas" class="view stack hidden">
           <div class="panel">
-            <h2>Idea explorer</h2>
-            <p class="muted">The 500 seed ideas are synthetic prompts, not lived history and not 500 implemented features. The list stays collapsed to matching rows.</p>
+            <h2>Innovation lens</h2>
+            <p class="muted">The 500 patterns are field-level and navigation-level innovations absorbed into contextual helpers. Open a few at a time; this is a lens, not a raw register.</p>
             <div class="inline" style="margin-top:14px">
               <label>Practice
                 <select id="ideaPractice"><option value="">All practices</option></select>
@@ -388,12 +388,12 @@ pre { white-space: pre-wrap; margin: 0; }
                   <option>family</option><option>work</option><option>body</option><option>creative</option><option>repair</option>
                 </select>
               </label>
-              <button class="button" id="loadIdeas">Open matching ideas</button>
+              <button class="button" id="loadIdeas">Open matching innovations</button>
             </div>
           </div>
           <div class="two-col">
-            <div class="panel list" id="ideaRows">Open matching ideas to load rows.</div>
-            <div class="panel" id="ideaDetail">Choose an idea to see What, Who, Why, When, How, Where, and ELI10.</div>
+            <div class="panel list" id="ideaRows">Open matching innovations to load a calm set.</div>
+            <div class="panel" id="ideaDetail">Choose an innovation to see usefulness, control, cost, calm design, and contextual 6W/ELI10.</div>
           </div>
         </section>
 
@@ -412,7 +412,7 @@ pre { white-space: pre-wrap; margin: 0; }
           </div>
           <div class="panel">
             <h2>Synthetic data hygiene</h2>
-            <p class="muted">The seed catalogue is generated fixture data. It stays labelled and separated from local receipts.</p>
+            <p class="muted">The innovation catalogue is generated local fixture data. It stays labelled and separated from local receipts and private journal entries.</p>
             <div class="inline" style="margin-top:14px">
               <button class="button secondary" id="syntheticStatus">Check boundary</button>
               <button class="button secondary" id="syntheticPreview">Preview cleanup</button>
@@ -526,8 +526,8 @@ const openView = viewName => {
   document.querySelectorAll(".menu-buttons button[data-view]").forEach(item => item.setAttribute("aria-current", String(item.dataset.view === viewName)));
   document.querySelectorAll(".view").forEach(view => view.classList.add("hidden"));
   document.getElementById(viewName).classList.remove("hidden");
-  const names = { practice: "Practice desk", journal: "Encrypted journal", guide: "Guide me", ideas: "Idea explorer", reports: "Reports and gates", evidence: "Evidence summaries" };
-  setContext({ title: names[viewName], next: viewName === "journal" ? "Write a private note and save it encrypted locally." : viewName === "reports" ? "Open a report or stage a local gate." : viewName === "ideas" ? "Open matching ideas, then inspect one row." : viewName === "evidence" ? "Open one proof summary from Admin / Proof." : "Choose one small action.", details: `<strong>Selected section:</strong> ${names[viewName]}`, sixw: `<strong>What:</strong> ${viewName === "journal" ? "encrypted local reflection" : "local CK practice support"}<br><strong>Who:</strong> Mani/local user<br><strong>Why:</strong> reduce pressure and choice effort<br><strong>When:</strong> now or later<br><strong>Where:</strong> this local app<br><strong>ELI10:</strong> ${viewName === "journal" ? "your note is stored scrambled on disk and shown only here." : "choose one gentle thing."}` });
+  const names = { practice: "Practice desk", journal: "Encrypted journal", guide: "Guide me", ideas: "Innovation lens", reports: "Reports and gates", evidence: "Evidence summaries" };
+  setContext({ title: names[viewName], next: viewName === "journal" ? "Write a private note and save it encrypted locally." : viewName === "reports" ? "Open a report or stage a local gate." : viewName === "ideas" ? "Open a few matching innovations, then choose one that helps." : viewName === "evidence" ? "Open one proof summary from Admin / Proof." : "Choose one small action.", details: `<strong>Selected section:</strong> ${names[viewName]}`, sixw: `<strong>What:</strong> ${viewName === "journal" ? "encrypted local reflection" : viewName === "ideas" ? "field/navigation innovation lens" : "local CK practice support"}<br><strong>Who:</strong> Mani/local user<br><strong>Why:</strong> reduce pressure and choice effort<br><strong>When:</strong> now or later<br><strong>Where:</strong> this local app<br><strong>ELI10:</strong> ${viewName === "journal" ? "your note is stored scrambled on disk and shown only here." : viewName === "ideas" ? "pick a calm helper that makes this screen more useful." : "choose one gentle thing."}` });
 };
 const loadGuide = async view => {
   const data = await api(`/api/guided-use?view=${encodeURIComponent(view)}`);
@@ -539,21 +539,22 @@ const loadGuide = async view => {
   setContext({ title: `${data.screen} guide`, next: data.next_click, details: `<strong>Selected guide:</strong> ${data.start_here}`, sixw: `<strong>What:</strong> ${data.screen} help<br><strong>Who:</strong> a tired local user<br><strong>Why:</strong> ${data.evidence_to_check}<br><strong>When:</strong> before clicking<br><strong>Where:</strong> ${data.receipt_location}<br><strong>ELI10:</strong> ${data.start_here}`, receipt: `<strong>Write boundary:</strong> ${data.write_boundary}` });
 };
 const loadIdeas = async () => {
-  const query = new URLSearchParams({ limit: "25" });
+  const query = new URLSearchParams({ limit: "8" });
   const practice = document.getElementById("ideaPractice").value;
   const situation = document.getElementById("ideaSituation").value;
   if (practice) query.set("practice", practice);
   if (situation) query.set("situation", situation);
   const data = await api(`/api/ideas?${query.toString()}`);
-  document.getElementById("ideaRows").innerHTML = `<h2>${data.total} matching ideas</h2>` + data.ideas.map(item => `
+  document.getElementById("ideaRows").innerHTML = `<h2>${data.returned} shown from ${data.total} innovations</h2>` + data.ideas.map(item => `
     <div class="row">
       <strong>${item.title}</strong>
-      <p class="small">${labels[item.practice]} - ${item.situation} - Synthetic seed</p>
+      <p class="small">${labels[item.practice]} - ${item.situation} - ${item.innovation_level} - ${item.surface.label}</p>
       <p>${item.action}</p>
+      <p class="small"><strong>Control:</strong> ${item.user_control}</p>
       <button class="button secondary" data-idea="${item.id}">Open ${item.id}</button>
     </div>
   `).join("");
-  setContext({ title: "Idea rows", next: "Open one idea for detail.", details: `<strong>Rows:</strong> ${data.total} matching ideas; ${data.returned} shown`, sixw: `<strong>What:</strong> synthetic local seed catalogue<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> reduce blank-page effort<br><strong>When:</strong> ${situation || "any situation"}<br><strong>Where:</strong> Ideas view<br><strong>ELI10:</strong> pick a tiny action only if it fits.`, receipt: "Receipt/evidence: browsing ideas writes nothing." });
+  setContext({ title: "Innovation lens", next: "Open one innovation only if it helps.", details: `<strong>Rows:</strong> ${data.total} matching innovations; ${data.returned} shown`, sixw: `<strong>What:</strong> generated local field/navigation innovation patterns<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> make controls calmer and more useful<br><strong>When:</strong> ${situation || "any situation"}<br><strong>Where:</strong> Innovation lens<br><strong>ELI10:</strong> choose one helper that makes the screen easier.`, receipt: "Receipt/evidence: browsing innovations writes nothing." });
 };
 const openIdea = async id => {
   const data = await api(`/api/ideas/${id}`);
@@ -561,9 +562,13 @@ const openIdea = async id => {
     `<strong>${data.title}</strong>`, `<strong>What:</strong> ${data.what}`, `<strong>Who:</strong> ${data.who}`,
     `<strong>Why:</strong> ${data.why}`, `<strong>When:</strong> ${data.when}`, `<strong>Where:</strong> ${data.where}`,
     `<strong>How:</strong> ${data.how}`, `<strong>ELI10:</strong> ${data.eli10}`,
+    `<strong>Level:</strong> ${data.innovation_level}`, `<strong>Surface:</strong> ${data.surface.label}`,
+    `<strong>User control:</strong> ${data.user_control}`, `<strong>Calm disclosure:</strong> ${data.calm_disclosure}`,
+    `<strong>Cost reduction:</strong> ${data.cost_reduction}`, `<strong>Neurodivergent support:</strong> ${data.neurodivergent_support}`,
+    `<strong>Small smile:</strong> ${data.micro_joke}`,
     `<strong>Synthetic boundary:</strong> ${data.implementation_status}; synthetic=${data.synthetic_data}`
   ]);
-  setContext({ title: data.title, next: "Use it only if it fits; recording is separate.", details: `<strong>Selected row:</strong> ${data.id}<br><strong>Practice:</strong> ${labels[data.practice]}`, sixw: `<strong>What:</strong> ${data.what}<br><strong>Who:</strong> ${data.who}<br><strong>Why:</strong> ${data.why}<br><strong>When:</strong> ${data.when}<br><strong>Where:</strong> ${data.where}<br><strong>How:</strong> ${data.how}<br><strong>ELI10:</strong> ${data.eli10}`, receipt: `<strong>Boundary:</strong> synthetic seed, not lived history.` });
+  setContext({ title: data.title, next: "Use it only if it fits; close or skip is allowed.", details: `<strong>Selected row:</strong> ${data.id}<br><strong>Practice:</strong> ${labels[data.practice]}<br><strong>Level:</strong> ${data.innovation_level}`, sixw: `<strong>What:</strong> ${data.what}<br><strong>Who:</strong> ${data.who}<br><strong>Why:</strong> ${data.why}<br><strong>When:</strong> ${data.when}<br><strong>Where:</strong> ${data.where}<br><strong>How:</strong> ${data.how}<br><strong>ELI10:</strong> ${data.eli10}`, receipt: `<strong>Boundary:</strong> generated innovation pattern, not lived history.` });
 };
 const loadJournal = async () => {
   const status = await api("/api/journal/status");
@@ -671,7 +676,7 @@ document.getElementById("saveJournal").addEventListener("click", saveJournal);
 document.getElementById("loadJournal").addEventListener("click", loadJournal);
 document.getElementById("openReport").addEventListener("click", async () => {
   const data = await api("/api/reports/local-summary");
-  document.getElementById("reportPanel").innerHTML = summaryList([`<strong>Local summary report</strong>`, `Report ID: ${data.report_id}`, `Receipts: ${data.receipt_count}`, `Encrypted journal entries: ${data.encrypted_journal_count}`, `Seed ideas: ${data.idea_count}`, `External send: ${data.handover_boundary.external_send}`, `Source write: ${data.handover_boundary.source_write}`, `Human review: ${data.handover_boundary.human_review_required}`]);
+  document.getElementById("reportPanel").innerHTML = summaryList([`<strong>Local summary report</strong>`, `Report ID: ${data.report_id}`, `Receipts: ${data.receipt_count}`, `Encrypted journal entries: ${data.encrypted_journal_count}`, `Innovations: ${data.idea_count}`, `External send: ${data.handover_boundary.external_send}`, `Source write: ${data.handover_boundary.source_write}`, `Human review: ${data.handover_boundary.human_review_required}`]);
   setContext({ title: "Local report", next: "Export markdown only if you need copy-ready proof.", details: `<strong>Report:</strong> ${data.report_id}<br><strong>Receipts:</strong> ${data.receipt_count}`, sixw: "<strong>What:</strong> local report<br><strong>Who:</strong> local reviewer<br><strong>Why:</strong> see receipt and boundary truth<br><strong>When:</strong> before handoff<br><strong>Where:</strong> Reports<br><strong>ELI10:</strong> a local summary, not a send.", receipt: "External send: false. Source write: false." });
 });
 document.getElementById("exportMarkdown").addEventListener("click", async () => {
@@ -687,7 +692,7 @@ document.getElementById("stageHandover").addEventListener("click", async () => {
 document.getElementById("syntheticStatus").addEventListener("click", async () => {
   const data = await api("/api/synthetic-data/status");
   document.getElementById("syntheticPanel").innerHTML = summaryList([`Status: ${data.status}`, `Synthetic rows: ${data.synthetic_rows}`, `Outside demo scope: ${data.synthetic_outside_demo_scope}`]);
-  setContext({ title: "Synthetic boundary", next: "Preview cleanup if reviewing data truth.", details: `<strong>Synthetic rows:</strong> ${data.synthetic_rows}`, sixw: "<strong>What:</strong> seed catalogue boundary<br><strong>Who:</strong> local reviewer<br><strong>Why:</strong> avoid fake source truth<br><strong>When:</strong> before done claim<br><strong>Where:</strong> Reports<br><strong>ELI10:</strong> ideas are examples, not your history.", receipt: "Cleanup path available." });
+  setContext({ title: "Synthetic boundary", next: "Preview cleanup if reviewing data truth.", details: `<strong>Synthetic rows:</strong> ${data.synthetic_rows}`, sixw: "<strong>What:</strong> generated innovation boundary<br><strong>Who:</strong> local reviewer<br><strong>Why:</strong> avoid fake source truth<br><strong>When:</strong> before done claim<br><strong>Where:</strong> Reports<br><strong>ELI10:</strong> innovations are generated helpers, not your history.", receipt: "Cleanup path available." });
 });
 document.getElementById("syntheticPreview").addEventListener("click", async () => {
   const data = await api("/api/synthetic-data/removal-preview");

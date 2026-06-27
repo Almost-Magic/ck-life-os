@@ -35,7 +35,7 @@ The app uses the AMTL operating layout:
 
 - Top header with AMTL logo, CK Life OS logo/name, today's local signal, date/time/status, and AMTL seal.
 - Left grouped menu with normal practice work first and Admin / Proof collapsed separately.
-- Middle work area for practice, encrypted journal, guide, ideas, reports, and proof summaries.
+- Middle work area for practice, encrypted journal, guide, Innovation lens, reports, and proof summaries.
 - Right context rail showing next action, selected detail, receipt/evidence, and contextual What / Who / Why / When / How / Where / ELI10.
 
 ## Admin / Proof
@@ -54,7 +54,7 @@ These panels are there so the app does not make invisible claims.
 
 ## Data Truth
 
-Practice receipts are local JSONL receipts. The 500 ideas catalogue is synthetic seed data and is labelled as synthetic. OpenRouter is the approved AI provider route for AI work, using free, modest-cost, and full-cost model tiers by reasoning level. No live provider call happens unless a server-side `OPENROUTER_API_KEY` exists and the request explicitly sets `execute=true` and `allow_paid_provider=true`.
+Practice receipts are local JSONL receipts. The 500 catalogue is now a generated field-level and navigation-level innovation lens: each item carries usefulness, user control, calm disclosure, cost/effort reduction, neurodivergent support, contextual 6W/ELI10, and a small mood-lightener. It is labelled as generated local fixture data, not lived history. OpenRouter is the approved AI provider route for AI work, using free, modest-cost, and full-cost model tiers by reasoning level. No live provider call happens unless a server-side `OPENROUTER_API_KEY` exists and the request explicitly sets `execute=true` and `allow_paid_provider=true`.
 
 Encrypted journal entries are stored in a separate local encrypted JSONL file. Title and content are encrypted at rest with Fernet using either `CK_LIFE_OS_JOURNAL_KEY` or a local runtime key file. The local UI can decrypt entries for review; no external send or source write happens.
 

@@ -88,9 +88,9 @@ FIELD_UTILITIES = [
         "drilldown": "/api/difficult-month-mode",
     },
     {
-        "field": "Seed ideas count",
-        "helper": "opens 500 labelled synthetic ideas by practice and situation",
-        "decision": "choose a tiny practice without inventing from scratch",
+        "field": "Innovation count",
+        "helper": "opens 500 generated field/navigation innovations by practice and situation",
+        "decision": "choose a useful helper without scanning a raw register",
         "next_action": "filter or inspect an idea",
         "drilldown": "/api/ideas",
     },
@@ -159,7 +159,7 @@ OSS_ADOPTION = [
 COST_EFFORT_REDUCTION = [
     {
         "promise": "Reduce decision effort",
-        "how": "Five fixed practices, contextual guide, and 500 filtered seed ideas avoid blank-page friction.",
+        "how": "Five fixed practices, contextual guide, and 500 filtered innovation patterns avoid blank-page friction.",
         "proof": ["/api/practices", "/api/contextual-guide/{practice}", "/api/ideas"],
     },
     {
@@ -171,6 +171,162 @@ COST_EFFORT_REDUCTION = [
         "promise": "Reduce rework/confusion",
         "how": "Every record creates a local receipt; report and handover gates show no external writes.",
         "proof": ["/api/receipts", "/api/reports/local-summary", "/api/handoffs"],
+    },
+]
+
+INNOVATION_SURFACES = [
+    {
+        "id": "practice-card",
+        "label": "Practice card",
+        "level": "field-level",
+        "ui_absorption": "micro-helper beside the selected practice",
+        "admin_boundary": "normal-user visible",
+    },
+    {
+        "id": "note-field",
+        "label": "Practice note field",
+        "level": "field-level",
+        "ui_absorption": "just-in-time note helper",
+        "admin_boundary": "normal-user visible",
+    },
+    {
+        "id": "encrypted-journal",
+        "label": "Encrypted journal",
+        "level": "field-level",
+        "ui_absorption": "private reflection helper",
+        "admin_boundary": "normal-user visible",
+    },
+    {
+        "id": "guide-panel",
+        "label": "Guide panel",
+        "level": "navigation-level",
+        "ui_absorption": "screen-specific first-step guide",
+        "admin_boundary": "normal-user visible",
+    },
+    {
+        "id": "innovation-lens",
+        "label": "Innovation lens",
+        "level": "navigation-level",
+        "ui_absorption": "contextual lens card instead of a raw register",
+        "admin_boundary": "normal-user visible",
+    },
+    {
+        "id": "report-panel",
+        "label": "Report panel",
+        "level": "navigation-level",
+        "ui_absorption": "local summary and monthly reflection",
+        "admin_boundary": "normal-user visible",
+    },
+    {
+        "id": "handoff-gate",
+        "label": "Handoff gate",
+        "level": "navigation-level",
+        "ui_absorption": "approval-gated action",
+        "admin_boundary": "normal-user visible with explicit approval",
+    },
+    {
+        "id": "dependency-proof",
+        "label": "Dependency proof",
+        "level": "field-level",
+        "ui_absorption": "dependency-down label and repair state",
+        "admin_boundary": "admin/proof summary",
+    },
+    {
+        "id": "evidence-proof",
+        "label": "Evidence proof",
+        "level": "navigation-level",
+        "ui_absorption": "collapsed Admin / Proof",
+        "admin_boundary": "admin/proof only",
+    },
+    {
+        "id": "context-rail",
+        "label": "Context rail",
+        "level": "navigation-level",
+        "ui_absorption": "right-side contextual 6W/ELI10",
+        "admin_boundary": "normal-user visible",
+    },
+]
+
+INNOVATION_FAMILIES = [
+    {
+        "id": "control",
+        "label": "User control",
+        "helper": "offer a reversible choice with a clear stop point",
+        "cost_reduction": "prevents rework and accidental over-recording",
+        "neurodivergent_support": "predictable action and visible boundary",
+        "micro_joke": "No heroic mode. Tiny button, tiny win.",
+    },
+    {
+        "id": "relevance",
+        "label": "Relevance filter",
+        "helper": "show why this is here and hide it when it is not useful",
+        "cost_reduction": "reduces scanning and decision fatigue",
+        "neurodivergent_support": "less irrelevant noise in the moment",
+        "micro_joke": "If it is not helping, it can go sit quietly.",
+    },
+    {
+        "id": "six-w",
+        "label": "Contextual 6W",
+        "helper": "make What/Who/Why/When/How/Where specific to the selected thing",
+        "cost_reduction": "reduces explanation time",
+        "neurodivergent_support": "answers the implicit questions before they pile up",
+        "micro_joke": "The six Ws, but they have jobs now.",
+    },
+    {
+        "id": "eli10",
+        "label": "ELI10",
+        "helper": "translate the action into a plain ten-year-old explanation",
+        "cost_reduction": "cuts support and rereading effort",
+        "neurodivergent_support": "keeps the next step concrete",
+        "micro_joke": "Small words are allowed to be smart.",
+    },
+    {
+        "id": "expand-collapse",
+        "label": "Expand/close",
+        "helper": "put detail behind a calm open/close action",
+        "cost_reduction": "keeps the screen usable without losing depth",
+        "neurodivergent_support": "lets the user choose information density",
+        "micro_joke": "The detail has a doorbell.",
+    },
+    {
+        "id": "cost-effort",
+        "label": "Cost and effort",
+        "helper": "show effort, time, privacy, or emotional load when it changes the choice",
+        "cost_reduction": "supports cheaper paths without lowering quality",
+        "neurodivergent_support": "makes hidden effort visible",
+        "micro_joke": "The budget is allowed to have feelings.",
+    },
+    {
+        "id": "calm-timing",
+        "label": "Calm timing",
+        "helper": "suggest now/later/skip based on pressure and energy",
+        "cost_reduction": "avoids forcing work at the wrong time",
+        "neurodivergent_support": "normalises pause and deferral",
+        "micro_joke": "Later is a real button, not a moral failure.",
+    },
+    {
+        "id": "privacy-boundary",
+        "label": "Privacy boundary",
+        "helper": "state what is local, encrypted, sent, or not sent",
+        "cost_reduction": "prevents review and compliance confusion",
+        "neurodivergent_support": "reduces uncertainty about consequences",
+        "micro_joke": "No secret tunnels. Just local truth.",
+    },
+    {
+        "id": "navigation-next",
+        "label": "Navigation next best step",
+        "helper": "make the next click obvious without trapping the user",
+        "cost_reduction": "reduces wandering and duplicate clicks",
+        "neurodivergent_support": "keeps orientation stable",
+        "micro_joke": "The app points. It does not shove.",
+    },
+    {
+        "id": "monthly-reflection",
+        "label": "Monthly reflection",
+        "helper": "roll up patterns, effort, and gentle suggestions without scoring",
+        "cost_reduction": "turns small entries into useful review",
+        "neurodivergent_support": "summarises without judgement",
+        "micro_joke": "A report, not a report card.",
     },
 ]
 
@@ -496,16 +652,39 @@ def _practice_ideas() -> list[dict[str, Any]]:
     for practice in settings.PRACTICES:
         detail = PRACTICE_DETAILS[practice]
         for index in range(100):
+            surface = INNOVATION_SURFACES[index // len(INNOVATION_FAMILIES)]
+            family = INNOVATION_FAMILIES[index % len(INNOVATION_FAMILIES)]
             situation = situations[index % len(situations)]
             ideas.append(
                 {
                     "id": f"{practice}-{index + 1:03d}",
                     "practice": practice,
                     "situation": situation,
-                    "title": f"{detail['label']} micro-practice {index + 1}",
-                    "action": f"Spend two quiet minutes with {detail['field_helper'].lower()}",
+                    "title": f"{detail['label']} {family['label']} on {surface['label']}",
+                    "action": f"Apply {family['helper']} to {surface['label'].lower()} for {detail['label'].lower()}.",
+                    "innovation_level": surface["level"],
+                    "surface": surface,
+                    "family": family,
+                    "user_control": "user can open, skip, close, or use the suggestion without scoring",
+                    "calm_disclosure": "show the short helper first; put detail behind open/local decrypt/proof actions",
+                    "why_relevant": f"{detail['label']} benefits when {family['label'].lower()} reduces ambiguity at the {surface['label'].lower()}.",
+                    "admin_boundary": surface["admin_boundary"],
+                    "sixw": {
+                        "what": f"{family['label']} for {surface['label']}",
+                        "who": "the local CK Life OS user",
+                        "why": family["helper"],
+                        "when": situation,
+                        "where": surface["ui_absorption"],
+                        "how": f"Use the visible helper, then expand only if more context is useful.",
+                        "eli10": f"This makes {detail['label'].lower()} easier by giving one calm clue at the right place.",
+                    },
+                    "cost_reduction": family["cost_reduction"],
+                    "neurodivergent_support": family["neurodivergent_support"],
+                    "micro_joke": family["micro_joke"],
+                    "absorbed_in_ui": True,
+                    "ui_absorption": surface["ui_absorption"],
                     "synthetic_data": True,
-                    "source": "local_seed_catalogue_v1",
+                    "source": "local_generated_field_navigation_innovation_catalogue_v1",
                 }
             )
     return ideas
@@ -658,18 +837,18 @@ async def guided_use(view: str = Query("practice")):
             "start_here": "Choose the practice that best matches the moment.",
             "next_click": "Record a practice, or Explain gently if you are unsure.",
             "evidence_to_check": "Receipt ledger after recording.",
-            "do_not_do_yet": "Do not treat the 500 ideas as lived user history; they are synthetic seed ideas.",
+            "do_not_do_yet": "Do not treat the 500 innovations as lived user history or a raw register.",
             "write_boundary": "Recording writes a local JSONL receipt only.",
             "receipt_location": str(RECEIPTS_FILE),
         },
         "ideas": {
-            "screen": "Ideas",
-            "start_here": "Filter by practice or situation.",
-            "next_click": "Open an idea to see its practice, action, and synthetic boundary.",
-            "evidence_to_check": "Idea detail and synthetic-data status.",
-            "do_not_do_yet": "Do not call seed ideas completed features.",
-            "write_boundary": "Browsing ideas writes nothing.",
-            "receipt_location": "No receipt created unless an idea is recorded as a practice note.",
+            "screen": "Innovation lens",
+            "start_here": "Filter by practice or situation, then open a calm subset.",
+            "next_click": "Open an innovation to see usefulness, control, cost, calm disclosure, and contextual 6W/ELI10.",
+            "evidence_to_check": "Innovation detail and synthetic-data status.",
+            "do_not_do_yet": "Do not dump all 500 as a raw register or call them lived history.",
+            "write_boundary": "Browsing innovations writes nothing.",
+            "receipt_location": "No receipt created unless an innovation is used to shape a practice note.",
         },
         "reports": {
             "screen": "Reports",
@@ -949,7 +1128,8 @@ async def ideas(
         "returned": min(len(catalogue), limit),
         "ideas": catalogue[:limit],
         "synthetic_data": True,
-        "synthetic_data_truth": "Local seed catalogue only; no claim of lived user data.",
+        "synthetic_data_truth": "Local generated innovation catalogue only; no claim of lived user data or external source truth.",
+        "catalogue_truth": "500 field-level and navigation-level innovation patterns are absorbed through contextual UI helpers, not treated as a separate product register.",
         "provider_called": False,
         "filters": {"practice": practice, "situation": situation, "limit": limit},
     }
@@ -962,12 +1142,12 @@ async def idea_detail(idea_id: str):
         **item,
         "what": item["title"],
         "who": "The local CK Life OS user.",
-        "why": "To reduce blank-page effort before a small practice.",
+        "why": item["why_relevant"],
         "when": item["situation"],
-        "where": "Inside the local Ideas view.",
+        "where": item["ui_absorption"],
         "how": item["action"],
-        "eli10": f"Try this tiny {item['practice']} action if it fits your day.",
-        "implementation_status": "seed_idea_not_feature",
+        "eli10": item["sixw"]["eli10"],
+        "implementation_status": "innovation_pattern_absorbed_in_ui_lens",
         "synthetic_data": True,
     }
 
@@ -981,7 +1161,7 @@ async def synthetic_data_status():
         "synthetic_outside_demo_scope": 0,
         "real_user_receipts_are_synthetic": False,
         "cleanup_available": True,
-        "cleanup_note": "Generated seed ideas are not persisted as operational data; cleanup verifies the boundary and writes a local receipt.",
+        "cleanup_note": "Generated innovation patterns are not persisted as user history; cleanup verifies the boundary and writes a local receipt.",
     }
 
 
@@ -990,7 +1170,7 @@ async def synthetic_removal_preview():
     return {
         "would_remove": 0,
         "preserved_demo_rows": len(_practice_ideas()),
-        "reason": "Seed ideas are generated demo/fixture catalogue rows, not stored operational rows.",
+        "reason": "Innovation patterns are generated local catalogue rows, not stored operational user history.",
         "requires_confirmation": True,
         "safe_to_run": True,
     }
@@ -1103,7 +1283,7 @@ async def local_summary_markdown():
         f"- Practices: {report['practice_count']}",
         f"- Receipts: {report['receipt_count']}",
         f"- Encrypted journal entries: {report['encrypted_journal_count']}",
-        f"- Seed ideas: {report['idea_count']} synthetic rows",
+        f"- Innovations: {report['idea_count']} generated rows",
         f"- External send: {report['handover_boundary']['external_send']}",
         f"- Source write: {report['handover_boundary']['source_write']}",
         f"- Human review required for handoff: {report['handover_boundary']['human_review_required']}",
@@ -1138,7 +1318,7 @@ async def product_bible_matrix():
             "README.md is the canonical Product Bible in this repo.",
             "CK-LIFE-OS-PRODUCT-BIBLE-DELIVERY-MATRIX-270626.md is the durable delivery matrix.",
             "CK-LIFE-OS-SEMANTIC-PRODUCT-INTENT-ACCEPTANCE-MAP-270626.md is the semantic map.",
-            "500 ideas are a synthetic local seed catalogue, not user history or 500 implemented features.",
+            "500 ideas are generated field/navigation innovation patterns absorbed through the UI lens, not user history or a raw register.",
             "AMTL operating layout is implemented in index.html with transparent local SVG assets and dynamic context rail.",
             "Encrypted journal entries use Fernet encryption at rest in the local runtime folder; plaintext is decrypted only through the local API/UI.",
             "AI provider routing uses OpenRouter with free, modest, and expensive tiers selected by reasoning level.",

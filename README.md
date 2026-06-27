@@ -49,7 +49,7 @@ The delivered local/internal app includes:
 - Local encrypted journal stored outside the repo by default; journal title/content are encrypted at rest with Fernet and a server-side local key.
 - 6W and ELI10 contextual guide drilldowns for every practice.
 - Field-level helper text for each practice card.
-- A 500-item local synthetic seed idea catalogue.
+- A 500-item local field/navigation innovation catalogue absorbed through the Innovation lens, not exposed as a raw register.
 - Product Bible matrix, R2D2-equivalent, UI truth, data truth, dependency-status, and receipt proof endpoints.
 - Guided-use, report/export, synthetic-data hygiene, OSS adoption truth, cost/effort-reduction truth, local handoff gate, delivery matrix, and semantic intent map artifacts.
 - Dependency-down behaviour: PostgreSQL and scheduler are optional for the core local UI, with local receipt fallback.

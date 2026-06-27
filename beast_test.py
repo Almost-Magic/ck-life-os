@@ -227,7 +227,7 @@ class TestMani100TruthSurfaces:
         assert "reports_exports" in data["checks"]
         assert "synthetic_data_hygiene" in data["checks"]
 
-    def test_ideas_are_counted_and_labelled_synthetic(self):
+    def test_innovations_are_counted_labelled_and_absorbed(self):
         response = client.get("/api/ideas")
         assert response.status_code == 200
         data = response.json()
@@ -235,6 +235,14 @@ class TestMani100TruthSurfaces:
         assert len(data["ideas"]) == 500
         assert data["synthetic_data"] is True
         assert data["provider_called"] is False
+        assert "absorbed through contextual UI helpers" in data["catalogue_truth"]
+        first = data["ideas"][0]
+        assert first["absorbed_in_ui"] is True
+        assert first["innovation_level"] in ("field-level", "navigation-level")
+        for key in ["user_control", "calm_disclosure", "cost_reduction", "neurodivergent_support", "micro_joke"]:
+            assert first[key]
+        for key in ["what", "who", "why", "when", "where", "how", "eli10"]:
+            assert first["sixw"][key]
 
     def test_ideas_filter_and_detail(self):
         response = client.get("/api/ideas?practice=presence&situation=morning&limit=3")
@@ -245,7 +253,9 @@ class TestMani100TruthSurfaces:
         assert all(item["practice"] == "presence" for item in data["ideas"])
         detail = client.get(f"/api/ideas/{data['ideas'][0]['id']}")
         assert detail.status_code == 200
-        assert detail.json()["implementation_status"] == "seed_idea_not_feature"
+        assert detail.json()["implementation_status"] == "innovation_pattern_absorbed_in_ui_lens"
+        assert detail.json()["user_control"]
+        assert detail.json()["neurodivergent_support"]
 
     def test_contextual_6w_eli10(self):
         response = client.get("/api/contextual-guide/presence")

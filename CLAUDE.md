@@ -32,7 +32,7 @@ Presence, Reflection, Intention, Gratitude, and Equanimity are the only valid pr
 - Receipts are written to a local JSONL runtime path outside the repo by default.
 - Private journal entries are written to a separate local encrypted JSONL runtime path with Fernet encryption at rest.
 - `/api/product-bible-matrix`, `/api/r2d2`, `/api/ui-truth`, `/api/data-truth`, and `/api/dependency-status` expose audit truth.
-- `/api/ideas` returns 500 local synthetic seed ideas and labels them as synthetic.
+- `/api/ideas` returns 500 generated local field/navigation innovation patterns and labels them as generated/synthetic, not lived history.
 - `/api/journal/status`, `/api/journal`, and `/api/journal/{journal_id}` expose the encrypted local journal surface.
 
 ## Boundaries
