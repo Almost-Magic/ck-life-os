@@ -1,0 +1,53 @@
+{
+  "name": "CK Life OS - Calendar Write Preflight",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "ck-life-os/calendar-write-preflight",
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "id": "ck-calendar-webhook",
+      "name": "CK Calendar Approval Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json; const approved = !!body.calendar_target && !!body.event_preview && body.write === true && !!body.rollback_plan && !!body.approval_reference; return [{ json: { product: 'CK / Life OS', workflow_id: 'ck-life-os-calendar-write-preflight', approved, required: ['calendar_target', 'event_preview', 'write=true', 'rollback_plan', 'approval_reference'], calendar_write: false, external_send: false, rollback: 'Delete created event by event id or restore/import prior ICS backup if a later write is approved.' } }];"
+      },
+      "id": "ck-calendar-approval-check",
+      "name": "Check Calendar Write Approval",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "ck-calendar-response",
+      "name": "Return Calendar Preflight",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [520, 0]
+    }
+  ],
+  "connections": {
+    "CK Calendar Approval Webhook": {
+      "main": [[{ "node": "Check Calendar Write Approval", "type": "main", "index": 0 }]]
+    },
+    "Check Calendar Write Approval": {
+      "main": [[{ "node": "Return Calendar Preflight", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "ck_life_os_boundary": "disabled import; no calendar writes by default"
+  }
+}

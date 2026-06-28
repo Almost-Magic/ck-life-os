@@ -1,0 +1,53 @@
+{
+  "name": "CK Life OS - Memory Sync Preflight",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "ck-life-os/memory-sync-preflight",
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "id": "ck-memory-webhook",
+      "name": "CK Memory Sync Approval Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json; const rows = Array.isArray(body.memory_rows) ? body.memory_rows.length : 0; const approved = rows > 0 && !!body.sensitivity_reviewed && !!body.sync_target && body.sync === true && !!body.approval_reference; return [{ json: { product: 'CK / Life OS', workflow_id: 'ck-life-os-memory-sync-preflight', rows, approved, required: ['memory_rows', 'sensitivity_reviewed', 'sync_target', 'sync=true', 'approval_reference'], memory_sync_performed: false, external_send: false, source_write: false, rollback: 'Delete exported object by manifest id; disable sync target; keep CK local memory as source of truth.' } }];"
+      },
+      "id": "ck-memory-approval-check",
+      "name": "Check Memory Sync Approval",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "ck-memory-response",
+      "name": "Return Memory Sync Preflight",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [520, 0]
+    }
+  ],
+  "connections": {
+    "CK Memory Sync Approval Webhook": {
+      "main": [[{ "node": "Check Memory Sync Approval", "type": "main", "index": 0 }]]
+    },
+    "Check Memory Sync Approval": {
+      "main": [[{ "node": "Return Memory Sync Preflight", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "ck_life_os_boundary": "disabled import; no memory sync by default"
+  }
+}

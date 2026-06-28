@@ -1,0 +1,53 @@
+{
+  "name": "CK Life OS - OpenRouter Paid Execution Preflight",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "ck-life-os/openrouter-paid-execution-preflight",
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "id": "ck-openrouter-webhook",
+      "name": "CK OpenRouter Approval Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json; const tier = body.tier || body.reasoning_tier || 'modest'; const paid = ['modest','expensive','full'].includes(String(tier).toLowerCase()); const approved = body.execute === true && (!paid || body.allow_paid_provider === true) && !!body.approval_reference; return [{ json: { product: 'CK / Life OS', workflow_id: 'ck-life-os-openrouter-paid-execution-preflight', tier, paid, approved, required: ['execute=true', 'allow_paid_provider=true for paid tiers', 'approval_reference', 'OpenRouter credential in n8n or CK runtime'], live_call_allowed: approved, provider_called: false, paid_provider_call: false, rollback: 'No state change in preflight. If a later provider call is made, retain CK receipt and revoke credential/disable workflow if needed.' } }];"
+      },
+      "id": "ck-openrouter-approval-check",
+      "name": "Check Approval And Cost Tier",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "ck-openrouter-response",
+      "name": "Return Preflight Receipt",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [520, 0]
+    }
+  ],
+  "connections": {
+    "CK OpenRouter Approval Webhook": {
+      "main": [[{ "node": "Check Approval And Cost Tier", "type": "main", "index": 0 }]]
+    },
+    "Check Approval And Cost Tier": {
+      "main": [[{ "node": "Return Preflight Receipt", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "ck_life_os_boundary": "disabled import; no paid provider call until exact approval and credential are supplied"
+  }
+}

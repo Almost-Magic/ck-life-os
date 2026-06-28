@@ -88,6 +88,36 @@ h3 { font-size: .98rem; margin-bottom: 7px; }
   padding-left: 12px;
   color: var(--muted);
 }
+.daily-lens-strip {
+  border-left: 3px solid var(--gold);
+  padding-left: 12px;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.daily-lens-strip .lens-line {
+  color: var(--text);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.daily-lens-strip .lens-meta {
+  color: var(--muted);
+  font-size: .9rem;
+}
+.daily-lens-strip .lens-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.daily-lens-strip .lens-actions button {
+  min-height: 32px;
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #0b1118;
+  color: var(--text);
+  cursor: pointer;
+}
 
 .clock {
   display: grid;
@@ -121,8 +151,8 @@ h3 { font-size: .98rem; margin-bottom: 7px; }
 }
 
 .left { padding: 14px; }
-.context-rail { padding: 16px; display: grid; gap: 14px; align-content: start; }
-.workspace { min-width: 0; overflow: auto; display: grid; gap: 14px; align-content: start; }
+.context-rail { padding: 16px; display: grid; gap: 10px; align-content: start; overflow: hidden; }
+.workspace { min-width: 0; overflow: hidden; display: grid; gap: 14px; align-content: start; }
 
 details.menu-group {
   border: 1px solid var(--line);
@@ -181,6 +211,57 @@ details.menu-group[open] > summary::before { content: "- "; }
   padding: 12px;
 }
 
+.tabbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+.tabbar button {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #0b1118;
+  color: var(--text);
+  cursor: pointer;
+  padding: 8px 10px;
+}
+.tabbar button[aria-selected="true"] {
+  border-color: var(--gold);
+  background: var(--panel-soft);
+  color: var(--gold);
+}
+.hidden { display: none !important; }
+.tab-panel.hidden { display: none; }
+.view {
+  min-height: 0;
+  max-height: calc(100dvh - 178px);
+  overflow: hidden;
+}
+.compact-list .row p,
+.compact-list .row .small {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.context-rail details {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-soft);
+}
+.context-rail summary {
+  cursor: pointer;
+  padding: 10px 12px;
+  color: var(--gold);
+  list-style: none;
+}
+.context-rail summary::before { content: "+ "; color: var(--muted); }
+.context-rail details[open] summary::before { content: "- "; }
+.context-rail .context-body { padding: 0 12px 12px; }
+.context-rail .subtle { background: transparent; border: 0; padding: 0; }
+
 .hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;
@@ -215,14 +296,14 @@ textarea {
 
 .practice-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
 }
-.practice-card { min-height: 286px; display: grid; gap: 10px; align-content: start; }
+.practice-card { min-height: 252px; display: grid; gap: 10px; align-content: start; }
 .practice-card .actions { margin-top: auto; }
 
 .two-col { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 14px; }
-.row { border: 1px solid var(--line); border-radius: var(--radius); background: #0c1219; padding: 11px; }
+.row { border: 1px solid var(--line); border-radius: var(--radius); background: #0c1219; padding: 11px; overflow-wrap: anywhere; word-break: break-word; }
 label { display: grid; gap: 6px; color: var(--muted); }
 select, input {
   min-width: 170px;
@@ -267,7 +348,15 @@ pre { white-space: pre-wrap; margin: 0; }
           <div class="product-name"><strong>CK Life OS</strong><span>Five practices. No pressure.</span></div>
         </div>
       </div>
-      <div class="today-signal" id="todaySignal">Today: choose one tiny practice, then stop before it becomes performance.</div>
+      <div class="daily-lens-strip" aria-label="Daily Lens">
+        <div class="lens-line" id="dailyLensLine">Loading Daily Lens...</div>
+        <div class="lens-meta" id="dailyLensMeta">Local generated lens. No provider call.</div>
+        <div class="lens-actions">
+          <button id="headerSaveLens" type="button">Save</button>
+          <button id="headerWhyLens" type="button">Why this?</button>
+          <button id="headerNextLens" type="button">Another</button>
+        </div>
+      </div>
       <div class="clock">
         <strong id="dateLine">--/--/--</strong>
         <span id="timeLine">Loading local time</span>
@@ -279,18 +368,67 @@ pre { white-space: pre-wrap; margin: 0; }
     <div class="layout">
       <aside class="left" aria-label="CK Life OS menu">
         <details class="menu-group" open>
-          <summary>Practice</summary>
+          <summary>Today</summary>
           <div class="menu-buttons">
-            <button data-view="practice" aria-current="true">Practice desk</button>
-            <button data-view="journal">Encrypted journal</button>
+            <button data-view="today" aria-current="true">Home</button>
+            <button data-view="dailyLens">Daily Lens</button>
+            <button data-view="startDay">Start My Day</button>
+            <button data-view="checkIn">Check In</button>
+            <button data-view="endDay">End My Day</button>
+          </div>
+        </details>
+        <details class="menu-group">
+          <summary>Guidance</summary>
+          <div class="menu-buttons">
+            <button data-view="askGuide">Ask Guide</button>
+            <button data-view="stuck">I Feel Stuck</button>
+            <button data-view="decision">Decision Help</button>
+            <button data-view="deepInquiry">Deep Inquiry</button>
+            <button data-view="practice">Practice desk</button>
             <button data-view="guide">Guide me</button>
+          </div>
+        </details>
+        <details class="menu-group">
+          <summary>Private</summary>
+          <div class="menu-buttons">
+            <button data-view="journal">Encrypted journal</button>
+            <button data-view="innerWork">Inner work</button>
+            <button data-view="voiceNotes">Voice Notes</button>
+            <button data-view="lifeMap">Life Map</button>
+          </div>
+        </details>
+        <details class="menu-group">
+          <summary>Plans</summary>
+          <div class="menu-buttons">
+            <button data-view="promises">Promises</button>
+            <button data-view="projects">Projects</button>
+            <button data-view="calendar">Calendar</button>
+          </div>
+        </details>
+        <details class="menu-group">
+          <summary>Knowledge</summary>
+          <div class="menu-buttons">
+            <button data-view="academy">Academy</button>
+            <button data-view="askSources">Ask My Sources</button>
+            <button data-view="sources">RAG / Sources</button>
             <button data-view="ideas">Innovation lens</button>
+            <button data-view="insights">Insights</button>
+          </div>
+        </details>
+        <details class="menu-group">
+          <summary>Reviews</summary>
+          <div class="menu-buttons">
+            <button data-view="dailyReview">Daily Review</button>
+            <button data-view="weeklyReview">Weekly Review</button>
+            <button data-view="monthlyReport">Monthly Report</button>
             <button data-view="reports">Reports and gates</button>
           </div>
         </details>
         <details class="menu-group">
           <summary>Admin / Proof</summary>
           <div class="menu-buttons">
+            <button data-view="privacy">Privacy</button>
+            <button data-view="memory">Memory</button>
             <button data-view="evidence">Evidence summaries</button>
             <button data-proof-direct="matrix">Delivery matrix</button>
             <button data-proof-direct="r2d2">R2D2 equivalent</button>
@@ -302,7 +440,242 @@ pre { white-space: pre-wrap; margin: 0; }
       </aside>
 
       <main class="workspace">
-        <section class="panel hero-grid">
+        <section id="today" class="view stack">
+          <div class="panel">
+            <div class="tabbar" aria-label="Today tabs">
+              <button data-tab="today-start" aria-selected="true">Start</button>
+              <button data-tab="today-state">State</button>
+              <button data-tab="today-proof">Proof-lite</button>
+            </div>
+          </div>
+          <div id="today-start" class="tab-panel panel two-col">
+            <div>
+              <h1>What are we doing now?</h1>
+              <p class="muted" style="margin-top:10px">Choose the human state first. CK Life OS opens only the relevant work surface and keeps admin proof out of the way.</p>
+              <div class="actions" style="margin-top:14px">
+                <button class="button" data-jump-view="startDay">Start My Day</button>
+                <button class="button secondary" data-jump-view="stuck">I Feel Stuck</button>
+                <button class="button secondary" data-jump-view="decision">Decision Help</button>
+                <button class="button secondary" data-jump-view="innerWork">Process Something</button>
+                <button class="button secondary" data-jump-view="weeklyReview">Review / Plan</button>
+              </div>
+            </div>
+            <div class="subtle">
+              <h2>Quiet promise</h2>
+              <p>One screen, one state, one useful next step. No scores, streaks, raw proof clutter, or surprise external action.</p>
+            </div>
+          </div>
+          <div id="today-state" class="tab-panel panel hidden">
+            <div class="truth-grid">
+              <button class="plain-button metric" data-count="practices"><strong id="practiceHeroCount">5</strong><span>Practices</span></button>
+              <button class="plain-button metric" data-count="scores"><strong>0</strong><span>Scores</span></button>
+              <button class="plain-button metric" data-count="streaks"><strong>0</strong><span>Streaks</span></button>
+              <button class="plain-button metric" data-count="ideas"><strong id="ideaCount">500</strong><span>Lens items</span></button>
+            </div>
+            <div id="lastResult" class="receipt muted" style="margin-top:12px">No local workflow receipt recorded in this browser session yet.</div>
+          </div>
+          <div id="today-proof" class="tab-panel panel hidden">
+            <h2>Normal-user proof-lite</h2>
+            <p class="muted">Local only. Encrypted private areas where needed. Provider calls, external sends, source writes, calendar writes, and transcription providers are off unless explicitly approved in their own workflow.</p>
+          </div>
+        </section>
+
+        <section id="dailyLens" class="view stack hidden">
+          <div class="panel">
+            <div class="tabbar" aria-label="Daily Lens tabs">
+              <button data-tab="lens-today" aria-selected="true">Today</button>
+              <button data-tab="lens-saved">Saved</button>
+              <button data-tab="lens-library">Library</button>
+            </div>
+          </div>
+          <div id="lens-today" class="tab-panel panel two-col">
+            <div>
+              <h2>Daily Lens</h2>
+              <p class="muted">A quiet quote, anecdote, or prompt from the 10,000-item local lens library. Save what helps; skip what does not.</p>
+              <div class="subtle" style="margin-top:12px">
+                <h3 id="dailyLensScreenLine">Loading Daily Lens...</h3>
+                <p id="dailyLensBody" class="muted" style="margin-top:8px">No provider call. No external send.</p>
+                <p id="dailyLensWhy" class="small" style="margin-top:8px"></p>
+              </div>
+              <div class="inline" style="margin-top:12px">
+                <button class="button" id="saveDailyLens">Save lens</button>
+                <button class="button secondary" id="nextDailyLens">Another lens</button>
+                <button class="button secondary" id="openDailyLensLibrary">Open lens library</button>
+              </div>
+            </div>
+            <div class="subtle">
+              <h2>Boundary</h2>
+              <p>Daily Lens records are CK originals, local practice prompts, or paraphrased anecdote patterns. They are generated local helper data, not private journal history and not fake book quotations.</p>
+            </div>
+          </div>
+          <div id="lens-saved" class="tab-panel panel list compact-list hidden">
+            <div class="inline" style="margin-bottom:12px">
+              <button class="button secondary" id="refreshSavedLens">Refresh saved</button>
+            </div>
+            <div id="savedLensRows">Saved lenses will appear here.</div>
+          </div>
+          <div id="lens-library" class="tab-panel panel list compact-list hidden">
+            <div class="inline" style="margin-bottom:12px">
+              <label>Theme
+                <select id="dailyLensTheme"><option value="">Any theme</option></select>
+              </label>
+              <button class="button secondary" id="loadDailyLensLibrary">Open lens library</button>
+            </div>
+            <div id="dailyLensLibraryRows">Open the library to inspect a calm subset.</div>
+          </div>
+        </section>
+
+        <section id="startDay" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Start My Day tabs">
+            <button data-tab="start-plan" aria-selected="true">Plan</button><button data-tab="start-promises">Promises</button><button data-tab="start-energy">Energy</button><button data-tab="start-step">Smallest Step</button>
+          </div></div>
+          <div id="start-plan" class="tab-panel panel two-col">
+            <div><h2>Start My Day</h2><p class="muted">Make the day concrete and humane. Pick one focus, one promise, and one smallest step.</p><textarea id="startDayNote" placeholder="What would make today honest and possible?"></textarea><div class="inline" style="margin-top:12px"><button class="button" data-life-action="Accept plan" data-life-screen="Start My Day" data-life-note="startDayNote">Accept plan</button><button class="button secondary" data-life-action="Make gentler" data-life-screen="Start My Day" data-life-note="startDayNote">Make gentler</button><button class="button secondary" data-life-action="Reduce today" data-life-screen="Start My Day" data-life-note="startDayNote">Reduce today</button></div></div>
+            <div class="subtle">Panels: today's focus, promises due, energy fit, calendar reality, and smallest next step.</div>
+          </div>
+          <div id="start-promises" class="tab-panel panel hidden"><h2>Promises due</h2><p class="muted">Promise tracking is shame-free. A promise can be reduced, rescheduled, removed, or recommitted.</p><button class="button secondary" data-life-action="Add promise" data-life-screen="Start My Day">Add promise</button></div>
+          <div id="start-energy" class="tab-panel panel hidden"><h2>Energy fit</h2><p class="muted">Choose work that fits your actual body and attention, not an imaginary version of the day.</p></div>
+          <div id="start-step" class="tab-panel panel hidden"><h2>Smallest step</h2><p class="muted">The smallest honest step is allowed to be tiny.</p><button class="button secondary" data-life-action="Park this" data-life-screen="Start My Day">Park this</button></div>
+        </section>
+
+        <section id="checkIn" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Check In tabs"><button data-tab="check-reality" aria-selected="true">Reality</button><button data-tab="check-adjust">Adjust</button><button data-tab="check-ground">Ground</button></div></div>
+          <div id="check-reality" class="tab-panel panel"><h2>Check In</h2><p class="muted">What changed since the plan was made?</p><textarea id="checkInNote" placeholder="What is true now?"></textarea><div class="inline" style="margin-top:12px"><button class="button" data-life-action="Keep going" data-life-screen="Check In" data-life-note="checkInNote">Keep going</button><button class="button secondary" data-life-action="Reduce" data-life-screen="Check In" data-life-note="checkInNote">Reduce</button><button class="button secondary" data-life-action="Reschedule" data-life-screen="Check In" data-life-note="checkInNote">Reschedule</button></div></div>
+          <div id="check-adjust" class="tab-panel panel hidden"><h2>Adjust promise</h2><div class="inline"><button class="button secondary" data-life-action="Remove" data-life-screen="Check In">Remove</button><button class="button secondary" data-life-action="Recommit" data-life-screen="Check In">Recommit</button></div></div>
+          <div id="check-ground" class="tab-panel panel hidden"><h2>Ground</h2><p class="muted">Stabilise before depth. Stopping counts.</p><button class="button secondary" data-life-action="I need grounding" data-life-screen="Check In">I need grounding</button></div>
+        </section>
+
+        <section id="endDay" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="End My Day tabs"><button data-tab="end-done" aria-selected="true">Done</button><button data-tab="end-carried">Carried</button><button data-tab="end-learned">Learned</button><button data-tab="end-release">Release</button></div></div>
+          <div id="end-done" class="tab-panel panel"><h2>End My Day</h2><p class="muted">Close the day without scoring it.</p><textarea id="endDayNote" placeholder="What happened? What can be released?"></textarea><div class="inline" style="margin-top:12px"><button class="button" data-life-action="Save review" data-life-screen="End My Day" data-life-note="endDayNote">Save review</button><button class="button secondary" data-life-action="Keep private" data-life-screen="End My Day" data-life-note="endDayNote">Keep private</button></div></div>
+          <div id="end-carried" class="tab-panel panel hidden"><h2>Carry forward</h2><button class="button secondary" data-life-action="Carry forward" data-life-screen="End My Day">Carry forward</button></div>
+          <div id="end-learned" class="tab-panel panel hidden"><h2>Learned</h2><button class="button secondary" data-life-action="Add to Life Map" data-life-screen="End My Day">Add to Life Map</button></div>
+          <div id="end-release" class="tab-panel panel hidden"><h2>Release</h2><button class="button secondary" data-life-action="Release this" data-life-screen="End My Day">Release this</button></div>
+        </section>
+
+        <section id="askGuide" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Ask Guide tabs"><button data-tab="ask-mode" aria-selected="true">Mode</button><button data-tab="ask-question">Question</button><button data-tab="ask-result">Result</button></div></div>
+          <div id="ask-mode" class="tab-panel panel two-col"><div><h2>Ask Guide</h2><p class="muted">Choose the posture before asking. Provider execution remains gated.</p><label>Mode<select id="guideMode"><option>Coach</option><option>Shadow</option><option>JK Inquiry</option><option>Manager</option><option>Companion</option><option>Operator</option></select></label><textarea id="askGuideNote" placeholder="What do you want help with?"></textarea><div class="inline" style="margin-top:12px"><button class="button" data-life-action="Ask" data-life-screen="Ask Guide" data-life-note="askGuideNote">Ask</button><button class="button secondary" data-life-action="Ask one question only" data-life-screen="Ask Guide" data-life-note="askGuideNote">Ask one question only</button><button class="button secondary" data-life-action="Stop / ground" data-life-screen="Ask Guide">Stop / ground</button></div></div><div class="subtle">Modes: Coach, Shadow, JK Inquiry, Manager, Companion, Operator.</div></div>
+          <div id="ask-question" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Make practical" data-life-screen="Ask Guide">Make practical</button><button class="button secondary" data-life-action="Go deeper" data-life-screen="Ask Guide">Go deeper</button></div>
+          <div id="ask-result" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Save to journal" data-life-screen="Ask Guide">Save to journal</button><button class="button secondary" data-life-action="Turn into plan" data-life-screen="Ask Guide">Turn into plan</button></div>
+        </section>
+
+        <section id="stuck" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Stuck tabs"><button data-tab="stuck-name" aria-selected="true">Name</button><button data-tab="stuck-question">Question</button><button data-tab="stuck-step">Step</button></div></div>
+          <div id="stuck-name" class="tab-panel panel"><h2>I Feel Stuck</h2><textarea id="stuckNote" placeholder="What feels stuck?"></textarea><div class="inline" style="margin-top:12px"><button class="button" data-life-action="Name the stuck" data-life-screen="I Feel Stuck" data-life-note="stuckNote">Name the stuck</button><button class="button secondary" data-life-action="Park it" data-life-screen="I Feel Stuck" data-life-note="stuckNote">Park it</button></div></div>
+          <div id="stuck-question" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Ask me one question" data-life-screen="I Feel Stuck">Ask me one question</button></div>
+          <div id="stuck-step" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Turn into tiny step" data-life-screen="I Feel Stuck">Turn into tiny step</button><button class="button secondary" data-life-action="Save privately" data-life-screen="I Feel Stuck">Save privately</button></div>
+        </section>
+
+        <section id="decision" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Decision tabs"><button data-tab="decision-options" aria-selected="true">Options</button><button data-tab="decision-tradeoffs">Trade-offs</button><button data-tab="decision-risks">Risks</button><button data-tab="decision-proof">Proof Step</button></div></div>
+          <div id="decision-options" class="tab-panel panel"><h2>Decision Help</h2><textarea id="decisionNote" placeholder="What decision are you holding?"></textarea><div class="inline" style="margin-top:12px"><button class="button" data-life-action="Add option" data-life-screen="Decision Help" data-life-note="decisionNote">Add option</button><button class="button secondary" data-life-action="Compare options" data-life-screen="Decision Help" data-life-note="decisionNote">Compare options</button></div></div>
+          <div id="decision-tradeoffs" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Decide now" data-life-screen="Decision Help">Decide now</button><button class="button secondary" data-life-action="Defer with date" data-life-screen="Decision Help">Defer with date</button></div>
+          <div id="decision-risks" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Abandon kindly" data-life-screen="Decision Help">Abandon kindly</button></div>
+          <div id="decision-proof" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Gather proof" data-life-screen="Decision Help">Gather proof</button></div>
+        </section>
+
+        <section id="deepInquiry" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Deep Inquiry tabs"><button data-tab="inquiry-observe" aria-selected="true">Observe</button><button data-tab="inquiry-assumption">Assumption</button><button data-tab="inquiry-open">Leave Open</button></div></div>
+          <div id="inquiry-observe" class="tab-panel panel"><h2>Deep Inquiry</h2><p class="muted">Observe before fixing. No guru claims, no final answer pressure.</p><textarea id="inquiryNote" placeholder="What can be observed before explaining it?"></textarea><button class="button" data-life-action="Observe reaction" data-life-screen="Deep Inquiry" data-life-note="inquiryNote">Observe reaction</button></div>
+          <div id="inquiry-assumption" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Question assumption" data-life-screen="Deep Inquiry">Question assumption</button></div>
+          <div id="inquiry-open" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Leave unanswered" data-life-screen="Deep Inquiry">Leave unanswered</button><button class="button secondary" data-life-action="Save privately" data-life-screen="Deep Inquiry">Save privately</button><button class="button secondary" data-life-action="Ground me" data-life-screen="Deep Inquiry">Ground me</button></div>
+        </section>
+
+        <section id="voiceNotes" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Voice Notes tabs"><button data-tab="voice-capture" aria-selected="true">Capture</button><button data-tab="voice-convert">Convert</button><button data-tab="voice-privacy">Privacy</button></div></div>
+          <div id="voice-capture" class="tab-panel panel"><h2>Voice Notes</h2><p class="muted">Paste a transcript for now. Live audio transcription is approval-gated.</p><textarea id="voiceNote" placeholder="Paste voice transcript here."></textarea><button class="button" data-life-action="Save as journal" data-life-screen="Voice Notes" data-life-note="voiceNote">Save as journal</button></div>
+          <div id="voice-convert" class="tab-panel panel hidden"><div class="inline"><button class="button secondary" data-life-action="Turn into promise" data-life-screen="Voice Notes">Turn into promise</button><button class="button secondary" data-life-action="Turn into task" data-life-screen="Voice Notes">Turn into task</button><button class="button secondary" data-life-action="Ask questions" data-life-screen="Voice Notes">Ask questions</button></div></div>
+          <div id="voice-privacy" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Forget this" data-life-screen="Voice Notes">Forget this</button><p class="muted">No transcription provider is called in this local slice.</p></div>
+        </section>
+
+        <section id="lifeMap" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Life Map tabs"><button data-tab="life-values" aria-selected="true">Values</button><button data-tab="life-people">People</button><button data-tab="life-patterns">Patterns</button><button data-tab="life-boundaries">Boundaries</button></div></div>
+          <div id="life-values" class="tab-panel panel"><h2>Life Map</h2><textarea id="lifeMapNote" placeholder="Values, roles, goals, patterns, people, or do-not-push rules."></textarea><div class="inline" style="margin-top:12px"><button class="button" data-life-action="Save Life Map note" data-life-screen="Life Map" data-life-note="lifeMapNote">Save Life Map note</button><button class="button secondary" data-life-action="Pin" data-life-screen="Life Map" data-life-note="lifeMapNote">Pin</button><button class="button secondary" data-life-action="Hide" data-life-screen="Life Map">Hide</button></div></div>
+          <div id="life-people" class="tab-panel panel hidden"><p class="muted">People context will carry emotional temperature, last contact, unresolved thread, and preferred contact style.</p></div>
+          <div id="life-patterns" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Delete" data-life-screen="Life Map">Delete</button></div>
+          <div id="life-boundaries" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Export" data-life-screen="Life Map">Export</button></div>
+        </section>
+
+        <section id="promises" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Promises tabs"><button data-tab="promise-active" aria-selected="true">Active</button><button data-tab="promise-due">Due</button><button data-tab="promise-review">Review</button><button data-tab="promise-history">History</button></div></div>
+          <div id="promise-active" class="tab-panel panel"><h2>Promises</h2><textarea id="promiseNote" placeholder="What promise matters?"></textarea><div class="inline" style="margin-top:12px"><button class="button" data-life-action="Add promise" data-life-screen="Promises" data-life-note="promiseNote">Add promise</button><button class="button secondary" data-life-action="Reduce" data-life-screen="Promises">Reduce</button><button class="button secondary" data-life-action="Reschedule" data-life-screen="Promises">Reschedule</button></div></div>
+          <div id="promise-due" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Recommit" data-life-screen="Promises">Recommit</button></div>
+          <div id="promise-review" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Remove" data-life-screen="Promises">Remove</button></div>
+          <div id="promise-history" class="tab-panel panel hidden"><p class="muted">History will show exact promise rows and adjustment receipts.</p></div>
+        </section>
+
+        <section id="projects" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Projects tabs"><button data-tab="project-tasks" aria-selected="true">Tasks</button><button data-tab="project-dreams">Dreams</button><button data-tab="project-loops">Open Loops</button><button data-tab="project-burdens">Emotional Burdens</button></div></div>
+          <div id="project-tasks" class="tab-panel panel"><h2>Projects</h2><textarea id="projectNote" placeholder="Task, dream, obligation, open loop, or emotional burden."></textarea><div class="inline" style="margin-top:12px"><button class="button" data-life-action="Add project" data-life-screen="Projects" data-life-note="projectNote">Add project</button><button class="button secondary" data-life-action="Add smallest step" data-life-screen="Projects">Add smallest step</button><button class="button secondary" data-life-action="Park" data-life-screen="Projects">Park</button></div></div>
+          <div id="project-dreams" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Link promise" data-life-screen="Projects">Link promise</button></div>
+          <div id="project-loops" class="tab-panel panel hidden"><p class="muted">Open loops get parked instead of haunting the whole screen.</p></div>
+          <div id="project-burdens" class="tab-panel panel hidden"><p class="muted">Emotional burdens are not treated as ordinary tasks.</p></div>
+        </section>
+
+        <section id="calendar" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Calendar tabs"><button data-tab="calendar-today" aria-selected="true">Today</button><button data-tab="calendar-week">Week</button><button data-tab="calendar-deadlines">Deadlines</button><button data-tab="calendar-recovery">Recovery</button></div></div>
+          <div id="calendar-today" class="tab-panel panel"><h2>Calendar</h2><p class="muted">Manual calendar reality first. No external calendar write in this local slice.</p><textarea id="calendarNote" placeholder="Manual event, prep, transition, recovery load."></textarea><div class="inline" style="margin-top:12px"><button class="button" data-life-action="Add manual event" data-life-screen="Calendar" data-life-note="calendarNote">Add manual event</button><button class="button secondary" data-life-action="Add prep" data-life-screen="Calendar">Add prep</button><button class="button secondary" data-life-action="Add recovery" data-life-screen="Calendar">Add recovery</button></div></div>
+          <div id="calendar-week" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Copy/export" data-life-screen="Calendar">Copy/export</button></div>
+          <div id="calendar-deadlines" class="tab-panel panel hidden"><p class="muted">Deadlines will show proof, prep, and decision date.</p></div>
+          <div id="calendar-recovery" class="tab-panel panel hidden"><p class="muted">Recovery load is shown as guidance, not shame.</p></div>
+        </section>
+
+        <section id="askSources" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Ask My Sources tabs"><button data-tab="ask-sources-question" aria-selected="true">Ask</button><button data-tab="ask-sources-list">Sources</button><button data-tab="ask-sources-answer">Answer</button><button data-tab="ask-sources-memory">Memory</button></div></div>
+          <div id="ask-sources-question" class="tab-panel panel"><h2>Ask My Sources</h2><p class="muted">Use the local RAG/source search. Answers must show what was used.</p><label>Question<input id="askSourceQuery" type="text" placeholder="Ask a source-backed question"></label><button class="button" id="askSourcesSearch" style="margin-top:12px">Ask sources</button></div>
+          <div id="ask-sources-list" class="tab-panel panel hidden"><button class="button secondary" data-jump-view="sources">Open RAG / Sources</button></div>
+          <div id="ask-sources-answer" class="tab-panel panel hidden"><div id="askSourcesAnswer">Ask sources to show local matches here.</div></div>
+          <div id="ask-sources-memory" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Add to memory" data-life-screen="Ask My Sources">Add to memory</button><button class="button secondary" data-life-action="Do not remember" data-life-screen="Ask My Sources">Do not remember</button></div>
+        </section>
+
+        <section id="insights" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Insights tabs"><button data-tab="insight-patterns" aria-selected="true">Patterns</button><button data-tab="insight-evidence">Evidence</button><button data-tab="insight-hidden">Hidden</button></div></div>
+          <div id="insight-patterns" class="tab-panel panel"><h2>Insights</h2><p class="muted">Patterns appear only when evidence exists. Until then, the app says not enough evidence.</p><div class="inline"><button class="button" data-life-action="Show why" data-life-screen="Insights">Show why</button><button class="button secondary" data-life-action="Hide" data-life-screen="Insights">Hide</button><button class="button secondary" data-life-action="Dismiss" data-life-screen="Insights">Dismiss</button></div></div>
+          <div id="insight-evidence" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Add to Life Map" data-life-screen="Insights">Add to Life Map</button></div>
+          <div id="insight-hidden" class="tab-panel panel hidden"><p class="muted">Hidden insights stay hidden unless the user reopens them.</p></div>
+        </section>
+
+        <section id="dailyReview" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Daily Review tabs"><button data-tab="daily-today" aria-selected="true">Today</button><button data-tab="daily-receipts">Receipts</button><button data-tab="daily-next">Next</button></div></div>
+          <div id="daily-today" class="tab-panel panel"><h2>Daily Review</h2><textarea id="dailyReviewNote" placeholder="What should today remember?"></textarea><button class="button" data-life-action="Save review" data-life-screen="Daily Review" data-life-note="dailyReviewNote">Save review</button></div>
+          <div id="daily-receipts" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Export local note" data-life-screen="Daily Review">Export local note</button></div>
+          <div id="daily-next" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Carry forward" data-life-screen="Daily Review">Carry forward</button></div>
+        </section>
+
+        <section id="weeklyReview" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Weekly Review tabs"><button data-tab="weekly-promises" aria-selected="true">Promises</button><button data-tab="weekly-patterns">Patterns</button><button data-tab="weekly-energy">Energy</button><button data-tab="weekly-experiment">Experiment</button></div></div>
+          <div id="weekly-promises" class="tab-panel panel"><h2>Weekly Review</h2><textarea id="weeklyReviewNote" placeholder="What did the week teach?"></textarea><div class="inline" style="margin-top:12px"><button class="button" data-life-action="Create weekly review" data-life-screen="Weekly Review" data-life-note="weeklyReviewNote">Create weekly review</button><button class="button secondary" data-life-action="Stop" data-life-screen="Weekly Review">Stop</button></div></div>
+          <div id="weekly-patterns" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Continue" data-life-screen="Weekly Review">Continue</button></div>
+          <div id="weekly-energy" class="tab-panel panel hidden"><p class="muted">Energy truth helps shape next week's promises.</p></div>
+          <div id="weekly-experiment" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Export" data-life-screen="Weekly Review">Export</button></div>
+        </section>
+
+        <section id="monthlyReport" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Monthly Report tabs"><button data-tab="monthly-summary" aria-selected="true">Summary</button><button data-tab="monthly-patterns">Patterns</button><button data-tab="monthly-sources">Sources</button><button data-tab="monthly-export">Export</button></div></div>
+          <div id="monthly-summary" class="tab-panel panel"><h2>Monthly Report</h2><p class="muted">A report, not a report card.</p><button class="button" data-life-action="Create monthly report" data-life-screen="Monthly Report">Create monthly report</button></div>
+          <div id="monthly-patterns" class="tab-panel panel hidden"><p class="muted">Patterns require evidence.</p></div>
+          <div id="monthly-sources" class="tab-panel panel hidden"><button class="button secondary" data-jump-view="sources">Open sources</button></div>
+          <div id="monthly-export" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Export markdown" data-life-screen="Monthly Report">Export markdown</button><button class="button secondary" data-life-action="Add to Life Map" data-life-screen="Monthly Report">Add to Life Map</button></div>
+        </section>
+
+        <section id="privacy" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Privacy tabs"><button data-tab="privacy-local" aria-selected="true">Local</button><button data-tab="privacy-encrypted">Encrypted</button><button data-tab="privacy-providers">Providers</button><button data-tab="privacy-exports">Exports</button></div></div>
+          <div id="privacy-local" class="tab-panel panel"><h2>Privacy</h2><p class="muted">Local storage, encrypted stores, provider gates, and export controls live here, not in the normal emotional workflow.</p><div class="inline"><button class="button" data-proof="data">Inspect privacy</button><button class="button secondary" data-life-action="Export" data-life-screen="Privacy">Export</button></div></div>
+          <div id="privacy-encrypted" class="tab-panel panel hidden"><button class="button secondary" data-jump-view="journal">Open encrypted journal</button></div>
+          <div id="privacy-providers" class="tab-panel panel hidden"><button class="button secondary" data-proof="ai">Provider policy</button></div>
+          <div id="privacy-exports" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Delete local draft" data-life-screen="Privacy">Delete local draft</button></div>
+        </section>
+
+        <section id="memory" class="view stack hidden">
+          <div class="panel"><div class="tabbar" aria-label="Memory tabs"><button data-tab="memory-remembered" aria-selected="true">Remembered</button><button data-tab="memory-sensitive">Sensitive</button><button data-tab="memory-disabled">Disabled</button><button data-tab="memory-export">Export</button></div></div>
+          <div id="memory-remembered" class="tab-panel panel"><h2>Memory Centre</h2><p class="muted">Memory is user-controlled. Every remembered claim needs source, freshness, sensitivity, and a use toggle.</p><div class="inline"><button class="button" data-life-action="Inspect" data-life-screen="Memory">Inspect</button><button class="button secondary" data-life-action="Edit" data-life-screen="Memory">Edit</button><button class="button secondary" data-life-action="Delete" data-life-screen="Memory">Delete</button></div></div>
+          <div id="memory-sensitive" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Disable" data-life-screen="Memory">Disable</button></div>
+          <div id="memory-disabled" class="tab-panel panel hidden"><p class="muted">Disabled memories are not used for guidance.</p></div>
+          <div id="memory-export" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Export" data-life-screen="Memory">Export</button></div>
+        </section>
+
+        <section id="practiceHero" class="panel hero-grid hidden">
           <div>
             <h1>Five practices for living</h1>
             <p class="muted" style="margin-top:10px">A calm internal practice OS for presence, reflection, intention, gratitude, and equanimity. It helps you choose one small practice without turning life into a scoreboard.</p>
@@ -318,18 +691,28 @@ pre { white-space: pre-wrap; margin: 0; }
               <button class="plain-button metric" data-count="practices"><strong id="practiceCount">5</strong><span>Practices</span></button>
               <button class="plain-button metric" data-count="scores"><strong>0</strong><span>Scores</span></button>
               <button class="plain-button metric" data-count="streaks"><strong>0</strong><span>Streaks</span></button>
-              <button class="plain-button metric" data-count="ideas"><strong id="ideaCount">500</strong><span>Lens items</span></button>
+              <button class="plain-button metric" data-count="ideas"><strong id="ideaHeroCount">500</strong><span>Lens items</span></button>
             </div>
-            <div id="lastResult" class="receipt muted">No entry recorded in this browser session yet.</div>
+            <div id="practiceResult" class="receipt muted">No entry recorded in this browser session yet.</div>
           </div>
         </section>
 
-        <section id="practice" class="view stack">
+        <section id="practice" class="view stack hidden">
+          <div class="panel">
+            <div class="tabbar" id="practiceTabs" aria-label="Practice tabs"></div>
+          </div>
           <div class="practice-grid" id="practiceGrid"></div>
         </section>
 
         <section id="journal" class="view stack hidden">
-          <div class="panel two-col">
+          <div class="panel">
+            <div class="tabbar" aria-label="Journal tabs">
+              <button data-tab="journal-write" aria-selected="true">Write</button>
+              <button data-tab="journal-list">Entries</button>
+              <button data-tab="journal-detail-panel">Detail</button>
+            </div>
+          </div>
+          <div id="journal-write" class="tab-panel panel two-col">
             <div>
               <h2>Encrypted journal</h2>
               <p class="muted">Private reflections are encrypted at rest in the local runtime folder. The local UI can decrypt them here; external send and source write stay off.</p>
@@ -347,14 +730,49 @@ pre { white-space: pre-wrap; margin: 0; }
             </div>
             <div class="subtle" id="journalStatus">Encrypted journal status has not been checked yet.</div>
           </div>
-          <div class="two-col">
-            <div class="panel list" id="journalRows">Refresh journal to load entries.</div>
-            <div class="panel" id="journalDetail">Choose an encrypted entry to decrypt locally.</div>
+          <div id="journal-list" class="tab-panel panel list compact-list hidden"><div id="journalRows">Refresh journal to load entries.</div></div>
+          <div id="journal-detail-panel" class="tab-panel panel hidden"><div id="journalDetail">Choose an encrypted entry to decrypt locally.</div></div>
+        </section>
+
+        <section id="innerWork" class="view stack hidden">
+          <div class="panel">
+            <div class="tabbar" aria-label="Inner work tabs">
+              <button data-tab="inner-start" aria-selected="true">Start</button>
+              <button data-tab="inner-history">Sessions</button>
+              <button data-tab="inner-detail-panel">Detail</button>
+            </div>
           </div>
+          <div id="inner-start" class="tab-panel panel two-col">
+            <div>
+              <h2>Inner work</h2>
+              <p class="muted">Private guided reflection for shadow integration, observation, grounding, relationship patterns, or when you do not know what this is yet. It guides looking; it does not diagnose, therapise, or give spiritual authority answers.</p>
+              <label>Mode
+                <select id="innerMode"></select>
+              </label>
+              <label>Intention
+                <input id="innerIntention" type="text" maxlength="120" placeholder="Optional: what do you want to understand?">
+              </label>
+              <textarea id="innerInput" aria-label="Inner work text input" placeholder="Write the situation, feeling, dream, conflict, or pattern. One honest paragraph is enough."></textarea>
+              <textarea id="innerVoice" aria-label="Voice transcript input" placeholder="Optional voice transcript can be pasted here. Audio recording stays out for now; transcript is encrypted if saved."></textarea>
+              <div class="inline" style="margin-top:12px">
+                <button class="button" id="startInnerWork">Start guided session</button>
+                <button class="button secondary" id="loadInnerWork">Load sessions</button>
+              </div>
+            </div>
+            <div class="subtle" id="innerWorkGuide">Choose a mode. The first response will be a posture, one question, and a slow program; not a final answer.</div>
+          </div>
+          <div id="inner-history" class="tab-panel panel list compact-list hidden"><div id="innerWorkRows">Load sessions to see encrypted local history.</div></div>
+          <div id="inner-detail-panel" class="tab-panel panel hidden"><div id="innerWorkDetail">A guided session will appear here.</div></div>
         </section>
 
         <section id="guide" class="view stack hidden">
-          <div class="panel two-col">
+          <div class="panel">
+            <div class="tabbar" aria-label="Guide tabs">
+              <button data-tab="guide-start" aria-selected="true">Start</button>
+              <button data-tab="guide-practices">Practice 6W</button>
+            </div>
+          </div>
+          <div id="guide-start" class="tab-panel panel two-col">
             <div>
               <h2>Guide me</h2>
               <p class="muted">Screen-specific help for a tired user. It tells you what to click, what writes locally, and what not to overclaim.</p>
@@ -367,7 +785,7 @@ pre { white-space: pre-wrap; margin: 0; }
             </div>
             <div class="subtle" id="guidedPanel">Choose a guide area.</div>
           </div>
-          <div class="panel">
+          <div id="guide-practices" class="tab-panel panel hidden">
             <h2>Practice 6W and ELI10</h2>
             <div class="guide-grid" id="guideGrid"></div>
           </div>
@@ -375,6 +793,13 @@ pre { white-space: pre-wrap; margin: 0; }
 
         <section id="ideas" class="view stack hidden">
           <div class="panel">
+            <div class="tabbar" aria-label="Innovation lens tabs">
+              <button data-tab="ideas-filter" aria-selected="true">Filter</button>
+              <button data-tab="ideas-results">Results</button>
+              <button data-tab="ideas-detail-panel">Detail</button>
+            </div>
+          </div>
+          <div id="ideas-filter" class="tab-panel panel">
             <h2>Innovation lens</h2>
             <p class="muted">The 500 patterns are field-level and navigation-level innovations absorbed into contextual helpers. Open a few at a time; this is a lens, not a raw register.</p>
             <div class="inline" style="margin-top:14px">
@@ -391,14 +816,121 @@ pre { white-space: pre-wrap; margin: 0; }
               <button class="button" id="loadIdeas">Open matching innovations</button>
             </div>
           </div>
-          <div class="two-col">
-            <div class="panel list" id="ideaRows">Open matching innovations to load a calm set.</div>
-            <div class="panel" id="ideaDetail">Choose an innovation to see usefulness, control, cost, calm design, and contextual 6W/ELI10.</div>
+          <div id="ideas-results" class="tab-panel panel list compact-list hidden"><div id="ideaRows">Open matching innovations to load a calm set.</div></div>
+          <div id="ideas-detail-panel" class="tab-panel panel hidden"><div id="ideaDetail">Choose an innovation to see usefulness, control, cost, calm design, and contextual 6W/ELI10.</div></div>
+        </section>
+
+        <section id="academy" class="view stack hidden">
+          <div class="panel">
+            <div class="tabbar" aria-label="Academy tabs">
+              <button data-tab="academy-programmes" aria-selected="true">Programmes</button>
+              <button data-tab="academy-lessons">Lessons</button>
+              <button data-tab="academy-practice">Practice</button>
+              <button data-tab="academy-readiness">Readiness</button>
+            </div>
+          </div>
+          <div id="academy-programmes" class="tab-panel panel two-col">
+            <div>
+              <h2>Academy</h2>
+              <p class="muted">Small local lessons for using CK Life OS as a life coach, guide, accountability partner, and life manager. No external LMS, no provider call.</p>
+              <div class="inline" style="margin-top:12px">
+                <button class="button" id="refreshAcademy">Refresh Academy</button>
+                <button class="button secondary" id="academyReadiness">Check readiness</button>
+              </div>
+              <div id="academyProgramRows" class="list compact-list" style="margin-top:12px">Refresh Academy to load programmes.</div>
+            </div>
+            <div class="subtle" id="academyStatusPanel">Academy keeps learning inside CK. A lesson points to the real menu path and the real product buttons.</div>
+          </div>
+          <div id="academy-lessons" class="tab-panel panel list compact-list hidden">
+            <div id="academyLessonRows">Open lessons from a programme.</div>
+          </div>
+          <div id="academy-practice" class="tab-panel panel two-col hidden">
+            <div>
+              <h2 id="academyLessonTitle">Lesson practice</h2>
+              <p id="academyLessonPrompt" class="muted">Choose a lesson first.</p>
+              <textarea id="academyPracticeNote" placeholder="What did this lesson change in what you will click or do?"></textarea>
+              <div class="inline" style="margin-top:12px">
+                <button class="button" id="saveAcademyPractice">Save practice receipt</button>
+                <button class="button secondary" id="startAcademyLesson">Start lesson screen</button>
+              </div>
+            </div>
+            <div class="subtle" id="academyLessonDetail">Lesson detail will appear here.</div>
+          </div>
+          <div id="academy-readiness" class="tab-panel panel hidden">
+            <div id="academyReadinessPanel">Check readiness to see local lesson coverage.</div>
           </div>
         </section>
 
+        <section id="sources" class="view stack hidden">
+          <div class="panel">
+            <div class="tabbar" aria-label="RAG and source tabs">
+              <button data-tab="sources-status" aria-selected="true">RAG status</button>
+              <button data-tab="sources-intake">Add source</button>
+              <button data-tab="sources-search">Search</button>
+              <button data-tab="sources-results">Results</button>
+            </div>
+          </div>
+          <div id="sources-status" class="tab-panel panel two-col">
+            <div>
+              <h2>RAG / Sources</h2>
+              <p class="muted">RAG is accessed here: Knowledge -> RAG / Sources. Internal sources use the local NAS metadata/text-snippet index. External sources can be staged as drafts, or fetched into local RAG only when you explicitly approve that one URL fetch.</p>
+              <div class="inline" style="margin-top:12px">
+                <button class="button secondary" id="ragStatus">Explain RAG access</button>
+                <button class="button secondary" id="sourceStatus">Refresh source status</button>
+                <button class="button secondary" id="sourceBuild">Build local index</button>
+              </div>
+            </div>
+            <div class="subtle" id="sourceStatusPanel">Source index status has not been checked yet.</div>
+          </div>
+          <div id="sources-intake" class="tab-panel panel two-col hidden">
+            <div>
+              <h2>Add a RAG source</h2>
+              <p class="muted">Use this to stage an internal path or external URL/reference. Internal sources are searched through the local approved index. External URLs stay draft-only unless you tick approval for a one-time local fetch; pasted text is searchable locally.</p>
+              <div class="inline" style="margin-top:12px">
+                <label>Source type
+                  <select id="ragSourceType">
+                    <option value="internal">Internal local/NAS</option>
+                    <option value="external">External URL/reference</option>
+                  </select>
+                </label>
+                <label>Title
+                  <input id="ragSourceTitle" type="text" maxlength="120" placeholder="Source name">
+                </label>
+              </div>
+              <label>Path or URL
+                <input id="ragSourceLocation" type="text" maxlength="500" placeholder="Internal path or external URL/reference">
+              </label>
+              <textarea id="ragSourceNotes" aria-label="RAG source notes" placeholder="Why should this source help CK / Life OS?"></textarea>
+              <textarea id="ragSourceText" aria-label="RAG source text" placeholder="Optional pasted source text/excerpt. This is stored locally for RAG search. Approved external fetch replaces this with fetched text."></textarea>
+              <label class="inline" style="margin-top:12px">
+                <input id="ragSourceFetchApproved" type="checkbox">
+                Approve one-time external URL fetch into local RAG
+              </label>
+              <div class="inline" style="margin-top:12px">
+                <button class="button" id="stageRagSource">Stage source for approval</button>
+              </div>
+            </div>
+            <div class="subtle" id="ragIntakePanel">No source staged yet. External source staging does not fetch the web unless the one-time approval box is ticked. Pasted or approved-fetched text becomes local RAG search material.</div>
+          </div>
+          <div id="sources-search" class="tab-panel panel hidden">
+            <label>Search sources
+              <input id="sourceQuery" type="text" placeholder="Search local RAG/source index">
+            </label>
+            <div class="inline" style="margin-top:12px">
+              <button class="button" id="sourceSearch">Search</button>
+            </div>
+          </div>
+          <div id="sources-results" class="tab-panel panel list compact-list hidden"><div id="sourceResults">Search results will appear here.</div></div>
+        </section>
+
         <section id="reports" class="view stack hidden">
-          <div class="panel two-col">
+          <div class="panel">
+            <div class="tabbar" aria-label="Report tabs">
+              <button data-tab="reports-summary" aria-selected="true">Summary</button>
+              <button data-tab="reports-synthetic">Synthetic data</button>
+            </div>
+          </div>
+          <div id="reports-summary" class="tab-panel panel two-col">
             <div>
               <h2>Reports and handoff gates</h2>
               <p class="muted">Reports are local. Handoffs are staged gates only; nothing is sent to Elaine, Chronicle, Beast, Workshop, CRM/Ripple, Spark, CK Writer, CKLA/Data Control Room, Momentum, or any external system without human approval.</p>
@@ -410,7 +942,7 @@ pre { white-space: pre-wrap; margin: 0; }
             </div>
             <div class="subtle" id="reportPanel">No report opened yet.</div>
           </div>
-          <div class="panel">
+          <div id="reports-synthetic" class="tab-panel panel hidden">
             <h2>Synthetic data hygiene</h2>
             <p class="muted">The innovation catalogue is generated local fixture data. It stays labelled and separated from local receipts and private journal entries.</p>
             <div class="inline" style="margin-top:14px">
@@ -424,6 +956,12 @@ pre { white-space: pre-wrap; margin: 0; }
 
         <section id="evidence" class="view stack hidden">
           <div class="panel">
+            <div class="tabbar" aria-label="Evidence tabs">
+              <button data-tab="evidence-buttons" aria-selected="true">Checks</button>
+              <button data-tab="evidence-output-panel">Output</button>
+            </div>
+          </div>
+          <div id="evidence-buttons" class="tab-panel panel">
             <h2>Evidence summaries</h2>
             <p class="muted">Admin proof is behind this section. Normal practice work does not expose raw build JSON.</p>
             <div class="proof-grid">
@@ -436,20 +974,31 @@ pre { white-space: pre-wrap; margin: 0; }
               <button class="plain-button" data-proof="cost">Cost and effort reduction</button>
               <button class="plain-button" data-proof="field">Field utilities</button>
               <button class="plain-button" data-proof="ai">OpenRouter model routing</button>
+              <button class="plain-button" data-proof="source">Source index</button>
+              <button class="plain-button" data-proof="n8n">n8n workflow pack</button>
             </div>
-            <div class="subtle" id="proofOutput" style="margin-top:14px">Choose an evidence summary.</div>
           </div>
+          <div id="evidence-output-panel" class="tab-panel panel hidden"><div class="subtle" id="proofOutput">Choose an evidence summary.</div></div>
         </section>
       </main>
 
       <aside class="context-rail" aria-label="Context rail">
-        <div class="context-card subtle">
-          <h2 id="contextTitle">Practice desk</h2>
-          <p id="contextNext"><strong>Next action:</strong> Record one practice or explain the first step.</p>
-        </div>
-        <div class="context-card subtle" id="contextDetails">Selected details will appear here.</div>
-        <div class="context-card subtle" id="contextSixW">Contextual What / Who / Why / When / How / Where / ELI10 changes with selection.</div>
-        <div class="context-card subtle" id="contextReceipt">Receipt/evidence: no local write yet.</div>
+        <details class="context-card" open>
+          <summary id="contextTitle">Practice desk</summary>
+          <div class="context-body" id="contextNext"><strong>Next action:</strong> Record one practice or explain the first step.</div>
+        </details>
+        <details class="context-card">
+          <summary>Selected detail</summary>
+          <div class="context-body" id="contextDetails">Selected details will appear here.</div>
+        </details>
+        <details class="context-card">
+          <summary>6W / ELI10</summary>
+          <div class="context-body" id="contextSixW">Contextual What / Who / Why / When / How / Where / ELI10 changes with selection.</div>
+        </details>
+        <details class="context-card">
+          <summary>Receipt / Evidence</summary>
+          <div class="context-body" id="contextReceipt">Receipt/evidence: no local write yet.</div>
+        </details>
       </aside>
     </div>
   </div>
@@ -471,6 +1020,7 @@ const api = async (path, options = {}) => {
   if (!response.ok) throw new Error(path.endsWith(".md") ? data : JSON.stringify(data));
   return data;
 };
+const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
 const summaryList = items => `<div class="list">${items.map(item => `<div class="row">${item}</div>`).join("")}</div>`;
 const setResult = (message, kind = "receipt") => {
   const el = document.getElementById("lastResult");
@@ -484,6 +1034,23 @@ const setContext = ({ title, next, details, sixw, receipt }) => {
   if (sixw) document.getElementById("contextSixW").innerHTML = sixw;
   if (receipt) document.getElementById("contextReceipt").innerHTML = receipt;
 };
+const openTab = tabId => {
+  const panel = document.getElementById(tabId);
+  if (!panel) return;
+  const section = panel.closest(".view");
+  if (!section) return;
+  section.querySelectorAll(".tab-panel").forEach(item => item.classList.add("hidden"));
+  panel.classList.remove("hidden");
+  section.querySelectorAll(".tabbar button[data-tab]").forEach(button => {
+    button.setAttribute("aria-selected", String(button.dataset.tab === tabId));
+  });
+};
+let activePractice = "presence";
+const renderPracticeTabs = () => {
+  document.getElementById("practiceTabs").innerHTML = practices.map(practice => `
+    <button data-practice-tab="${practice}" aria-selected="${practice === activePractice}">${labels[practice]}</button>
+  `).join("");
+};
 const updateClock = () => {
   const now = new Date();
   const date = now.toLocaleDateString("en-AU", { day: "2-digit", month: "2-digit", year: "2-digit" });
@@ -495,8 +1062,81 @@ const updateClock = () => {
 setInterval(updateClock, 30000);
 updateClock();
 
+let currentDailyLens = null;
+let dailyLensOffset = 0;
+let currentAcademyLesson = null;
+
+const renderDailyLens = lens => {
+  currentDailyLens = lens;
+  document.getElementById("dailyLensLine").textContent = `"${lens.text}"`;
+  document.getElementById("dailyLensMeta").textContent = `${lens.type} · ${lens.theme} · ${lens.tone} · ${lens.use_case}`;
+  document.getElementById("dailyLensScreenLine").textContent = `"${lens.text}"`;
+  document.getElementById("dailyLensBody").textContent = lens.body;
+  document.getElementById("dailyLensWhy").textContent = lens.why_this;
+  setContext({
+    title: "Daily Lens",
+    next: "Save it if it helps, or ask for another lens.",
+    details: `<strong>Lens:</strong> ${escapeHtml(lens.lens_id)}<br><strong>Theme:</strong> ${escapeHtml(lens.theme)}<br><strong>Source:</strong> ${escapeHtml(lens.source)}`,
+    sixw: `<strong>What:</strong> ${escapeHtml(lens.field_utility.what)}<br><strong>Who:</strong> ${escapeHtml(lens.field_utility.who)}<br><strong>Why:</strong> ${escapeHtml(lens.field_utility.why)}<br><strong>When:</strong> ${escapeHtml(lens.field_utility.when)}<br><strong>Where:</strong> ${escapeHtml(lens.field_utility.where)}<br><strong>How:</strong> ${escapeHtml(lens.field_utility.how)}<br><strong>ELI10:</strong> ${escapeHtml(lens.field_utility.eli10)}`,
+    receipt: "No write yet. Daily Lens is generated local helper data; saving creates a local saved-lens receipt."
+  });
+};
+
+const loadDailyLens = async (offset = dailyLensOffset) => {
+  const data = await api(`/api/daily-lens?offset=${offset}`);
+  renderDailyLens(data.current);
+  return data.current;
+};
+
+const saveDailyLens = async () => {
+  if (!currentDailyLens) await loadDailyLens();
+  const data = await api("/api/daily-lens/save", { method: "POST", body: JSON.stringify({ lens_id: currentDailyLens.lens_id }) });
+  setResult(`Saved Daily Lens ${currentDailyLens.lens_id}. Local receipt ${data.save_id}. External send: ${data.external_send}.`);
+  setContext({
+    title: "Saved Daily Lens",
+    next: "Open Saved to review what you kept.",
+    details: `<strong>Lens:</strong> ${escapeHtml(currentDailyLens.text)}<br><strong>Save ID:</strong> ${escapeHtml(data.save_id)}`,
+    sixw: "<strong>What:</strong> saved local Daily Lens<br><strong>Who:</strong> Mani/local CK user<br><strong>Why:</strong> keep useful lines without pushing them<br><strong>When:</strong> when a lens helps<br><strong>Where:</strong> Today -> Daily Lens -> Saved<br><strong>ELI10:</strong> it put the line on your saved shelf.",
+    receipt: `<strong>Storage:</strong> ${escapeHtml(data.receipt.storage)}<br><strong>External send:</strong> ${data.external_send}<br><strong>Provider called:</strong> ${data.provider_called}`
+  });
+};
+
+const loadSavedDailyLenses = async () => {
+  const data = await api("/api/daily-lens/saved");
+  document.getElementById("savedLensRows").innerHTML = data.items.length ? data.items.map(item => `
+    <div class="row">
+      <strong>${escapeHtml(item.lens.text)}</strong>
+      <p class="small">${escapeHtml(item.lens.theme)} · ${escapeHtml(item.lens.tone)} · saved ${escapeHtml(item.saved_at)}</p>
+      <p>${escapeHtml(item.lens.body)}</p>
+    </div>
+  `).join("") : "No saved lenses yet.";
+  openTab("lens-saved");
+  setContext({ title: "Saved Daily Lens", next: "Review saved lines; saving never sends externally.", details: `<strong>Saved count:</strong> ${data.count}<br><strong>Storage:</strong> ${escapeHtml(data.storage)}`, sixw: "<strong>What:</strong> saved lens shelf<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> return to useful lines<br><strong>When:</strong> review or journalling<br><strong>Where:</strong> Today -> Daily Lens -> Saved<br><strong>ELI10:</strong> your kept lines are here.", receipt: "External send: false. Source write: false." });
+};
+
+const loadDailyLensLibrary = async () => {
+  const theme = document.getElementById("dailyLensTheme").value;
+  const path = theme ? `/api/daily-lens/library?theme=${encodeURIComponent(theme)}&limit=12` : "/api/daily-lens/library?limit=12";
+  const data = await api(path);
+  if (document.getElementById("dailyLensTheme").options.length === 1) {
+    document.getElementById("dailyLensTheme").innerHTML += data.themes.map(themeName => `<option value="${themeName}">${themeName}</option>`).join("");
+  }
+  document.getElementById("dailyLensLibraryRows").innerHTML = `<h2>${data.returned} shown from ${data.total} lenses</h2>` + data.items.map(item => `
+    <div class="row">
+      <strong>${escapeHtml(item.text)}</strong>
+      <p class="small">${escapeHtml(item.lens_id)} · ${escapeHtml(item.type)} · ${escapeHtml(item.theme)} · ${escapeHtml(item.tone)}</p>
+      <p>${escapeHtml(item.body)}</p>
+      <button class="button secondary" data-save-lens-id="${item.lens_id}">Save ${item.lens_id}</button>
+    </div>
+  `).join("");
+  openTab("lens-library");
+  setContext({ title: "Daily Lens library", next: "Inspect a small subset; save only the useful ones.", details: `<strong>Total matching:</strong> ${data.total}<br><strong>Returned:</strong> ${data.returned}`, sixw: "<strong>What:</strong> 10k local lens library<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> fresh calm lenses without provider calls<br><strong>When:</strong> whenever you return<br><strong>Where:</strong> Today -> Daily Lens -> Library<br><strong>ELI10:</strong> a big local shelf; the screen only shows a few at a time.", receipt: "Generated local helper data. Provider called: false." });
+};
+
 const renderPractices = () => {
-  document.getElementById("practiceGrid").innerHTML = practices.map(practice => `
+  renderPracticeTabs();
+  const practice = activePractice;
+  document.getElementById("practiceGrid").innerHTML = `
     <article class="panel practice-card">
       <h3>${labels[practice]}</h3>
       <p class="muted">${meanings[practice]}</p>
@@ -507,9 +1147,13 @@ const renderPractices = () => {
         <button class="button secondary" data-guide="${practice}">Details</button>
       </div>
     </article>
-  `).join("");
-  document.getElementById("ideaPractice").innerHTML += practices.map(practice => `<option value="${practice}">${labels[practice]}</option>`).join("");
-  document.getElementById("journalPractice").innerHTML = practices.map(practice => `<option value="${practice}">${labels[practice]}</option>`).join("");
+  `;
+  if (document.getElementById("ideaPractice").options.length === 1) {
+    document.getElementById("ideaPractice").innerHTML += practices.map(practice => `<option value="${practice}">${labels[practice]}</option>`).join("");
+  }
+  if (document.getElementById("journalPractice").options.length === 0) {
+    document.getElementById("journalPractice").innerHTML = practices.map(practice => `<option value="${practice}">${labels[practice]}</option>`).join("");
+  }
 };
 const renderGuides = async () => {
   const guides = await Promise.all(practices.map(practice => api(`/api/contextual-guide/${practice}`)));
@@ -526,8 +1170,41 @@ const openView = viewName => {
   document.querySelectorAll(".menu-buttons button[data-view]").forEach(item => item.setAttribute("aria-current", String(item.dataset.view === viewName)));
   document.querySelectorAll(".view").forEach(view => view.classList.add("hidden"));
   document.getElementById(viewName).classList.remove("hidden");
-  const names = { practice: "Practice desk", journal: "Encrypted journal", guide: "Guide me", ideas: "Innovation lens", reports: "Reports and gates", evidence: "Evidence summaries" };
-  setContext({ title: names[viewName], next: viewName === "journal" ? "Write a private note and save it encrypted locally." : viewName === "reports" ? "Open a report or stage a local gate." : viewName === "ideas" ? "Open a few matching innovations, then choose one that helps." : viewName === "evidence" ? "Open one proof summary from Admin / Proof." : "Choose one small action.", details: `<strong>Selected section:</strong> ${names[viewName]}`, sixw: `<strong>What:</strong> ${viewName === "journal" ? "encrypted local reflection" : viewName === "ideas" ? "field/navigation innovation lens" : "local CK practice support"}<br><strong>Who:</strong> Mani/local user<br><strong>Why:</strong> reduce pressure and choice effort<br><strong>When:</strong> now or later<br><strong>Where:</strong> this local app<br><strong>ELI10:</strong> ${viewName === "journal" ? "your note is stored scrambled on disk and shown only here." : viewName === "ideas" ? "pick a calm helper that makes this screen more useful." : "choose one gentle thing."}` });
+  document.getElementById("practiceHero").classList.toggle("hidden", viewName !== "practice");
+  const info = {
+    today: ["Home", "Choose the state you are in now.", "state-aware entry"],
+    dailyLens: ["Daily Lens", "Save it if it helps, or ask for another lens.", "daily quote/anecdote/prompt lens"],
+    startDay: ["Start My Day", "Accept, soften, reduce, or park today's plan.", "daily guide"],
+    checkIn: ["Check In", "Adjust the day without shame.", "midday adjustment"],
+    endDay: ["End My Day", "Save, carry, learn, or release.", "daily close"],
+    askGuide: ["Ask Guide", "Choose a mode, then ask carefully.", "mode-aware guide"],
+    stuck: ["I Feel Stuck", "Name the stuck, then take one tiny step.", "stuck workflow"],
+    decision: ["Decision Help", "Structure options and proof before deciding.", "decision support"],
+    deepInquiry: ["Deep Inquiry", "Observe before fixing.", "JK-style inquiry"],
+    practice: ["Practice desk", "Choose one small action.", "local CK practice support"],
+    journal: ["Encrypted journal", "Write a private note and save it encrypted locally.", "encrypted local reflection"],
+    innerWork: ["Inner work", "Choose a mode, write one honest paragraph, then start slowly.", "private guided inquiry"],
+    voiceNotes: ["Voice Notes", "Paste a transcript, then choose what it becomes.", "text-first voice workflow"],
+    lifeMap: ["Life Map", "Save values, people, patterns, and boundaries with user control.", "personal operating context"],
+    promises: ["Promises", "Add, reduce, reschedule, remove, or recommit.", "shame-free accountability"],
+    projects: ["Projects", "Separate tasks, dreams, obligations, loops, and burdens.", "project and task manager"],
+    calendar: ["Calendar", "Add manual time reality without external calendar writes.", "manual calendar reality"],
+    guide: ["Guide me", "Open first-step guidance.", "guided use"],
+    ideas: ["Innovation lens", "Open a few matching innovations, then choose one that helps.", "field/navigation innovation lens"],
+    academy: ["Academy", "Open a local lesson, practice it, and keep the receipt inside CK.", "local CK learning module"],
+    askSources: ["Ask My Sources", "Ask a local source-backed question.", "source-backed guidance"],
+    sources: ["RAG / Sources", "Open RAG status, add a source draft, or search the local index.", "local RAG/source retrieval"],
+    insights: ["Insights", "Only show patterns when evidence exists.", "evidence-backed insights"],
+    dailyReview: ["Daily Review", "Save today's learning without scoring.", "daily review"],
+    weeklyReview: ["Weekly Review", "Turn the week into one useful experiment.", "weekly review"],
+    monthlyReport: ["Monthly Report", "Create a private report, not a report card.", "monthly report"],
+    reports: ["Reports and gates", "Open a report or stage a local gate.", "local reports"],
+    privacy: ["Privacy", "Inspect privacy boundaries only when needed.", "privacy control"],
+    memory: ["Memory", "Inspect and control what is remembered.", "memory centre"],
+    evidence: ["Evidence summaries", "Open one proof summary from Admin / Proof.", "admin proof"]
+  };
+  const selected = info[viewName] || [viewName, "Choose one useful action.", "local workflow"];
+  setContext({ title: selected[0], next: selected[1], details: `<strong>Selected section:</strong> ${selected[0]}`, sixw: `<strong>What:</strong> ${selected[2]}<br><strong>Who:</strong> Mani/local user<br><strong>Why:</strong> reduce pressure and choice effort<br><strong>When:</strong> now or later<br><strong>Where:</strong> this local app<br><strong>ELI10:</strong> one calm screen, one relevant set of controls.`, receipt: "No write yet. Buttons create local receipts only." });
 };
 const loadGuide = async view => {
   const data = await api(`/api/guided-use?view=${encodeURIComponent(view)}`);
@@ -554,6 +1231,7 @@ const loadIdeas = async () => {
       <button class="button secondary" data-idea="${item.id}">Open ${item.id}</button>
     </div>
   `).join("");
+  openTab("ideas-results");
   setContext({ title: "Innovation lens", next: "Open one innovation only if it helps.", details: `<strong>Rows:</strong> ${data.total} matching innovations; ${data.returned} shown`, sixw: `<strong>What:</strong> generated local field/navigation innovation patterns<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> make controls calmer and more useful<br><strong>When:</strong> ${situation || "any situation"}<br><strong>Where:</strong> Innovation lens<br><strong>ELI10:</strong> choose one helper that makes the screen easier.`, receipt: "Receipt/evidence: browsing innovations writes nothing." });
 };
 const openIdea = async id => {
@@ -568,7 +1246,157 @@ const openIdea = async id => {
     `<strong>Small smile:</strong> ${data.micro_joke}`,
     `<strong>Synthetic boundary:</strong> ${data.implementation_status}; synthetic=${data.synthetic_data}`
   ]);
+  openTab("ideas-detail-panel");
   setContext({ title: data.title, next: "Use it only if it fits; close or skip is allowed.", details: `<strong>Selected row:</strong> ${data.id}<br><strong>Practice:</strong> ${labels[data.practice]}<br><strong>Level:</strong> ${data.innovation_level}`, sixw: `<strong>What:</strong> ${data.what}<br><strong>Who:</strong> ${data.who}<br><strong>Why:</strong> ${data.why}<br><strong>When:</strong> ${data.when}<br><strong>Where:</strong> ${data.where}<br><strong>How:</strong> ${data.how}<br><strong>ELI10:</strong> ${data.eli10}`, receipt: `<strong>Boundary:</strong> generated innovation pattern, not lived history.` });
+};
+const loadAcademy = async () => {
+  const status = await api("/api/academy/status");
+  const data = await api("/api/academy/programs");
+  document.getElementById("academyStatusPanel").innerHTML = summaryList([
+    `<strong>Status:</strong> ${status.status}`,
+    `<strong>Access:</strong> ${status.where_to_access}`,
+    `<strong>Programs:</strong> ${status.program_count}`,
+    `<strong>Lessons:</strong> ${status.lesson_count}`,
+    `<strong>Receipts:</strong> ${status.receipt_count}`,
+    `<strong>External LMS required:</strong> ${status.external_lms_required}`
+  ]);
+  document.getElementById("academyProgramRows").innerHTML = data.items.map(item => `
+    <div class="row">
+      <strong>${escapeHtml(item.title)}</strong>
+      <p>${escapeHtml(item.purpose)}</p>
+      <p class="small">${escapeHtml(item.screen_path)} - ${item.lesson_count} lessons - ${escapeHtml(item.level)}</p>
+      <button class="button secondary" data-academy-program="${escapeHtml(item.program_id)}">Open lessons</button>
+    </div>
+  `).join("");
+  openTab("academy-programmes");
+  setContext({ title: "Academy", next: "Open one programme; lessons point to the real CK screen and button.", details: `<strong>Programs:</strong> ${status.program_count}<br><strong>Lessons:</strong> ${status.lesson_count}`, sixw: "<strong>What:</strong> local CK learning module<br><strong>Who:</strong> Mani/local CK user<br><strong>Why:</strong> learn the app without hunting or scrolling<br><strong>When:</strong> when a workflow is unfamiliar<br><strong>Where:</strong> Knowledge -> Academy<br><strong>ELI10:</strong> small lessons show what to click and why.", receipt: "No external LMS write. Provider called: false." });
+};
+const openAcademyProgram = async programId => {
+  const data = await api(`/api/academy/programs/${encodeURIComponent(programId)}/lessons`);
+  document.getElementById("academyLessonRows").innerHTML = `<h2>${escapeHtml(data.program.title)}</h2>` + data.items.map(item => `
+    <div class="row">
+      <strong>${escapeHtml(item.title)}</strong>
+      <p>${escapeHtml(item.practice_prompt)}</p>
+      <p class="small">${escapeHtml(item.menu_path)} - buttons: ${item.buttons.map(escapeHtml).join(", ")}</p>
+      <button class="button secondary" data-academy-lesson="${escapeHtml(item.lesson_id)}">Start lesson</button>
+    </div>
+  `).join("");
+  openTab("academy-lessons");
+  setContext({ title: data.program.title, next: "Start one lesson, then use the matching CK screen.", details: `<strong>Lessons:</strong> ${data.count}<br><strong>Screen:</strong> ${escapeHtml(data.program.screen_path)}`, sixw: "<strong>What:</strong> Academy programme<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> build skill one workflow at a time<br><strong>When:</strong> before using a module deeply<br><strong>Where:</strong> Knowledge -> Academy -> Lessons<br><strong>ELI10:</strong> choose a tiny class for the button you need.", receipt: "Opening a lesson list writes nothing." });
+};
+const openAcademyLesson = async lessonId => {
+  const data = await api(`/api/academy/lessons/${encodeURIComponent(lessonId)}`);
+  currentAcademyLesson = data;
+  document.getElementById("academyLessonTitle").textContent = data.title;
+  document.getElementById("academyLessonPrompt").textContent = data.practice_prompt;
+  document.getElementById("academyLessonDetail").innerHTML = summaryList([
+    `<strong>Program:</strong> ${escapeHtml(data.program.title)}`,
+    `<strong>Menu path:</strong> ${escapeHtml(data.menu_path)}`,
+    `<strong>Buttons:</strong> ${data.buttons.map(escapeHtml).join(", ")}`,
+    `<strong>Boundary:</strong> ${escapeHtml(data.source_boundary)}`,
+    `<strong>ELI10:</strong> ${escapeHtml(data.field_utility.eli10)}`
+  ]);
+  openTab("academy-practice");
+  setContext({ title: data.title, next: "Write a short practice note or jump to the matching screen.", details: `<strong>Lesson:</strong> ${data.lesson_id}<br><strong>Menu:</strong> ${escapeHtml(data.menu_path)}`, sixw: `<strong>What:</strong> ${escapeHtml(data.field_utility.what)}<br><strong>Who:</strong> ${escapeHtml(data.field_utility.who)}<br><strong>Why:</strong> ${escapeHtml(data.field_utility.why)}<br><strong>When:</strong> ${escapeHtml(data.field_utility.when)}<br><strong>Where:</strong> ${escapeHtml(data.field_utility.where)}<br><strong>How:</strong> ${escapeHtml(data.field_utility.how)}<br><strong>ELI10:</strong> ${escapeHtml(data.field_utility.eli10)}`, receipt: "No write until Save practice receipt." });
+};
+const saveAcademyPractice = async () => {
+  if (!currentAcademyLesson) {
+    await openAcademyProgram("ck-start-here");
+    return;
+  }
+  const data = await api(`/api/academy/lessons/${encodeURIComponent(currentAcademyLesson.lesson_id)}/practice`, {
+    method: "POST",
+    body: JSON.stringify({ action: "Save practice receipt", note: document.getElementById("academyPracticeNote").value })
+  });
+  setResult(`Saved Academy receipt ${data.receipt.receipt_id}. External LMS write: ${data.external_lms_write}.`);
+  setContext({ title: "Academy receipt", next: data.next_action, details: `<strong>Lesson:</strong> ${escapeHtml(data.receipt.lesson_id)}<br><strong>Receipt:</strong> ${escapeHtml(data.receipt.receipt_id)}`, sixw: "<strong>What:</strong> local Academy practice receipt<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> remember what changed without external LMS<br><strong>When:</strong> after a lesson helps<br><strong>Where:</strong> Knowledge -> Academy -> Practice<br><strong>ELI10:</strong> it saved your learning note locally.", receipt: `<strong>External send:</strong> ${data.external_send}<br><strong>Provider called:</strong> ${data.provider_called}` });
+};
+const checkAcademyReadiness = async () => {
+  const data = await api("/api/academy/readiness");
+  document.getElementById("academyReadinessPanel").innerHTML = summaryList([
+    `<strong>Status:</strong> ${data.status}`,
+    `<strong>Completed:</strong> ${data.completed_lessons} of ${data.lesson_count}`,
+    `<strong>Coverage:</strong> ${data.coverage_percent}%`,
+    `<strong>Next lesson:</strong> ${escapeHtml(data.next_recommended_lesson.title)}`,
+    `<strong>Provider called:</strong> ${data.provider_called}`,
+    `<strong>External LMS required:</strong> ${data.external_lms_required}`
+  ]);
+  openTab("academy-readiness");
+  setContext({ title: "Academy readiness", next: "Use the next recommended lesson only if it reduces effort.", details: `<strong>Completed:</strong> ${data.completed_lessons}/${data.lesson_count}`, sixw: "<strong>What:</strong> local learning coverage<br><strong>Who:</strong> CK user<br><strong>Why:</strong> know what has been practised<br><strong>When:</strong> before deeper use<br><strong>Where:</strong> Academy -> Readiness<br><strong>ELI10:</strong> a calm progress check without grades.", receipt: "Local Academy receipts only." });
+};
+const loadSourceStatus = async () => {
+  const data = await api("/api/source-index/status");
+  document.getElementById("sourceStatusPanel").innerHTML = summaryList([
+    `<strong>Status:</strong> ${data.status}`,
+    `<strong>Files indexed:</strong> ${data.files_indexed || 0}`,
+    `<strong>Text records:</strong> ${data.text_records || 0}`,
+    `<strong>Approved exclusions:</strong> ${data.approved_exclusion_count}`,
+    `<strong>Only approved exclusions:</strong> ${data.only_approved_exclusions}`,
+    `<strong>External send:</strong> ${data.external_send}`,
+    `<strong>Provider called:</strong> ${data.provider_called}`
+  ]);
+  openTab("sources-status");
+  setContext({ title: "RAG source index", next: data.status === "built" ? "Search the local RAG/source index." : "Build the local index when ready.", details: `<strong>Roots:</strong><br>${data.roots.join("<br>")}`, sixw: `<strong>What:</strong> internal RAG source index<br><strong>Who:</strong> local CK reviewer<br><strong>Why:</strong> source-backed product truth<br><strong>When:</strong> during audit or guided review<br><strong>Where:</strong> local runtime JSONL<br><strong>ELI10:</strong> it reads approved local source files and keeps retrieval here.`, receipt: "Exclusions are fixed to Mani's two approved paths. External send: false." });
+};
+const loadRagStatus = async () => {
+  const data = await api("/api/rag/status");
+  document.getElementById("sourceStatusPanel").innerHTML = summaryList([
+    `<strong>${data.name}</strong>`,
+    `<strong>Access:</strong> ${data.where_to_access}`,
+    `<strong>Internal lane:</strong> ${data.internal_sources.current_lane}`,
+    `<strong>Internal roots:</strong><br>${data.internal_sources.roots.join("<br>")}`,
+    `<strong>Excluded from indexing:</strong><br>${data.internal_sources.excluded_roots.join("<br>")}`,
+    `<strong>External sources:</strong> drafts, pasted text, or approved one-time local fetch; fetch mode = ${data.external_sources.fetch_enabled}`,
+    `<strong>Provider calls required for search:</strong> ${data.provider_calls_required_for_search}`
+  ]);
+  openTab("sources-status");
+  setContext({ title: "RAG / Sources", next: "Use Search for internal indexed sources, or Add source to stage/fetch an approved source.", details: `<strong>Tabs:</strong> ${data.ui_tabs.join(", ")}`, sixw: "<strong>What:</strong> retrieval-augmented local guidance<br><strong>Who:</strong> Mani/local CK user<br><strong>Why:</strong> ground guidance in approved sources<br><strong>When:</strong> before relying on memory or assumptions<br><strong>Where:</strong> Knowledge -> RAG / Sources<br><strong>ELI10:</strong> give the app trusted material to look up; external URLs need a one-time approval tick before the app fetches them.", receipt: "Internal search is local. Approved external fetch stores text locally and does not call a model provider." });
+};
+const stageRagSource = async () => {
+  const payload = {
+    source_type: document.getElementById("ragSourceType").value,
+    title: document.getElementById("ragSourceTitle").value,
+    location: document.getElementById("ragSourceLocation").value,
+    notes: document.getElementById("ragSourceNotes").value,
+    source_text: document.getElementById("ragSourceText").value,
+    fetch_approved: document.getElementById("ragSourceFetchApproved").checked
+  };
+  const data = await api("/api/rag/source-draft", { method: "POST", body: JSON.stringify(payload) });
+  document.getElementById("ragIntakePanel").innerHTML = summaryList([
+    `<strong>Draft receipt:</strong> ${escapeHtml(data.receipt_id)}`,
+    `<strong>Source type:</strong> ${escapeHtml(data.source_type)}`,
+    `<strong>Title:</strong> ${escapeHtml(data.title)}`,
+    `<strong>Location:</strong> ${escapeHtml(data.location || "not supplied")}`,
+    `<strong>Searchable local text:</strong> ${data.searchable_local_text}`,
+    `<strong>External fetch status:</strong> ${escapeHtml(data.external_fetch_status || "not_requested")}`,
+    `<strong>External fetch performed:</strong> ${data.external_fetch_performed}`,
+    `<strong>Approval required before external fetch:</strong> ${data.approval_required_before_external_fetch}`
+  ]);
+  openTab("sources-intake");
+  setContext({ title: "RAG source draft", next: data.source_type === "external" && !data.external_fetch_performed ? "Tick approval only when you want this exact URL fetched into local RAG." : "Use Search to retrieve the local source text.", details: `<strong>Draft:</strong> ${escapeHtml(data.receipt_id)}<br><strong>Location:</strong> ${escapeHtml(data.location || "not supplied")}`, sixw: `<strong>What:</strong> staged ${escapeHtml(data.source_type)} RAG source<br><strong>Who:</strong> local CK reviewer<br><strong>Why:</strong> add source-backed guidance without surprise external action<br><strong>When:</strong> before indexing or fetching<br><strong>Where:</strong> Knowledge -> RAG / Sources -> Add source<br><strong>ELI10:</strong> this records the source; if you approved a URL fetch, the app copied readable text into local search.`, receipt: "Receipt saved locally. External send: false. Source write: false." });
+};
+const buildSourceIndex = async () => {
+  const data = await api("/api/source-index/build", { method: "POST", body: JSON.stringify({}) });
+  await loadSourceStatus();
+  setResult(`Built local NAS source index: ${data.files_indexed} files. Only approved exclusions: ${data.only_approved_exclusions}.`);
+};
+const searchSources = async () => {
+  const query = document.getElementById("sourceQuery").value.trim();
+  if (!query) {
+    document.getElementById("sourceResults").innerHTML = "Type a source search first.";
+    return;
+  }
+  const data = await api(`/api/rag/search?q=${encodeURIComponent(query)}&limit=12`);
+  document.getElementById("sourceResults").innerHTML = `<h2>${data.returned} source matches</h2>` + data.matches.map(item => `
+    <div class="row">
+      <strong>${item.name}</strong>
+      <p class="small">${item.source === "rag_source_draft" ? "RAG draft" : "NAS source index"}</p>
+      <p class="small">${item.path}</p>
+      <p>${item.snippet || "Metadata match; no text snippet stored."}</p>
+    </div>
+  `).join("");
+  openTab("sources-results");
+  setContext({ title: "RAG source search", next: data.returned ? "Open the source path locally if needed." : "Try a different source term.", details: `<strong>Query:</strong> ${data.query}<br><strong>Returned:</strong> ${data.returned}`, sixw: `<strong>What:</strong> local RAG/source search<br><strong>Who:</strong> CK reviewer<br><strong>Why:</strong> verify source truth without provider calls<br><strong>When:</strong> after indexing<br><strong>Where:</strong> Knowledge -> RAG / Sources<br><strong>ELI10:</strong> search local file names and safe snippets.`, receipt: "External send: false. Provider called: false." });
 };
 const loadJournal = async () => {
   const status = await api("/api/journal/status");
@@ -588,6 +1416,7 @@ const loadJournal = async () => {
       <button class="button secondary" data-journal="${item.journal_id}">Open local decrypt</button>
     </div>
   `).join("");
+  openTab("journal-list");
   setContext({ title: "Encrypted journal", next: "Save a private note or open one locally.", details: `<strong>Entries:</strong> ${data.count}<br><strong>Storage:</strong> encrypted local JSONL`, sixw: "<strong>What:</strong> private journal<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> keep fuller reflections private at rest<br><strong>When:</strong> whenever useful<br><strong>Where:</strong> local runtime folder<br><strong>ELI10:</strong> the saved file does not contain your readable note.", receipt: "External send: false. Source write: false." });
 };
 const saveJournal = async () => {
@@ -609,7 +1438,60 @@ const openJournal = async id => {
     `<strong>Decrypted locally:</strong> ${data.decrypted_for_local_ui}`,
     `<strong>Content:</strong><br>${data.content.replaceAll("<", "&lt;")}`
   ]);
+  openTab("journal-detail-panel");
   setContext({ title: "Journal detail", next: "Read locally; nothing is sent.", details: `<strong>Entry:</strong> ${data.journal_id}`, sixw: `<strong>What:</strong> encrypted journal entry<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> private reflection<br><strong>When:</strong> ${data.created_at}<br><strong>Where:</strong> local encrypted journal file<br><strong>ELI10:</strong> readable here, scrambled on disk.`, receipt: "External send: false. Source write: false." });
+};
+const renderInnerModes = async () => {
+  const data = await api("/api/inner-work/modes");
+  document.getElementById("innerMode").innerHTML = Object.entries(data.modes).map(([key, mode]) => `<option value="${key}">${mode.label}</option>`).join("");
+  document.getElementById("innerWorkGuide").innerHTML = summaryList([
+    `<strong>Principle:</strong> ${data.principle}`,
+    `<strong>Inputs:</strong> text or voice transcript`,
+    `<strong>Encrypted:</strong> ${data.encrypted_at_rest}`,
+    `<strong>External send:</strong> ${data.external_send}`
+  ]);
+};
+const renderGuidance = guidance => summaryList([
+  `<strong>${guidance.mode_label}</strong>`,
+  `<strong>Posture:</strong> ${guidance.guide_posture}`,
+  `<strong>Not an answer:</strong> ${guidance.not_answer}`,
+  `<strong>First question:</strong> ${guidance.first_question}`,
+  `<strong>Safety:</strong> ${guidance.safety.state} - ${guidance.safety.message}`,
+  `<strong>Program:</strong><br>${guidance.program.map(item => `${item.day}. ${item.step}`).join("<br>")}`,
+  `<strong>Controls:</strong> ${guidance.session_controls.join(", ")}`,
+  `<strong>AI provider called:</strong> ${guidance.ai_provider_called}`
+]);
+const startInnerWork = async () => {
+  const payload = {
+    mode: document.getElementById("innerMode").value,
+    intention: document.getElementById("innerIntention").value,
+    input: document.getElementById("innerInput").value,
+    voice_transcript: document.getElementById("innerVoice").value
+  };
+  const data = await api("/api/inner-work/session", { method: "POST", body: JSON.stringify(payload) });
+  document.getElementById("innerWorkDetail").innerHTML = renderGuidance(data.guidance);
+  openTab("inner-detail-panel");
+  setResult(`Saved encrypted Inner Work session ${data.session_id}. External send: ${data.external_send}.`);
+  setContext({ title: data.guidance.mode_label, next: data.guidance.first_question, details: `<strong>Session:</strong> ${data.session_id}<br><strong>Encrypted:</strong> ${data.encrypted_at_rest}`, sixw: `<strong>What:</strong> ${data.guidance.mode_label}<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> ${data.guidance.guide_posture}<br><strong>When:</strong> when you choose to look slowly<br><strong>Where:</strong> encrypted local session<br><strong>ELI10:</strong> ask one careful question, then stop if it is too much.`, receipt: "Not therapy. No external send. AI provider called: false." });
+  await loadInnerWork();
+};
+const loadInnerWork = async () => {
+  const data = await api("/api/inner-work/sessions");
+  document.getElementById("innerWorkRows").innerHTML = `<h2>${data.count} encrypted sessions</h2>` + data.items.map(item => `
+    <div class="row">
+      <strong>${item.mode_label}</strong>
+      <p class="small">${item.created_at} - safety: ${item.safety_state}</p>
+      <p>${item.first_question}</p>
+      <button class="button secondary" data-inner="${item.session_id}">Open session</button>
+    </div>
+  `).join("");
+  openTab("inner-history");
+};
+const openInnerWork = async id => {
+  const data = await api(`/api/inner-work/session/${id}`);
+  document.getElementById("innerWorkDetail").innerHTML = renderGuidance(data.payload);
+  openTab("inner-detail-panel");
+  setContext({ title: data.payload.mode_label, next: data.payload.first_question, details: `<strong>Session:</strong> ${data.session_id}`, sixw: `<strong>What:</strong> guided inner work<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> ${data.payload.guide_posture}<br><strong>When:</strong> ${data.created_at}<br><strong>Where:</strong> encrypted local session<br><strong>ELI10:</strong> guidance, not a final answer.`, receipt: "Encrypted at rest. External send: false." });
 };
 const proofMap = {
   matrix: ["/api/product-bible-matrix", data => [`Features: ${data.covers_features}`, `500 ideas: ${data.covers_500_ideas}`, `Delivery matrix: ${data.covers_delivery_matrix}`, `Semantic map: ${data.covers_semantic_intent_map}`]],
@@ -620,7 +1502,27 @@ const proofMap = {
   oss: ["/api/oss-adoption", data => data.items.map(item => `${item.name}: ${item.status} (${item.role})`)],
   cost: ["/api/cost-effort-reduction", data => data.items.map(item => `${item.promise}: ${item.how}`)],
   field: ["/api/field-utilities", data => data.items.map(item => `${item.field}: ${item.helper}`)],
-  ai: ["/api/ai/model-policy", data => [`Provider: ${data.provider}`, `Key configured: ${data.key_configured}`, `Routing: ${data.routing_order.join(" -> ")}`, `Boundary: ${data.default_boundary}`]]
+  ai: ["/api/ai/model-policy", data => [
+    `Provider: ${data.provider}`,
+    `Key configured: ${data.key_configured}`,
+    `Routing: ${data.routing_order.join(" -> ")}`,
+    `Free: ${data.policy.free.model}`,
+    `A little bit expensive: ${data.policy.modest.model}`,
+    `Full expensive: ${data.policy.expensive.model}`,
+    `Paid approval: modest=${data.policy.modest.paid}, expensive=${data.policy.expensive.paid}`,
+    `Boundary: ${data.default_boundary}`
+  ]],
+  source: ["/api/source-index/status", data => [`Status: ${data.status}`, `Files indexed: ${data.files_indexed || 0}`, `Approved exclusions: ${data.approved_exclusion_count}`, `Only approved exclusions: ${data.only_approved_exclusions}`, `External send: ${data.external_send}`]]
+  ,
+  n8n: ["/api/life-manager/n8n-workflows", data => [
+    `Status: ${data.status}`,
+    `Workflows: ${data.total} - OpenRouter paid execution, voice transcription, calendar write, memory sync`,
+    `Live import performed: ${data.live_import_performed}`,
+    `Live execution performed: ${data.live_execution_performed}`,
+    `External send: ${data.external_send}`,
+    `Dry-run endpoint: ${data.dry_run_endpoint}`,
+    `Status of all workflows: ${data.items.every(item => item.safe_local_status === "importable_disabled_workflow_and_ck_preflight_endpoint_ready") ? "importable, disabled, preflight-ready" : "review required"}`
+  ]]
 };
 const openProof = async proof => {
   openView("evidence");
@@ -628,16 +1530,93 @@ const openProof = async proof => {
   const data = await api(path);
   const mapped = mapper(data);
   document.getElementById("proofOutput").innerHTML = summaryList(mapped);
+  openTab("evidence-output-panel");
   setContext({ title: "Proof summary", next: "Use this as review evidence; raw JSON stays in API/evidence files.", details: `<strong>Endpoint:</strong> ${path}`, sixw: `<strong>What:</strong> ${mapped[0]}<br><strong>Who:</strong> C1/local reviewer<br><strong>Why:</strong> prove product truth<br><strong>When:</strong> before done claim<br><strong>Where:</strong> Admin / Proof<br><strong>ELI10:</strong> this button checks the claim it names.`, receipt: "Evidence: Control Center proof folder and endpoint response." });
+};
+
+const createLifeReceipt = async button => {
+  const noteId = button.dataset.lifeNote;
+  const note = noteId && document.getElementById(noteId) ? document.getElementById(noteId).value : "";
+  const payload = {
+    screen: button.dataset.lifeScreen || "CK Life OS",
+    action: button.dataset.lifeAction || button.textContent.trim(),
+    note
+  };
+  const data = await api("/api/life-manager/receipt", { method: "POST", body: JSON.stringify(payload) });
+  const receipt = data.receipt;
+  setResult(`${payload.screen}: ${payload.action}. Local receipt ${receipt.receipt_id}. External send: ${receipt.external_send}.`);
+  setContext({
+    title: payload.screen,
+    next: `${payload.action} recorded locally. Choose another tab only if useful.`,
+    details: `<strong>Action:</strong> ${escapeHtml(payload.action)}<br><strong>Note:</strong> ${escapeHtml(note || "not supplied")}`,
+    sixw: `<strong>What:</strong> local v2 life-manager workflow receipt<br><strong>Who:</strong> Mani/local CK user<br><strong>Why:</strong> prove the button is real without external side effects<br><strong>When:</strong> ${receipt.created_at}<br><strong>Where:</strong> ${escapeHtml(payload.screen)}<br><strong>ELI10:</strong> the app wrote down what you chose, locally.`,
+    receipt: `<strong>Receipt:</strong> ${receipt.receipt_id}<br><strong>External send:</strong> ${receipt.external_send}<br><strong>Provider called:</strong> ${receipt.provider_called}<br><strong>Calendar write:</strong> ${receipt.calendar_write}`
+  });
+};
+
+const askMySources = async () => {
+  const query = document.getElementById("askSourceQuery").value.trim();
+  if (!query) {
+    document.getElementById("askSourcesAnswer").innerHTML = "Type a source-backed question first.";
+    openTab("ask-sources-answer");
+    return;
+  }
+  const data = await api(`/api/rag/search?q=${encodeURIComponent(query)}&limit=6`);
+  document.getElementById("askSourcesAnswer").innerHTML = `<h2>${data.returned} cited local matches</h2>` + data.matches.map(item => `
+    <div class="row">
+      <strong>${item.name}</strong>
+      <p class="small">${item.source === "rag_source_draft" ? "RAG draft" : "NAS source index"} - ${item.path}</p>
+      <p>${item.snippet || "Metadata match; no text snippet stored."}</p>
+    </div>
+  `).join("");
+  openTab("ask-sources-answer");
+  setContext({
+    title: "Ask My Sources",
+    next: data.returned ? "Review the cited local matches, then decide whether anything belongs in memory." : "Add or index sources before relying on this answer.",
+    details: `<strong>Question:</strong> ${escapeHtml(query)}<br><strong>Matches:</strong> ${data.returned}`,
+    sixw: "<strong>What:</strong> source-backed local search<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> answer from sources rather than guessing<br><strong>When:</strong> before guidance needs evidence<br><strong>Where:</strong> Knowledge -> Ask My Sources<br><strong>ELI10:</strong> it looked in the local source library and showed what it found.",
+    receipt: "Provider called: false. External send: false."
+  });
 };
 
 document.querySelectorAll(".menu-buttons button[data-view]").forEach(button => button.addEventListener("click", () => openView(button.dataset.view)));
 document.querySelectorAll("[data-proof-direct]").forEach(button => button.addEventListener("click", () => openProof(button.dataset.proofDirect)));
+document.querySelectorAll("aside.left details.menu-group").forEach(group => {
+  group.addEventListener("toggle", () => {
+    if (!group.open) return;
+    document.querySelectorAll("aside.left details.menu-group").forEach(other => {
+      if (other !== group) other.open = false;
+    });
+  });
+});
 document.addEventListener("click", async event => {
   const rawTarget = event.target;
   if (!(rawTarget instanceof HTMLElement)) return;
   const target = rawTarget.closest("button");
   if (!(target instanceof HTMLElement)) return;
+  if (target.dataset.tab) {
+    openTab(target.dataset.tab);
+    return;
+  }
+  if (target.dataset.jumpView) {
+    openView(target.dataset.jumpView);
+    return;
+  }
+  if (target.dataset.saveLensId) {
+    const data = await api("/api/daily-lens/save", { method: "POST", body: JSON.stringify({ lens_id: target.dataset.saveLensId }) });
+    setResult(`Saved Daily Lens ${target.dataset.saveLensId}. Local receipt ${data.save_id}.`);
+    return;
+  }
+  if (target.dataset.lifeAction) {
+    await createLifeReceipt(target);
+    return;
+  }
+  if (target.dataset.practiceTab) {
+    activePractice = target.dataset.practiceTab;
+    renderPractices();
+    setContext({ title: labels[activePractice], next: "Record, ask for a prompt, or open details.", details: `<strong>Selected practice:</strong> ${labels[activePractice]}`, sixw: `<strong>What:</strong> ${meanings[activePractice]}<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> choose one useful practice<br><strong>When:</strong> now or later<br><strong>Where:</strong> Practice desk<br><strong>ELI10:</strong> one tab, one practice, no scrolling.`, receipt: "No write; tab selection only." });
+    return;
+  }
   if (target.dataset.record) {
     const practice = target.dataset.record;
     const data = await api(`/api/practices/${practice}/record`, { method: "POST", body: JSON.stringify({ note: document.getElementById("note").value }) });
@@ -659,11 +1638,15 @@ document.addEventListener("click", async event => {
   if (target.dataset.count === "scores" || target.dataset.count === "streaks") {
     openView("evidence");
     document.getElementById("proofOutput").innerHTML = summaryList(["This count is intentionally zero.", "CK Life OS disables scores, streaks, badges, and comparison by design."]);
+    openTab("evidence-output-panel");
     setContext({ title: "Intentional zero", next: "Use practice without scoring.", details: `<strong>Selected count:</strong> ${target.dataset.count}`, sixw: "<strong>What:</strong> no pressure metric<br><strong>Who:</strong> local user<br><strong>Why:</strong> avoid performative practice<br><strong>When:</strong> always<br><strong>Where:</strong> Today truth<br><strong>ELI10:</strong> the zero is kindness, not missing data.", receipt: "Evidence: no-score/no-streak endpoints and UI truth." });
   }
   if (target.dataset.guidedTarget) { openView("guide"); await loadGuide(target.dataset.guidedTarget); }
   if (target.dataset.idea) await openIdea(target.dataset.idea);
+  if (target.dataset.academyProgram) await openAcademyProgram(target.dataset.academyProgram);
+  if (target.dataset.academyLesson) await openAcademyLesson(target.dataset.academyLesson);
   if (target.dataset.journal) await openJournal(target.dataset.journal);
+  if (target.dataset.inner) await openInnerWork(target.dataset.inner);
   if (target.dataset.proof) await openProof(target.dataset.proof);
 });
 document.getElementById("difficultMonthButton").addEventListener("click", async () => {
@@ -671,49 +1654,104 @@ document.getElementById("difficultMonthButton").addEventListener("click", async 
   setResult(`Difficult Month Mode is active. Prompt tone: ${data.adjustments.prompt_tone}. Goal tracking: ${data.adjustments.goal_tracking}.`);
   setContext({ title: "Difficult Month Mode", next: "Let the app be gentler; no goal tracking.", details: `<strong>Prompt tone:</strong> ${data.adjustments.prompt_tone}<br><strong>Goal tracking:</strong> ${data.adjustments.goal_tracking}`, sixw: "<strong>What:</strong> gentler mode<br><strong>Who:</strong> user in a hard period<br><strong>Why:</strong> reduce pressure<br><strong>When:</strong> difficult month/day<br><strong>Where:</strong> Practice desk<br><strong>ELI10:</strong> fewer demands, more kindness.", receipt: "No external send; local mode response only." });
 });
+document.getElementById("headerSaveLens").addEventListener("click", saveDailyLens);
+document.getElementById("headerWhyLens").addEventListener("click", () => {
+  openView("dailyLens");
+  openTab("lens-today");
+});
+document.getElementById("headerNextLens").addEventListener("click", async () => {
+  dailyLensOffset += 1;
+  await loadDailyLens(dailyLensOffset);
+});
+document.getElementById("saveDailyLens").addEventListener("click", saveDailyLens);
+document.getElementById("nextDailyLens").addEventListener("click", async () => {
+  dailyLensOffset += 1;
+  await loadDailyLens(dailyLensOffset);
+});
+document.getElementById("refreshSavedLens").addEventListener("click", loadSavedDailyLenses);
+document.getElementById("openDailyLensLibrary").addEventListener("click", loadDailyLensLibrary);
+document.getElementById("loadDailyLensLibrary").addEventListener("click", loadDailyLensLibrary);
 document.getElementById("loadIdeas").addEventListener("click", loadIdeas);
+document.getElementById("refreshAcademy").addEventListener("click", loadAcademy);
+document.getElementById("academyReadiness").addEventListener("click", checkAcademyReadiness);
+document.getElementById("saveAcademyPractice").addEventListener("click", saveAcademyPractice);
+document.getElementById("startAcademyLesson").addEventListener("click", () => {
+  if (!currentAcademyLesson) return;
+  const viewMap = {
+    "Today -> Home": "today",
+    "Today -> Daily Lens": "dailyLens",
+    "Today -> Start My Day": "startDay",
+    "Private -> Inner Work": "innerWork",
+    "Guidance -> Decision Help": "decision",
+    "Knowledge -> Ask My Sources": "askSources",
+    "Knowledge -> RAG / Sources": "sources",
+    "Today -> Check In": "checkIn"
+  };
+  openView(viewMap[currentAcademyLesson.menu_path] || "academy");
+});
 document.getElementById("saveJournal").addEventListener("click", saveJournal);
 document.getElementById("loadJournal").addEventListener("click", loadJournal);
+document.getElementById("startInnerWork").addEventListener("click", startInnerWork);
+document.getElementById("loadInnerWork").addEventListener("click", loadInnerWork);
+document.getElementById("sourceStatus").addEventListener("click", loadSourceStatus);
+document.getElementById("ragStatus").addEventListener("click", loadRagStatus);
+document.getElementById("sourceBuild").addEventListener("click", buildSourceIndex);
+document.getElementById("sourceSearch").addEventListener("click", searchSources);
+document.getElementById("askSourcesSearch").addEventListener("click", askMySources);
+document.getElementById("stageRagSource").addEventListener("click", stageRagSource);
 document.getElementById("openReport").addEventListener("click", async () => {
   const data = await api("/api/reports/local-summary");
   document.getElementById("reportPanel").innerHTML = summaryList([`<strong>Local summary report</strong>`, `Report ID: ${data.report_id}`, `Receipts: ${data.receipt_count}`, `Encrypted journal entries: ${data.encrypted_journal_count}`, `Innovations: ${data.idea_count}`, `External send: ${data.handover_boundary.external_send}`, `Source write: ${data.handover_boundary.source_write}`, `Human review: ${data.handover_boundary.human_review_required}`]);
+  openTab("reports-summary");
   setContext({ title: "Local report", next: "Export markdown only if you need copy-ready proof.", details: `<strong>Report:</strong> ${data.report_id}<br><strong>Receipts:</strong> ${data.receipt_count}`, sixw: "<strong>What:</strong> local report<br><strong>Who:</strong> local reviewer<br><strong>Why:</strong> see receipt and boundary truth<br><strong>When:</strong> before handoff<br><strong>Where:</strong> Reports<br><strong>ELI10:</strong> a local summary, not a send.", receipt: "External send: false. Source write: false." });
 });
 document.getElementById("exportMarkdown").addEventListener("click", async () => {
   const text = await api("/api/reports/local-summary.md");
   document.getElementById("reportPanel").innerHTML = `<pre>${text}</pre>`;
+  openTab("reports-summary");
   setContext({ title: "Markdown export", next: "Review before copying anywhere.", details: "<strong>Format:</strong> local markdown", sixw: "<strong>What:</strong> copy-ready summary<br><strong>Who:</strong> Mani/local reviewer<br><strong>Why:</strong> reduce report-writing effort<br><strong>When:</strong> after local review<br><strong>Where:</strong> Reports<br><strong>ELI10:</strong> it makes a neat local note.", receipt: "No external send." });
 });
 document.getElementById("stageHandover").addEventListener("click", async () => {
   const data = await api("/api/handoffs/lifeos-elaine-local/stage", { method: "POST", body: JSON.stringify({ note: "Local CK Life OS summary staged for human review." }) });
   document.getElementById("reportPanel").innerHTML = summaryList([`<strong>Staged local gate</strong>`, `Receipt: ${data.receipt_id}`, `Target: ${data.handover.target}`, `Approval: ${data.approval_state}`, `External send: ${data.external_send}`, `Human review: ${data.human_review_required}`]);
+  openTab("reports-summary");
   setContext({ title: "Elaine local gate", next: "Human review required before any external action.", details: `<strong>Receipt:</strong> ${data.receipt_id}<br><strong>Target:</strong> ${data.handover.target}`, sixw: "<strong>What:</strong> local handoff draft<br><strong>Who:</strong> CK Life OS to Elaine<br><strong>Why:</strong> optional wellbeing context<br><strong>When:</strong> after review<br><strong>Where:</strong> Reports<br><strong>ELI10:</strong> staged, not sent.", receipt: "Rollback: discard receipt; no external state changed." });
 });
 document.getElementById("syntheticStatus").addEventListener("click", async () => {
   const data = await api("/api/synthetic-data/status");
   document.getElementById("syntheticPanel").innerHTML = summaryList([`Status: ${data.status}`, `Synthetic rows: ${data.synthetic_rows}`, `Outside demo scope: ${data.synthetic_outside_demo_scope}`]);
+  openTab("reports-synthetic");
   setContext({ title: "Synthetic boundary", next: "Preview cleanup if reviewing data truth.", details: `<strong>Synthetic rows:</strong> ${data.synthetic_rows}`, sixw: "<strong>What:</strong> generated innovation boundary<br><strong>Who:</strong> local reviewer<br><strong>Why:</strong> avoid fake source truth<br><strong>When:</strong> before done claim<br><strong>Where:</strong> Reports<br><strong>ELI10:</strong> innovations are generated helpers, not your history.", receipt: "Cleanup path available." });
 });
 document.getElementById("syntheticPreview").addEventListener("click", async () => {
   const data = await api("/api/synthetic-data/removal-preview");
   document.getElementById("syntheticPanel").innerHTML = summaryList([`Cleanup preview`, `Would remove: ${data.would_remove}`, `Preserved demo rows: ${data.preserved_demo_rows}`, `Reason: ${data.reason}`]);
+  openTab("reports-synthetic");
 });
 document.getElementById("syntheticCleanup").addEventListener("click", async () => {
   const data = await api("/api/synthetic-data/cleanup", { method: "POST", body: JSON.stringify({ confirm: true }) });
   document.getElementById("syntheticPanel").innerHTML = summaryList([`Cleanup receipt: ${data.receipt_id}`, `Removed: ${data.removed}`, `Synthetic outside demo scope: ${data.post_clean_synthetic_outside_demo_scope}`]);
+  openTab("reports-synthetic");
   setContext({ title: "Synthetic cleanup receipt", next: "Use receipt as data-truth proof.", details: `<strong>Receipt:</strong> ${data.receipt_id}`, sixw: "<strong>What:</strong> cleanup verification<br><strong>Who:</strong> local reviewer<br><strong>Why:</strong> prove no synthetic leakage<br><strong>When:</strong> final audit<br><strong>Where:</strong> Reports<br><strong>ELI10:</strong> it checked the examples stayed in their lane.", receipt: "Local receipt only." });
 });
 const boot = async () => {
   renderPractices();
+  await renderInnerModes();
   await renderGuides();
+  await loadDailyLens();
+  await loadDailyLensLibrary();
+  await loadAcademy();
+  openTab("lens-today");
   await loadGuide("practice");
   const practicesPayload = await api("/api/practices");
   const ideasPayload = await api("/api/ideas?limit=1");
   const aiPolicy = await api("/api/ai/model-policy");
   document.getElementById("practiceCount").textContent = practicesPayload.total;
+  document.getElementById("practiceHeroCount").textContent = practicesPayload.total;
   document.getElementById("ideaCount").textContent = ideasPayload.total;
+  document.getElementById("ideaHeroCount").textContent = ideasPayload.total;
   document.getElementById("statusLine").textContent = `Local status: OpenRouter ${aiPolicy.key_configured ? "ready when explicitly approved" : "not keyed; local fallback active"}`;
-  setContext({ title: "Practice desk", next: "Record one practice or explain the first step.", details: "<strong>Selected:</strong> no row selected yet.", sixw: "<strong>What:</strong> choose one gentle practice<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> reduce pressure<br><strong>When:</strong> today<br><strong>Where:</strong> local app<br><strong>ELI10:</strong> pick one small thing, then stop.", receipt: "Receipt/evidence: no local write yet." });
+  setContext({ title: "Home", next: "Choose your current state first.", details: "<strong>Selected:</strong> no workflow selected yet.", sixw: "<strong>What:</strong> state-aware life OS entry<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> reduce overwhelm<br><strong>When:</strong> when opening the app<br><strong>Where:</strong> Today -> Home<br><strong>ELI10:</strong> pick what kind of help you need before seeing modules.", receipt: "Receipt/evidence: no local write yet." });
 };
 boot().catch(error => setResult(`Local proof failed: ${error.message}`, "warning"));
 </script>

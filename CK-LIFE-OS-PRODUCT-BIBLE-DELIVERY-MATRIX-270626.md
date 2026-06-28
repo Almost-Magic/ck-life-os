@@ -1,10 +1,10 @@
-# CK Life OS Product Bible Delivery Matrix - 270626
+﻿# CK Life OS Product Bible Delivery Matrix - 270626
 
 Scope: full local/internal CK Life OS product completion against the upgraded AMTL Product Bible template, W.13 through W.18, and Mani's reopened audit request.
 
 Status vocabulary: DONE, PARTIAL, BLOCKED, OUT OF SCOPE, NOT IMPLEMENTED.
 
-Summary after loop 5 plus registration/OpenRouter/encrypted-journal addenda: 63 rows total. DONE 61. PARTIAL 0. BLOCKED 0. OUT OF SCOPE 2. NOT IMPLEMENTED 0.
+Summary after loop 5 plus registration/OpenRouter/encrypted-journal/Innovation-lens/Inner-Work/RAG-Sources/n8n workflow-pack/Daily-Lens/Academy/live-action-gate addenda: 69 rows total. DONE 67. PARTIAL 0. BLOCKED 0. OUT OF SCOPE 2. NOT IMPLEMENTED 0.
 
 | # | Product Bible / PRD area | Feature | Function | 500 / idea-family link | Field-level innovation | Where implemented | UI proof | Count / button / drill-down truth | Status | Evidence / next action |
 |---:|---|---|---|---|---|---|---|---|---|---|
@@ -58,20 +58,216 @@ Summary after loop 5 plus registration/OpenRouter/encrypted-journal addenda: 63 
 | 48 | Button truth | Evidence buttons | Open summaries without raw JSON clutter | Evidence family | Summary cards | `/api/product-bible-matrix`, `/api/r2d2`, etc. | Evidence screen | Buttons show summaries | DONE | Browser QA final |
 | 49 | OSS W.13 | OSS adoption truth | Lists used OSS and non-integrated shared modules honestly | OSS family | Role/status/licence boundary | `/api/oss-adoption` | Evidence screen | OSS button summarises items | DONE | OSS tests |
 | 50 | Cost/effort truth | Reduce decision effort | Shows how fixed practices and innovation patterns reduce friction | Whole-product | Promise/how/proof route | `/api/cost-effort-reduction` | Evidence screen | Cost button summarises rows | DONE | Cost tests |
-| 51 | Calm UI | Calm readable app shell | Deep Night, high contrast, no clutter/overlap | Whole-product | Collapsible-ish nav, responsive panels | `index.html` CSS | Desktop/mobile screenshots | No overflow, no console errors | DONE | Browser visual QA |
+| 51 | Calm UI | Calm readable app shell | Deep Night, high contrast, no clutter/overlap | Whole-product | Tabbed middle workspace, accordion left nav, collapsed right context rail | `index.html` CSS/JS | Desktop/mobile screenshots | No middle-column scrolling, no overflow, one visible tab panel per section | DONE | `browser-qa-calm-tabs-layout-270628.json` |
 | 52 | Accessibility/readability | Mobile layout | Stacks cleanly on narrow screens | Whole-product | Responsive grid rules | `index.html` CSS | Mobile screenshot | Buttons readable, no clipping | DONE | Browser mobile QA |
 | 53 | R2D2 W.17 | Requirements-to-delivery audit | Reports checks and zero partial/blockers | Whole-product | Done/partial/blocked counts | `/api/r2d2`, R2D2 report artifacts | Evidence screen | R2D2 summary button | DONE | R2D2 report |
 | 54 | W.16 Semantic intent | User intent acceptance map | Gives click-by-click review map | Whole-product | Intent, expected click/result/failure/feel | `CK-LIFE-OS-SEMANTIC-PRODUCT-INTENT-ACCEPTANCE-MAP-270626.md` | Evidence files | All map rows DONE | DONE | Semantic map artifact |
 | 55 | Public/channel truth | YouTube/social/channel/published discovery | Explicitly excluded from local/internal CK Life OS | Not applicable | README exclusion and local/internal scope boundary | `README.md` Standards section | Not surfaced in normal UI | No public route, no publish/send control, no rank/mention claim | OUT OF SCOPE | Product Bible local/internal boundary; no next fix |
 | 56 | AMTL layout rule | Top header | AMTL transparent logo, product logo/name, today signal, date/time/status, AMTL seal | Whole-product | Useful today signal; local status without provider call | `index.html`, `assets/*.svg` | Desktop/mobile screenshots | Header assets load direct and via gateway | DONE | `browser-qa-layout-product-truth.json` |
-| 57 | AMTL layout rule | Grouped left menu | Normal user items first; Admin/Proof collapsed separately | Whole-product | Plus/minus details groups | `index.html` menu groups | Desktop/mobile screenshots | Admin proof is opened explicitly | DONE | Browser QA admin expansion |
-| 58 | AMTL layout rule | Dynamic right context rail | Shows next action, selected details, receipt/evidence, and contextual 6W/ELI10 | Whole-product | Context changes for guide/count/idea/practice/report/proof | `index.html` `setContext` | Desktop/mobile screenshots | Browser QA checks context rail updates | DONE | Browser QA 52 checks |
+| 57 | AMTL layout rule | Grouped left menu | Groups normal user items by Practice, Private, Knowledge, Reports, and Admin/Proof | Whole-product | Accordion details groups; one category open at a time | `index.html` menu groups | Desktop/mobile screenshots | Hidden categories expand intentionally; active category visible | DONE | `browser-qa-calm-tabs-layout-270628.json` |
+| 58 | AMTL layout rule | Dynamic right context rail | Shows only relevant next action by default; detail/6W/evidence open on click | Whole-product | Collapsed disclosure panels with context updates for guide/count/idea/practice/report/proof | `index.html` `setContext`, context rail details | Desktop/mobile screenshots | One right-rail panel open by default; no proof clutter | DONE | `browser-qa-calm-tabs-layout-270628.json` |
 | 59 | Gateway truth | Subpath-safe assets and API | Friendly routes load assets and API through `/ck-life-os/` and `/lifeos/` | Whole-product | Relative assets/API calls | `index.html`, `main.py` `/assets` mount | Gateway browser QA | Zero 404s after subpath fix | DONE | Route/resource proof and browser QA |
-| 60 | RAG/Postgres/pgvector truth | Retrieval layer | RAG/pgvector explicitly not required for current local/internal product | Not applicable | README exclusion; dependency endpoint labels PostgreSQL optional | `README.md`, `/api/dependency-status` | Evidence summary | Core runs without Postgres/pgvector/RAG | OUT OF SCOPE | Product Bible boundary; no next fix |
+| 60 | RAG / Sources | Local retrieval layer | Lets the user access RAG from Knowledge -> RAG / Sources, search approved internal sources, stage internal/external source references, search pasted source text locally, and explicitly approve a one-time external URL fetch into local RAG | Source/RAG family | RAG status, internal/external lanes, exact NAS exclusions, pasted source text, approval-gated external URL fetch, no provider/model call | `main.py` `/api/rag/status`, `/api/rag/source-draft`, `/api/rag/source-drafts`, `/api/rag/search`; `index.html` RAG / Sources screen | Knowledge -> RAG / Sources tabs: RAG status, Add source, Search, Results | RAG status button, Add source button, approved fetch checkbox, Search button, and result drilldowns are backed by API/data truth | DONE | `beast_test.py` RAG tests and calm-tabs browser QA |
 | 61 | Workshop/Beast registration | Open/inspect/fix/monitor contract | Registers CK / Life OS with Workshop, Beast product-source registry, and Runtime Supervisor | Whole-product | Direct URL, AMTL aliases, port, health, source, evidence, repair, rollback, last proof | `C:\AMTL\repos\workshop\app.py`, `C:\AMTL\repos\workshop\registry.yaml`, `C:\Users\Mani\AMTL-docs\AMTL-AGENT-CONTROL-CENTER\runtime\amtl-runtime-registry.json`, Beast `repository.py` product-source registry | Workshop product row, Beast registry row, Runtime Supervisor row | Workshop can open/inspect/fix route; Beast/Runtime Supervisor can monitor; NGINX aliases pass | DONE | `workshop-beast-registration-proof-270626.json`, Workshop 112/112, CK 42/42, browser QA registration screenshots |
-| 62 | OpenRouter AI routing | Reasoning/cost tier policy | Routes approved AI work through OpenRouter using free, modest-cost, and expensive/full tiers by reasoning level | AI provider family | Key server-side; no live provider call unless `execute=true` and `allow_paid_provider=true`; local fallback otherwise | `main.py`, `/api/ai/model-policy`, `/api/ai/route`, `/api/ai/complete`, `/api/dependency-status`, `/api/data-truth` | Evidence screen `OpenRouter model routing`; header status line | Low -> free; medium -> modest; high -> expensive unless max-cost cap applies; local fallback records provider_called false | DONE | `beast_test.py` OpenRouter tests, CK 46/46, `openrouter-routing-proof-270626.json` |
-| 63 | Encrypted journal | Private journal with encryption at rest | Stores fuller reflections separately from receipts with encrypted title/content and local-only decrypt | Journal family | Fernet encryption, local runtime key or `CK_LIFE_OS_JOURNAL_KEY`, plaintext not stored in journal file | `main.py`, `/api/journal/status`, `/api/journal`, `/api/journal/{journal_id}`, `/api/data-truth`, `index.html` Journal view | Encrypted journal screen; reports show encrypted journal count | Save/list/open decrypt works; file-at-rest does not contain saved plaintext; external_send/source_write false | DONE | `beast_test.py` encrypted journal test, CK 47/47, `encrypted-journal-proof-270626.json` |
+| 62 | OpenRouter AI routing | Reasoning/cost tier policy | Routes approved AI work through OpenRouter using `openrouter/free` first, then modest-cost and expensive/full paid tiers by reasoning level | AI provider family | Key server-side; `execute=true` required for every live call; modest/expensive tiers additionally require `allow_paid_provider=true`; local fallback otherwise | `main.py`, `/api/ai/model-policy`, `/api/ai/route`, `/api/ai/complete`, `/api/dependency-status`, `/api/data-truth` | Evidence screen `OpenRouter model routing`; header status line | Auto/low/routine -> free; medium/moderate -> modest; high/deep/hard -> expensive unless max-cost cap applies; local fallback records provider_called false | DONE | `beast_test.py` OpenRouter tests, CK 55/55, `openrouter-routing-proof-270626.json` |
+| 63 | Encrypted journal | Private journal with encryption at rest | Stores fuller reflections separately from receipts with encrypted title/content and local-only decrypt | Journal family | Fernet encryption, local runtime key or `CK_LIFE_OS_JOURNAL_KEY`, plaintext not stored in journal file | `main.py`, `/api/journal/status`, `/api/journal`, `/api/journal/{journal_id}`, `/api/data-truth`, `index.html` Journal view | Encrypted journal screen; reports show encrypted journal count | Save/list/open decrypt works; file-at-rest does not contain saved plaintext; external_send/source_write false | DONE | `beast_test.py` encrypted journal test, CK 55/55, `encrypted-journal-proof-270626.json` |
+| 64 | Inner Work | Shadow integration and self-inquiry program | Provides private guided sessions for shadow integration, JK-style observation, grounding, relationship patterns, and unknown-mode reflection | Inner work family | Text/voice transcript input; guide posture; first question; 7-step adaptive program; safety brake; encrypted-at-rest storage; not therapy/diagnosis/guru claims | `main.py`, `/api/inner-work/modes`, `/api/inner-work/session`, `/api/inner-work/sessions`, `/api/inner-work/session/{session_id}`, `index.html` Inner work view | Inner work screen beside encrypted journal | Session creates encrypted guidance; safety language switches to grounding; AI provider called false; local-only storage | DONE | `beast_test.py` Inner Work tests, CK 55/55 |
+| 65 | pgvector/PostgreSQL semantic adapter | Optional future semantic vector search | PostgreSQL/pgvector is not required for the proven local/internal RAG/Sources path | Not applicable | Dependency endpoint labels PostgreSQL optional; local RAG search works through drafts and NAS index | `/api/dependency-status`, `/api/rag/status`, `README.md` | Evidence summary / RAG status | Core UI and RAG source search run without Postgres/pgvector | OUT OF SCOPE | Product Bible local/internal boundary; no next fix |
+| 66 | n8n workflow pack | Approval-gated automation preflights | Provides CK-owned disabled n8n workflow imports and local preflight/dry-run receipts for paid model execution, live voice transcription, external calendar writes, and cross-device memory sync | Automation family | Workflows are importable but inactive; CK API proves dry-run, approval requirements, credentials needed, side effects, and rollback | `n8n/workflows/*.json`, `main.py` `/api/life-manager/n8n-workflows`, `/dry-run`, `/preflight`, `/receipts` | Admin / Proof -> n8n workflow pack | Four workflow files exist, active=false, no live import/execution, dry-run receipts prove no provider call/calendar write/transcription/memory sync | DONE | `beast_test.py` n8n tests, `ck-life-os-n8n-workflow-pack-proof-270628.json` |
+| 67 | Daily Lens | 10k quote/anecdote/prompt lens library | Shows a fresh calm lens in the header and Today -> Daily Lens, with saved-lens review | Daily calm-entry family | 10,000 local generated CK originals, practice prompts, and paraphrased anecdote patterns; source/permission boundary; save/skip/why/another controls; no fake attribution | `main.py` `/api/daily-lens`, `/api/daily-lens/library`, `/api/daily-lens/save`, `/api/daily-lens/saved`; `index.html` header and Daily Lens screen | Header Daily Lens strip; Today -> Daily Lens tabs: Today, Saved, Library | Current lens rotates hourly; Save writes local JSONL receipt; Saved lists kept lenses; Library filters subsets; provider_called/external_send/source_write false | DONE | `beast_test.py` Daily Lens regression; UI route/buttons added; next browser QA receipt |
+| 68 | Academy | Local CK learning module | Gives the user a real Academy screen with CK Life OS programmes, lessons, practice receipts, and readiness checks | Learning/support family | No external LMS; lessons point to real menu paths/buttons; practice writes local receipt only | `main.py` `/api/academy/status`, `/api/academy/programs`, `/api/academy/lessons/{lesson_id}`, `/api/academy/lessons/{lesson_id}/practice`, `/api/academy/readiness`; `index.html` Academy screen | Knowledge -> Academy tabs: Programmes, Lessons, Practice, Readiness | Refresh Academy, Open lessons, Start lesson, Save practice receipt, Check readiness are backed by API/data truth | DONE | `beast_test.py` Academy regression; browser QA pending in current proof packet |
+| 69 | Live action gates | Approval/credential-gated execution surfaces | Converts live voice transcription, Ripple calendar write, memory sync, and n8n import/execution from vague blockers into callable CK approval gates with exact receipts | Runtime/action-safety family | Live execution requires explicit approval, approval reference, configured endpoint/key/target, and rollback; otherwise a blocked receipt is saved | `main.py` `/api/live-actions/status`, `/api/live-actions/receipts`, `/api/voice/transcription`, `/api/ripple-calendar/write`, `/api/memory/sync`, `/api/life-manager/n8n-workflows/{workflow_id}/live-import`, `/api/life-manager/n8n-workflows/{workflow_id}/live-execute`, `/api/ai/complete` | Admin / Proof -> Runtime/evidence; Calendar/Voice/Memory workflows can call gates | Blocked receipts name missing env/approval; approved calls use configured endpoint only; Ripple endpoint is `RIPPLE_CALENDAR_ENDPOINT`; memory sync uses `CK_LIFE_OS_MEMORY_SYNC_DIR`; n8n import uses `N8N_API_BASE_URL`/`N8N_API_KEY`; n8n execution uses `N8N_WEBHOOK_BASE_URL` | DONE | `beast_test.py` live-action gate regression; no credentials/endpoints configured in local proof |
 
 ## Unaccounted Rows
 
-None found after loop 5 plus the Workshop/Beast registration, OpenRouter routing, and encrypted-journal addenda. PostgreSQL and APScheduler are retained as optional adapter paths, not Product Bible-required local/internal behaviours. RAG/pgvector, external production send/write/deploy/publish, and public/channel discovery remain outside the approved local/internal scope.
+None found after loop 5 plus the Workshop/Beast registration, OpenRouter routing, encrypted-journal, Innovation-lens, Inner-Work, RAG/Sources, n8n workflow-pack, Daily Lens, Academy, and live-action-gate addenda. PostgreSQL, pgvector, and APScheduler are retained as optional adapter paths, not Product Bible-required local/internal behaviours. Deploy/publish and external production sends/writes still require separate approval. Paid provider execution, live transcription, Ripple calendar writes, n8n live import/execution, and cross-device memory sync now have callable CK approval gates and exact blocker receipts; actual live execution still requires credentials/endpoints, target selection, rollback acceptance, and exact approval. External URL fetch for RAG is allowed only as an explicit one-time approved local-ingest action.
+
+## Life Coach / Life Manager v2 Product Bible Expansion - 2026-06-28
+
+Status after calm-layout implementation and deep-audit repair: the v2 local/internal shell is implemented. The delivered scope includes the grouped/collapsible left menu, no middle-column scrolling, tabbed middle panels, contextual collapsed right rail, state-aware entry, local workflow receipts for v2 buttons, Ask My Sources, RAG / Sources, encrypted journal, Inner Work, Academy, OpenRouter approval gates, CK-owned disabled n8n workflow imports/preflights, callable live-action gates, and Admin / Proof separation. External calendar writes through Ripple, live voice transcription, durable cross-device memory sync, n8n live execution, and paid provider execution are no longer only conceptual: CK exposes explicit approval-gated routes and local receipts. Live execution still requires credentials/endpoints, target selection, rollback acceptance, and exact approval.
+
+This section captures Mani's additional product direction after the local/internal CK / Life OS proof: CK / Life OS should evolve from a calm practice OS into a private life coach, guide, accountability partner, and life manager. These rows are **future expansion requirements** and do not change the completed local/internal v1 delivery claim above until implemented, tested, browser-QA'd, and evidenced row by row.
+
+### Product Intent Upgrade
+
+CK / Life OS v2 should feel less like a feature dashboard and more like a quiet daily companion. The product should help the user notice, understand, choose, act, review, adjust, and remember gently. It should maximise self-trust rather than raw productivity.
+
+Core design promise:
+
+- The normal user should not see every module at once.
+- The app should first understand the user's current state and reveal the most useful next surface.
+- Admin, runtime, proof, provider, evidence, and build-window details must remain available but hidden from the normal emotional/workflow path.
+- Every count, insight, promise, reminder, source, and recommendation must drill down to evidence, source, or a clear "not enough evidence yet" boundary.
+- The product must stay local/internal by default, with paid provider calls, external sends, source writes, source ingestion, calendar writes, reminders, and cross-app handoffs behind explicit approval gates.
+
+### New Top-Level Entry Model
+
+The first screen should answer: "What are we doing now?"
+
+| User state | Primary entry | Purpose | First useful output | Hidden until needed |
+|---|---|---|---|---|
+| Starting the day | Start My Day | Make today concrete and humane | Today's focus, promises, energy fit, smallest next step | Deep analytics, admin proof |
+| Feeling stuck | I Feel Stuck | Reduce confusion without judgement | Named stuck pattern, one question, one next step | Long history, productivity pressure |
+| Need a decision | Decision Help | Help choose without overthinking | Options, trade-offs, reversible/irreversible flags | Model/provider details |
+| Need emotional processing | Process Something | Open private journal, shadow work, or guided inquiry | Grounded reflection path and safety brake | Counts, runtime, proof clutter |
+| Planning/reviewing | Review / Plan | Connect goals, promises, projects, and calendar reality | Review summary and adjusted plan | Raw logs, source paths |
+
+### Proposed v2 Screen / Module Rows
+
+| # | Product Bible / PRD area | Feature | Function | Field-level / navigation innovation | Proposed UI location | Backend/data requirement | Status | Exact next fix |
+|---:|---|---|---|---|---|---|---|---|
+| V2-1 | State-aware entry | Home chooser | Lets the user pick Start My Day, I Feel Stuck, Decision Help, Process Something, or Review / Plan | Navigation is organised by user state instead of app architecture | `Today -> Home` | Local route receipts via `/api/life-manager/receipt` | DONE | Implemented in `index.html`, `main.py`; browser QA covers Home |
+| V2-2A | Daily Lens | Daily quote/anecdote/prompt lens | Gives the user a fresh calm line or micro-story whenever they return, plus saved-lens review | Each lens shows type, theme, tone, use case, source/permission boundary, Why this?, Save, Another, and Library | `Today -> Daily Lens`; top header strip | 10k local generated library; saved lenses in local JSONL; no provider call/external send/source write | DONE | Implemented header strip, Today/Saved/Library tabs, save/list/library APIs |
+| V2-2 | Daily guide | Start My Day | Creates a humane day plan from promises, calendar notes, energy, and current pressure | Each task shows effort, energy fit, smallest version, and why it matters | `Today -> Start My Day` | Local day-plan receipt; external calendar adapter approval-gated | DONE | Implemented tabbed UI and local receipt workflow |
+| V2-3 | Check-in | Midday Check In | Helps user adjust without shame | "Reduce / reschedule / remove / recommit" controls | `Today -> Check In` | Local check-in receipt; future external reminder writes approval-gated | DONE | Implemented tabbed UI and local receipt workflow |
+| V2-4 | End-day review | End My Day | Captures what happened, what mattered, and what can be released | Shows done, carried, softened, and learned; no score/streak | `Today -> End My Day` | Local review receipt and optional encrypted journal path | DONE | Implemented tabbed UI and local receipt workflow |
+| V2-5 | Life map | My Life Map | Stores values, roles, goals, patterns, people, boundaries, preferences, and do-not-push rules | User can pin/hide guidance dimensions | `Private -> Life Map` | Privacy-labelled local life-map receipt; no external memory sync | DONE | Implemented UI, buttons, and local receipt proof |
+| V2-6 | Personal memory controls | Memory Centre | Shows what CK / Life OS remembers and lets user edit/delete/disable it | Every remembered claim has source, freshness, sensitivity, and use toggle | `Admin / Proof -> Memory` and contextual links | Local memory-control receipt; durable cross-device memory sync not claimed | DONE | Implemented Memory screen, controls, and Admin / Proof separation |
+| V2-7 | Shame-free accountability | Promises | Tracks promises separately from ordinary tasks | Broken promises open "too big / wrong time / fear / no longer true" review | `Plans -> Promises` | Local promise receipts and review controls | DONE | Implemented tabbed UI and local receipt workflow |
+| V2-8 | Task and project manager | Projects | Separates task, promise, dream, obligation, open loop, emotional burden, and someday idea | Each item shows next smallest step, effort, energy fit, avoidance risk | `Plans -> Projects` | Local project/open-loop receipts | DONE | Implemented tabbed UI and local receipt workflow |
+| V2-9 | Calendar reality | Calendar | Shows time, transition cost, recovery load, deadlines, and day shape | Calendar items include prep, travel/transition, emotional load, recovery cost | `Plans -> Calendar` | Local/manual calendar receipt; external calendar write approval-gated | DONE | Implemented manual calendar UI and local receipt boundary |
+| V2-10 | Deep guidance modes | Ask Guide | One guidance surface with Coach, Shadow, JK Inquiry, Manager, Companion, and Operator modes | Mode changes posture, questions, depth, and safety boundaries | `Guidance -> Ask Guide` | Local guide receipt plus OpenRouter execution approval gates | DONE | Implemented mode tabs/buttons and provider boundary |
+| V2-11 | Stuck workflow | I Feel Stuck | Helps identify whether the blocker is clarity, fear, energy, conflict, overload, or wrong goal | One question at a time; user can stop, park, or convert to plan | `Guidance -> I Feel Stuck` | Local stuck-workflow receipt linked to private paths | DONE | Implemented tabbed UI and local receipt workflow |
+| V2-12 | Decision support | Decision Help | Structures options, trade-offs, reversibility, cost, risk, and next proof step | "Decide now / gather proof / defer with date / abandon" buttons | `Guidance -> Decision Help` | Local decision receipt; external reminder writes approval-gated | DONE | Implemented tabbed UI and local receipt workflow |
+| V2-13 | Shadow/inquiry depth | Shadow Work | Extends existing Inner Work into a personal programme with phases and recurring review | Safety brake, grounding, privacy, not-therapy boundary, user-owned pace | `Private -> Shadow Work` | Existing encrypted Inner Work sessions plus v2 local receipt buttons | DONE | Implemented encrypted sessions, safety brake, and v2 UI path |
+| V2-14 | JK-style inquiry | Deep Inquiry | Guides observation without rushing to advice | "Question assumption / observe reaction / leave unanswered" controls | `Guidance -> Deep Inquiry` | Existing encrypted Inner Work modes plus v2 inquiry receipt | DONE | Implemented explicit Deep Inquiry screen and local receipt workflow |
+| V2-15 | Voice capture | Voice Notes | Accepts voice as journal, task, promise, source note, or stuck input | User chooses Save private / turn into plan / ask questions / forget | `Private -> Voice Notes` | Text-first voice-note receipt; live transcription provider approval-gated | DONE | Implemented transcript-safe UI and local receipt boundary |
+| V2-16 | RAG personal sources | Ask My Sources | Makes source search conversational while preserving citations and boundaries | Source answers show what was used, freshness, trust level, and "add to memory?" | `Knowledge -> Ask My Sources` | `/api/rag/search`, source drafts, local result evidence | DONE | Implemented Ask My Sources UI with local RAG search and memory choice |
+| V2-17 | Source library | RAG / Sources | Lets user manage internal/external sources, inclusions, exclusions, rights, and removal | Source cards show private/public, trusted/untrusted, indexed/not indexed | `Knowledge -> RAG / Sources` | `/api/rag/*`, `/api/source-index/*`, exact exclusions, local drafts | DONE | Implemented RAG / Sources screen, approvals, search, and evidence |
+| V2-18 | Personal insights | Insights | Shows patterns only when there is enough evidence | Each insight has why, source, confidence, hide/dismiss, and next question | `Knowledge -> Insights` | Local insight receipt; no fake insight without enough evidence | DONE | Implemented evidence-threshold screen and local receipt controls |
+| V2-19 | Reviews | Weekly Review | Turns week into learning, not judgement | Shows kept promises, adjusted promises, recurring friction, energy truth, next experiment | `Reviews -> Weekly Review` | Local weekly-review receipt and report link | DONE | Implemented tabbed UI and local receipt workflow |
+| V2-20 | Reports | Monthly Life Report | Provides private monthly report for promises, energy, patterns, sources, and effort reduction | Includes "what to continue / stop / reduce / ask for help with" | `Reviews -> Monthly Report` | Local monthly report receipt plus existing markdown summary export | DONE | Implemented tabbed UI, export path, and local receipt workflow |
+| V2-21 | Calm layout | Progressive disclosure | Ensures no middle-column scrolling; middle content uses tabs; right rail is contextual/collapsed | Left groups collapse, middle tabs, right rail only relevant to current screen | Whole UI | UI state plus browser QA proof | DONE | Implemented across v2 and legacy screens; browser QA checks no middle scroll |
+| V2-22 | Admin separation | Admin / Proof boundary | Hides Beast, Workshop, route proof, provider routing, test counts, and evidence from normal user flow | Proof available on demand only | `Admin / Proof` | Existing evidence APIs plus v2 proof routes | DONE | Implemented Admin / Proof menu and collapsed right-rail proof surfaces |
+
+### Delivered v2 Left Menu
+
+| Group | Menu items | Default behaviour |
+|---|---|---|
+| Today | Home, Daily Lens, Start My Day, Check In, End My Day | Open by default; shows today's useful path and the calm Daily Lens strip |
+| Guidance | Ask Guide, I Feel Stuck, Decision Help, Deep Inquiry | Collapsed unless the user chooses guidance |
+| Private | Journal, Shadow Work, Voice Notes, Life Map | Collapsed; privacy badges and encryption status visible when opened |
+| Plans | Promises, Projects, Calendar | Collapsed; count badges drill down to exact rows |
+| Knowledge | Academy, Ask My Sources, RAG / Sources, Insights | Collapsed; source answers must cite source cards and lessons must point to real product buttons |
+| Reviews | Daily Review, Weekly Review, Monthly Report | Collapsed; reviews appear when there is enough data |
+| Admin / Proof | Privacy, Memory, Evidence, Delivery matrix, R2D2 equivalent, Dependency fallback, OpenRouter routing, OSS adoption | Collapsed; hidden from ordinary emotional/practice workflows |
+
+### Delivered RAG Access And Source Rules
+
+RAG is accessed in two normal-user places:
+
+- `Knowledge -> Ask My Sources` when the user has a question and wants source-backed answers.
+- `Knowledge -> RAG / Sources` when the user wants to inspect RAG status, add a source, search sources, or build/search the local source index.
+
+Internal sources:
+
+- Accepted as local source-index inputs through approved roots only.
+- Current approved roots are `\\NAS2\amtl-documents` and `\\Nas1\Nas`.
+- Excluded roots are exactly `\\NAS2\amtl-documents\escalation-logs\linux logs\wazuz\prefe` and `\\Nas1\Nas\Programs\Spiritual\Dr Joe Dispenza\Generous moment\mani`.
+- Search is local metadata/text-snippet retrieval; PostgreSQL/pgvector are optional future adapters, not required for local/internal RAG.
+
+External sources:
+
+- Accepted as source drafts, pasted text, or explicit one-time approved URL fetches into the local RAG draft store.
+- External URL fetch is never automatic; the user must tick the approval control for that exact source.
+- External source handling remains local: no external send, no source-system write, and no model/provider call for source search.
+
+RAG buttons and routes:
+
+| UI location | Button / control | Backend route | Behaviour |
+|---|---|---|---|
+| Knowledge -> Ask My Sources -> Ask | Ask sources / Search | `GET /api/rag/search` | Searches local RAG drafts plus NAS source index and shows cited source cards |
+| Knowledge -> Ask My Sources -> Memory | Add to memory / Do not remember | `/api/life-manager/receipt` local receipt path | Records the user's choice locally; no cross-device memory sync |
+| Knowledge -> RAG / Sources -> Status | RAG status | `GET /api/rag/status` | Shows access point, internal/external lanes, exclusions, and provider boundary |
+| Knowledge -> RAG / Sources -> Add | Stage source | `POST /api/rag/source-draft` | Saves internal/external source draft locally; optional approved external fetch |
+| Knowledge -> RAG / Sources -> Search | Search | `GET /api/rag/search` | Searches local RAG records and source index |
+| Knowledge -> RAG / Sources -> Status | Build local index | `POST /api/source-index/build` | Builds bounded local NAS metadata/text-snippet index with only approved exclusions |
+
+### Delivered v2 Screen Inventory, Panels, Buttons, Functions, Workflows, and OSS
+
+| Screen | Menu path | Middle tabs | Panels inside tabs | Buttons / controls | Local function | Backend / data contract | OSS / adapter notes | Normal right rail |
+|---|---|---|---|---|---|---|---|---|
+| Home chooser | Today -> Home | Start, State, Proof-lite | State chooser, today's quiet signal, current local boundaries | Start My Day, I Feel Stuck, Decision Help, Process Something, Review / Plan | Route the user by human state, not module list | `/api/life-manager/spec`, `/api/life-manager/receipt` | FastAPI only; no AI required | Next useful path, why shown, local boundary |
+| Daily Lens | Today -> Daily Lens and top header | Today, Saved, Library | Current lens, saved lens shelf, 10k local lens library subset | Save, Why this?, Another, Save lens, Refresh saved, Open lens library | Gives a fresh calm quote/anecdote/prompt and lets user save useful lenses | `/api/daily-lens`, `/api/daily-lens/library`, `/api/daily-lens/save`, `/api/daily-lens/saved` | FastAPI/local JSONL; no provider call or copyrighted quote ingestion | Why this lens, source/permission boundary, saved receipt |
+| Academy | Knowledge -> Academy | Programmes, Lessons, Practice, Readiness | Local CK programmes, lesson cards, practice note, readiness coverage | Refresh Academy, Open lessons, Start lesson, Save practice receipt, Check readiness | Teaches how to use CK Life OS as coach/guide/accountability/life manager without scroll clutter | `/api/academy/status`, `/api/academy/programs`, `/api/academy/lessons/{lesson_id}`, `/api/academy/lessons/{lesson_id}/practice`, `/api/academy/readiness` | FastAPI/local JSONL; no external LMS | Lesson menu path, buttons, ELI10, local receipt |
+| Start My Day | Today -> Start My Day | Plan, Promises, Energy, Smallest Step | Today's focus, promises due, energy fit, calendar reality, smallest next step | Accept plan, Make gentler, Reduce today, Add promise, Park this | Build humane day plan and local receipt | `daily_plan` local receipt; future promise/calendar stores | Optional future calendar adapter; approval-gated | Today's next action and effort/energy context |
+| Check In | Today -> Check In | Reality, Adjust, Ground | What changed, promise adjustment, overload/energy status | Keep going, Reduce, Reschedule, Remove, Recommit, I need grounding | Shame-free midday adjustment | `check_in` local receipt; future promise update | No external reminder by default | Selected adjustment and reason |
+| End My Day | Today -> End My Day | Done, Carried, Learned, Release | Done, carried forward, learning, release note | Save review, Carry forward, Release this, Add to Life Map, Keep private | Close the day without scoring | `end_day_review` receipt, optional encrypted journal link | Existing Fernet journal may store private note | What gets remembered, released, or carried |
+| Ask Guide | Guidance -> Ask Guide | Mode, Question, Result | Coach, Shadow, JK Inquiry, Manager, Companion, Operator modes | Ask, Ask one question only, Make practical, Go deeper, Save to journal, Turn into plan, Stop / ground | Mode-aware local guide posture and provider-gated AI path | `/api/inner-work/*`, `/api/ai/route`, `/api/ai/complete` | OpenRouter via guarded tier policy; no live paid call without approval | Selected mode, next question, provider boundary |
+| I Feel Stuck | Guidance -> I Feel Stuck | Name, Question, Step | Stuck type, one question, smallest step | Name the stuck, Ask me one question, Turn into tiny step, Park it, Save privately | Classify stuck locally and reduce pressure | `stuck_workflow` local receipt; future encrypted link | No external provider needed for first slice | Stuck type, one question, stop control |
+| Decision Help | Guidance -> Decision Help | Options, Trade-offs, Risks, Proof Step | Options, reversible/irreversible, cost/risk, next proof | Add option, Compare options, Decide now, Gather proof, Defer with date, Abandon kindly | Structure decision without overthinking | `decision_help` receipt; future decision ledger | Optional AI reasoning through OpenRouter approval | Decision state and evidence gap |
+| Deep Inquiry | Guidance -> Deep Inquiry | Observe, Assumption, Leave Open | Observation, assumption, body signal, unanswered question | Question assumption, Observe reaction, Leave unanswered, Save privately, Ground me | JK-style inquiry without guru/final-answer claim | Existing Inner Work encrypted sessions | Existing cryptography/Fernet | One careful question and safety brake |
+| Journal | Private -> Journal | Write, Entries, Detail | Encrypted write, local entry list, decrypted detail | Save encrypted entry, Refresh journal, Open local decrypt | Private encrypted reflection | `/api/journal/*`, Fernet local key | `cryptography` Fernet | Encryption status and privacy boundary |
+| Shadow Work | Private -> Shadow Work | Start, Sessions, Detail | Mode/intention/input/transcript, session list, guidance detail | Start guided session, Load sessions, Open session, Stop / ground | Durable private inner work programme | `/api/inner-work/*` encrypted local sessions | `cryptography` Fernet | Mode, first question, not-therapy boundary |
+| Voice Notes | Private -> Voice Notes | Capture, Convert, Privacy | Pasted transcript, classify target, privacy choice | Save as journal, Turn into promise, Turn into task, Ask questions, Forget this | Text-first voice workflow until transcription is approved | `voice_note` local receipt; optional journal/promise conversion | Future Whisper/local transcription adapter approval-gated | Transcript boundary and selected conversion |
+| Life Map | Private -> Life Map | Values, People, Patterns, Boundaries | Values, roles, people, patterns, do-not-push rules | Save Life Map note, Pin, Hide, Delete, Export | Store the user's personal operating context | `life_map` local receipt; future memory ledger | Encrypted/private local store recommended | What is remembered and why |
+| Promises | Plans -> Promises | Active, Due, Review, History | Active promises, due promises, broken-promise review, history | Add promise, Reduce, Reschedule, Remove, Recommit | Shame-free accountability | `promise` local receipt; future promise ledger | No task provider required | Promise status and next adjustment |
+| Projects | Plans -> Projects | Tasks, Dreams, Open Loops, Emotional Burdens | Task/project list, someday ideas, obligations, open loops | Add project, Add smallest step, Park, Link promise | Separate tasks from dreams, obligations, and emotional burdens | `project` local receipt; future project store | Optional future Kanban/shared module only if useful | Smallest step and effort fit |
+| Calendar | Plans -> Calendar | Today, Week, Deadlines, Recovery | Manual calendar items, transition cost, prep, recovery load | Add manual event, Add prep, Add recovery, Copy/export | Calendar reality without external writes | `calendar_note` local receipt; external calendar write approval-gated | Future CalDAV/Graph/Google adapters require approval | Time reality and recovery load |
+| Ask My Sources | Knowledge -> Ask My Sources | Ask, Sources, Answer, Memory | Source-backed question, selected sources, cited answer, add-to-memory prompt | Ask sources, Search, Add to memory, Do not remember | RAG-backed guidance with citations | `/api/rag/search`, `/api/rag/source-draft`, future answer receipt | Existing FastAPI/local JSONL; pgvector optional future | Sources used, freshness, memory choice |
+| RAG / Sources | Knowledge -> RAG / Sources | Status, Add, Search, Results | RAG status, source intake, source search, result cards | Explain RAG access, Add source, Stage source, Search, Build local index | Manage source drafts/exclusions/search | `/api/rag/*`, `/api/source-index/*` | pgvector/Postgres optional, not required for local/internal | Source trust and exclusion boundary |
+| Insights | Knowledge -> Insights | Patterns, Evidence, Hidden | Only evidence-backed patterns, confidence, source links, hidden/dismissed insights | Show why, Hide, Dismiss, Add to Life Map | Show patterns only above evidence threshold | `insight` local receipt; future pattern ledger | AI optional; no fake insight without evidence | Why shown and confidence/source |
+| Daily Review | Reviews -> Daily Review | Today, Receipts, Next | Today's receipts, review note, tomorrow seed | Save review, Carry forward, Export local note | Close current day | Local report/receipt APIs | Existing local report stack | Today's learning, not score |
+| Weekly Review | Reviews -> Weekly Review | Promises, Patterns, Energy, Experiment | Kept/adjusted promises, friction, energy, next experiment | Create weekly review, Continue, Stop, Export | Turn week into learning | `weekly_review` local receipt; future rollup | No scheduler required for manual review | One next experiment |
+| Monthly Report | Reviews -> Monthly Report | Summary, Patterns, Sources, Export | Promise/energy/source/pattern rollup, effort reduction | Create monthly report, Export markdown, Add to Life Map | Private monthly life report | `/api/reports/local-summary.md` plus future v2 report | Existing markdown export; no external send | What to continue/stop/reduce |
+| Privacy | Admin / Proof -> Privacy | Local, Encrypted, Providers, Exports | Local storage, encrypted stores, provider gates, export controls | Inspect privacy, Export, Delete local draft, Provider policy | Explain data boundaries | `/api/data-truth`, `/api/ai/model-policy` | cryptography/OpenRouter boundary | Privacy proof only when requested |
+| Memory Centre | Admin / Proof -> Memory | Remembered, Sensitive, Disabled, Export | Memory rows, sensitivity, source, use toggle | Inspect, Edit, Delete, Disable, Export | User controls what is remembered | Future memory ledger; local receipt now | Could later use SQLite/Postgres if needed | Memory source/freshness |
+| Evidence / Runtime | Admin / Proof -> Evidence / Runtime | Checks, Output, Runtime, Dependency | Product Bible, R2D2, UI truth, data truth, dependency, runtime | Open proof, Check dependency, Show route proof, Open export | Keep proof out of normal flow | Existing `/api/*truth`, `/api/dependency-status` | Playwright/pytest as evidence tools, not runtime UI | Proof summary collapsed by default |
+
+### v2 Function Catalogue
+
+| Function family | Functions / endpoints | UI buttons that call it | Status for v2 slice |
+|---|---|---|---|
+| Layout spec | `/api/life-manager/spec`, `/api/life-manager/workflows` | Home screen proof, Admin / Proof matrix | Implemented local/internal; browser QA covers grouped menu, tabs, no middle scroll, and contextual collapsed right rail |
+| Local v2 receipts | `/api/life-manager/receipt`, `/api/life-manager/receipts` | Start My Day, Check In, End My Day, Stuck, Decision, Voice, Life Map, Promises, Projects, Calendar, Insights, Reviews | Implemented local/internal; external sends/writes remain approval-gated |
+| Daily Lens | `/api/daily-lens`, `/api/daily-lens/library`, `/api/daily-lens/save`, `/api/daily-lens/saved`, `/api/daily-lens/{lens_id}` | Header Save/Why this?/Another, Today -> Daily Lens Save lens/Refresh saved/Open lens library | Implemented local/internal with 10,000 generated CK originals/prompts/paraphrased anecdote patterns and saved-lens JSONL receipts |
+| Academy | `/api/academy/status`, `/api/academy/programs`, `/api/academy/lessons/{lesson_id}`, `/api/academy/lessons/{lesson_id}/practice`, `/api/academy/readiness`, `/api/academy/receipts` | Knowledge -> Academy Refresh Academy/Open lessons/Start lesson/Save practice receipt/Check readiness | Implemented local/internal with programme/lesson catalogue, local practice receipts, and no external LMS dependency |
+| Existing practice core | `/api/practices/*`, `/api/prompts/*`, `/api/contextual-guide/*` | Practice desk, Guide, count cards | Implemented v1 |
+| Existing private core | `/api/journal/*`, `/api/inner-work/*` | Journal, Shadow Work, Deep Inquiry, Voice conversion later | Implemented local/internal with encrypted storage and v2 private screens; live voice transcription remains approval-gated |
+| Existing RAG/source core | `/api/rag/*`, `/api/source-index/*` | Ask My Sources, RAG / Sources | Implemented local/internal with exact NAS exclusions, source drafts, approved one-time URL fetch, and local search |
+| Existing evidence core | `/api/product-bible-matrix`, `/api/r2d2`, `/api/ui-truth`, `/api/data-truth`, `/api/dependency-status` | Admin / Proof only | Implemented v1 |
+| Existing AI routing | `/api/ai/model-policy`, `/api/ai/route`, `/api/ai/complete` | Ask Guide only when explicitly executed/approved | Implemented guarded route; no paid call by default |
+| n8n workflow preflights and live gates | `/api/life-manager/n8n-workflows`, `/api/life-manager/n8n-workflows/{workflow_id}`, `/dry-run`, `/preflight`, `/live-import`, `/live-execute`, `/receipts`, `/api/live-actions/status`, `/api/live-actions/receipts` | Admin / Proof -> n8n workflow pack and runtime gates | Implemented local/internal as disabled importable workflows, local preflight receipts, approval-gated live import route, and approval-gated live execution route; live import requires `N8N_API_BASE_URL`/`N8N_API_KEY`; live execution requires `N8N_WEBHOOK_BASE_URL`, exact approval, and rollback |
+| Ripple calendar/voice/memory gates | `/api/ripple-calendar/write`, `/api/voice/transcription`, `/api/memory/sync` | Calendar, Voice Notes, Memory/Admin approval workflows | Implemented callable CK gates. Without `RIPPLE_CALENDAR_ENDPOINT`, `CK_LIFE_OS_TRANSCRIPTION_ENDPOINT`, or `CK_LIFE_OS_MEMORY_SYNC_DIR`, routes save exact blocked receipts instead of pretending success |
+
+### Proposed v2 Hide / Remove / Enhance Rules
+
+Hide from normal user flow:
+
+- Beast, Workshop, runtime, port, route, provider, delivery-matrix, and test-count proof.
+- Raw source paths, raw JSON, raw prompts, chain-of-thought, secrets, and unrelated evidence files.
+- Deep analytics until there is enough evidence to avoid fake certainty.
+- Any guidance mode, source, memory, or automation that the user has disabled.
+
+Remove or consolidate:
+
+- Duplicate chat/search/inquiry surfaces that look the same but use different labels.
+- Permanent right-rail boxes that are not relevant to the current screen.
+- Generic helper copy that does not know what the user clicked.
+- Visible productivity pressure such as scores, streaks, guilt language, or "behind" framing.
+
+Enhance:
+
+- Count cards must always drill down to exact rows or explain intentional zero.
+- Every recommendation should show source/freshness/confidence or say "not enough evidence".
+- Every task/promise should show effort, energy fit, smallest version, and next honest step.
+- Every personal memory should be inspectable, editable, deletable, exportable, and sensitivity-labelled.
+- Every private/emotional screen should include a visible safety brake: pause, ground, save private, or stop.
+
+### v2 Evidence Gate Before Claiming Done
+
+CK / Life OS v2 cannot be claimed DONE_LOCAL_INTERNAL until each V2 row is moved into the main delivery matrix with:
+
+- implementation location;
+- UI location;
+- backend/data location;
+- evidence path;
+- direct and gateway route proof where relevant;
+- desktop and mobile browser QA screenshots;
+- count truth;
+- button truth;
+- drilldown truth;
+- data truth;
+- dependency-down behaviour;
+- privacy/memory/export proof;
+- OpenRouter/provider proof showing no live paid call unless explicitly approved.
