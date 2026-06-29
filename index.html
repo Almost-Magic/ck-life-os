@@ -430,6 +430,7 @@ pre { white-space: pre-wrap; margin: 0; }
           <div class="menu-buttons">
             <button data-view="privacy">Privacy</button>
             <button data-view="memory">Memory</button>
+            <button data-view="crossAppPackets">Cross-App Packets</button>
             <button data-view="evidence">Evidence summaries</button>
             <button data-proof-direct="matrix">Delivery matrix</button>
             <button data-proof-direct="r2d2">R2D2 equivalent</button>
@@ -674,6 +675,65 @@ pre { white-space: pre-wrap; margin: 0; }
           <div id="memory-sensitive" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Disable" data-life-screen="Memory">Disable</button></div>
           <div id="memory-disabled" class="tab-panel panel hidden"><p class="muted">Disabled memories are not used for guidance.</p></div>
           <div id="memory-export" class="tab-panel panel hidden"><button class="button secondary" data-life-action="Export" data-life-screen="Memory">Export</button></div>
+        </section>
+
+        <section id="crossAppPackets" class="view stack hidden">
+          <div class="panel">
+            <div class="tabbar" aria-label="Cross-App Packets tabs">
+              <button data-tab="cross-rules" aria-selected="true">Rules</button>
+              <button data-tab="cross-draft">Draft Packet</button>
+              <button data-tab="cross-receipts">Receipts</button>
+              <button data-tab="cross-boundaries">Boundaries</button>
+            </div>
+          </div>
+          <div id="cross-rules" class="tab-panel panel">
+            <h2>Cross-App Packets</h2>
+            <p class="muted">CK prepares local review packets for other AMTL apps. It does not silently write to Elaine, Baldrick, Costanza, Ripple, Spark, or any other app.</p>
+            <button class="button" id="loadCrossRules">Load receiver rules</button>
+            <div id="crossRuleRows" class="list compact-list" style="margin-top:12px">Load rules to see who CK can inform, when, how, and why.</div>
+          </div>
+          <div id="cross-draft" class="tab-panel panel two-col hidden">
+            <div>
+              <h2>Draft Packet</h2>
+              <label>Receiver
+                <select id="crossReceiver">
+                  <option>Elaine</option>
+                  <option>Baldrick</option>
+                  <option>Costanza</option>
+                  <option>Ripple</option>
+                  <option>Spark</option>
+                  <option>Beast / Runtime Supervisor</option>
+                  <option>Digital Sentinel</option>
+                  <option>Workshop</option>
+                  <option>Peterman</option>
+                  <option>CK Writer</option>
+                  <option>CK Creative Studio / Raw Milk</option>
+                  <option>Opportunity Hunter</option>
+                </select>
+              </label>
+              <label>Packet title<input id="crossPacketTitle" type="text" maxlength="180" placeholder="What should this app know?"></label>
+              <label>Safe summary<textarea id="crossPacketSummary" maxlength="1000" placeholder="Sanitised summary only. No raw journal, shadow work, secrets, or private transcript."></textarea></label>
+              <label>Privacy level<input id="crossPrivacyLevel" type="text" maxlength="120" placeholder="sanitised_summary_only"></label>
+              <div class="inline" style="margin-top:12px">
+                <button class="button" id="previewCrossPacket">Preview packet</button>
+                <button class="button secondary" id="saveCrossPacket">Save local packet</button>
+              </div>
+            </div>
+            <div id="crossPreviewPanel" class="subtle">No packet preview yet.</div>
+          </div>
+          <div id="cross-receipts" class="tab-panel panel hidden">
+            <h2>Local Packet Receipts</h2>
+            <button class="button secondary" id="refreshCrossReceipts">Refresh receipts</button>
+            <div id="crossReceiptRows" class="list compact-list" style="margin-top:12px">No receipts loaded yet.</div>
+          </div>
+          <div id="cross-boundaries" class="tab-panel panel hidden">
+            <h2>Boundaries</h2>
+            <div class="subtle">
+              <p><strong>No silent writes.</strong> CK saves local packet receipts only unless a future receiver adapter and exact approval exist.</p>
+              <p><strong>No raw private material.</strong> Journal, shadow work, voice transcripts, relationship details, source contents, secrets, and excluded RAG folders stay inside CK unless explicitly approved.</p>
+              <p><strong>Packet-first.</strong> Each packet must show receiver, when, how, why, safe payload, never-send fields, privacy level, and approval state.</p>
+            </div>
+          </div>
         </section>
 
         <section id="practiceHero" class="panel hero-grid hidden">
@@ -1076,6 +1136,7 @@ pre { white-space: pre-wrap; margin: 0; }
               <button class="plain-button" data-proof="ai">OpenRouter model routing</button>
               <button class="plain-button" data-proof="source">Source index</button>
               <button class="plain-button" data-proof="n8n">n8n workflow pack</button>
+              <button class="plain-button" data-proof="cross">Cross-app packets</button>
             </div>
           </div>
           <div id="evidence-output-panel" class="tab-panel panel hidden"><div class="subtle" id="proofOutput">Choose an evidence summary.</div></div>
@@ -1302,6 +1363,7 @@ const openView = viewName => {
     reports: ["Reports and gates", "Open a report or stage a local gate.", "local reports"],
     privacy: ["Privacy", "Inspect privacy boundaries only when needed.", "privacy control"],
     memory: ["Memory", "Inspect and control what is remembered.", "memory centre"],
+    crossAppPackets: ["Cross-App Packets", "Prepare receiver packets without silent sends.", "packet-first cross-app review"],
     evidence: ["Evidence summaries", "Open one proof summary from Admin / Proof.", "admin proof"]
   };
   const selected = info[viewName] || [viewName, "Choose one useful action.", "local workflow"];
@@ -1618,6 +1680,65 @@ const loadPinReview = async () => {
   setResult(`PIN review receipt ${data.receipt.receipt_id}.`);
   setContext({ title: "PIN Review", next: "Save useful insights to Life Map only if they still feel true.", details: `<strong>Review:</strong> ${review.review_id}<br><strong>Receipt:</strong> ${data.receipt.receipt_id}`, sixw: "<strong>What:</strong> monthly thinking-input review<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> see what shaped thinking<br><strong>When:</strong> weekly or monthly<br><strong>Where:</strong> PIN -> Review<br><strong>ELI10:</strong> it checks what influenced you and what to stop feeding.", receipt: "Local PIN receipt. External send: false." });
 };
+const crossPacketPayload = () => ({
+  receiver: document.getElementById("crossReceiver").value,
+  title: document.getElementById("crossPacketTitle").value || "CK Life OS local packet",
+  summary: document.getElementById("crossPacketSummary").value || "Sanitised local packet for review.",
+  privacy_level: document.getElementById("crossPrivacyLevel").value || "sanitised_summary_only"
+});
+const renderCrossPreview = preview => summaryList([
+  `<strong>Receiver:</strong> ${escapeHtml(preview.receiver)}`,
+  `<strong>Packet type:</strong> ${escapeHtml(preview.packet_type)}`,
+  `<strong>When:</strong> ${escapeHtml(preview.when)}`,
+  `<strong>How:</strong> ${escapeHtml(preview.how)}`,
+  `<strong>Why:</strong> ${escapeHtml(preview.why)}`,
+  `<strong>Privacy:</strong> ${escapeHtml(preview.privacy_level)}`,
+  `<strong>Safe payload:</strong> ${preview.safe_payload.map(escapeHtml).join(", ")}`,
+  `<strong>Never send:</strong> ${preview.never_send.map(escapeHtml).join(", ")}`,
+  `<strong>External send:</strong> ${preview.external_send}`,
+  `<strong>Target app write:</strong> ${preview.target_app_write}`,
+  `<strong>Silent write:</strong> ${preview.silent_write}`
+]);
+const loadCrossRules = async () => {
+  const data = await api("/api/cross-app/notification-rules");
+  document.getElementById("crossRuleRows").innerHTML = `<h2>${data.receiver_count} receiver rules</h2>` + data.items.map(item => `
+    <div class="row">
+      <strong>${escapeHtml(item.receiver)}</strong>
+      <p>${escapeHtml(item.role)}</p>
+      <p class="small"><strong>When:</strong> ${escapeHtml(item.inform_when)}</p>
+      <p class="small"><strong>How:</strong> ${escapeHtml(item.how)} <strong>Why:</strong> ${escapeHtml(item.why)}</p>
+      <p class="small"><strong>Privacy:</strong> ${escapeHtml(item.default_privacy)} - approval required: ${item.approval_required}</p>
+    </div>
+  `).join("");
+  openTab("cross-rules");
+  setContext({ title: "Cross-App Packet Rules", next: "Draft a packet only when a sanitised summary is useful outside CK.", details: `<strong>Receivers:</strong> ${data.receiver_count}<br><strong>External send:</strong> ${data.boundary.external_send}`, sixw: "<strong>What:</strong> receiver rules<br><strong>Who:</strong> CK and AMTL apps<br><strong>Why:</strong> avoid silent or over-sharing handoffs<br><strong>When:</strong> only after a useful signal exists<br><strong>Where:</strong> Admin / Proof -> Cross-App Packets<br><strong>ELI10:</strong> it says who may need a safe note and what must stay private.", receipt: "Rules load writes nothing." });
+};
+const previewCrossPacket = async () => {
+  const data = await api("/api/cross-app/packet-preview", { method: "POST", body: JSON.stringify(crossPacketPayload()) });
+  document.getElementById("crossPreviewPanel").innerHTML = renderCrossPreview(data.preview);
+  openTab("cross-draft");
+  setContext({ title: "Cross-App Packet Preview", next: data.preview.next_action, details: `<strong>Receiver:</strong> ${escapeHtml(data.preview.receiver)}<br><strong>Approval:</strong> ${data.preview.approval_state}`, sixw: "<strong>What:</strong> redacted app packet<br><strong>Who:</strong> selected receiver app<br><strong>Why:</strong> move useful signals safely<br><strong>When:</strong> after review<br><strong>Where:</strong> Cross-App Packets -> Draft Packet<br><strong>ELI10:</strong> it makes a safe note before any other app sees anything.", receipt: "Preview only. External send: false. Target app write: false." });
+  return data.preview;
+};
+const saveCrossPacket = async () => {
+  const data = await api("/api/cross-app/packets", { method: "POST", body: JSON.stringify(crossPacketPayload()) });
+  document.getElementById("crossPreviewPanel").innerHTML = renderCrossPreview(data.receipt.packet) + summaryList([`<strong>Receipt:</strong> ${data.receipt.receipt_id}`]);
+  setResult(`Cross-app packet saved locally: ${data.receipt.receipt_id}.`);
+  await loadCrossReceipts();
+};
+const loadCrossReceipts = async () => {
+  const data = await api("/api/cross-app/packets");
+  document.getElementById("crossReceiptRows").innerHTML = data.items.length ? data.items.map(item => `
+    <div class="row">
+      <strong>${escapeHtml(item.receipt_id)}</strong>
+      <p>${escapeHtml(item.packet.receiver)} - ${escapeHtml(item.packet.packet_type)}</p>
+      <p class="small">${escapeHtml(item.packet.title)} - local only: ${item.local_only}</p>
+      <p class="small">External send: ${item.external_send} - target app write: ${item.target_app_write} - silent write: ${item.silent_write}</p>
+    </div>
+  `).join("") : "No local packet receipts yet.";
+  openTab("cross-receipts");
+  setContext({ title: "Cross-App Receipts", next: "Receipts prove packets stayed local unless a future approved adapter exists.", details: `<strong>Receipts:</strong> ${data.count}<br><strong>Storage:</strong> ${escapeHtml(data.storage)}`, sixw: "<strong>What:</strong> local packet receipt ledger<br><strong>Who:</strong> local CK reviewer<br><strong>Why:</strong> prove no silent sibling write<br><strong>When:</strong> after packet preview/save<br><strong>Where:</strong> Cross-App Packets -> Receipts<br><strong>ELI10:</strong> it shows what was prepared, not sent.", receipt: "External send: false. Target app write: false." });
+};
 const loadJournal = async () => {
   const status = await api("/api/journal/status");
   const data = await api("/api/journal");
@@ -1742,6 +1863,12 @@ const proofMap = {
     `External send: ${data.external_send}`,
     `Dry-run endpoint: ${data.dry_run_endpoint}`,
     `Status of all workflows: ${data.items.every(item => item.safe_local_status === "importable_disabled_workflow_and_ck_preflight_endpoint_ready") ? "importable, disabled, preflight-ready" : "review required"}`
+  ]],
+  cross: ["/api/cross-app/notification-rules", data => [
+    `Receivers: ${data.receiver_count}`,
+    `External send: ${data.boundary.external_send}`,
+    `Target app write: ${data.boundary.target_app_write}`,
+    `Silent write: ${data.boundary.silent_write}`
   ]]
 };
 const openProof = async proof => {
@@ -1932,6 +2059,10 @@ document.getElementById("pinInfluenceRadar").addEventListener("click", loadPinRa
 document.getElementById("pinCompareViews").addEventListener("click", loadPinRadar);
 document.getElementById("pinLearningQueue").addEventListener("click", loadPinQueue);
 document.getElementById("pinMonthlyReview").addEventListener("click", loadPinReview);
+document.getElementById("loadCrossRules").addEventListener("click", loadCrossRules);
+document.getElementById("previewCrossPacket").addEventListener("click", previewCrossPacket);
+document.getElementById("saveCrossPacket").addEventListener("click", saveCrossPacket);
+document.getElementById("refreshCrossReceipts").addEventListener("click", loadCrossReceipts);
 document.getElementById("openReport").addEventListener("click", async () => {
   const data = await api("/api/reports/local-summary");
   document.getElementById("reportPanel").innerHTML = summaryList([`<strong>Local summary report</strong>`, `Report ID: ${data.report_id}`, `Receipts: ${data.receipt_count}`, `Encrypted journal entries: ${data.encrypted_journal_count}`, `Innovations: ${data.idea_count}`, `External send: ${data.handover_boundary.external_send}`, `Source write: ${data.handover_boundary.source_write}`, `Human review: ${data.handover_boundary.human_review_required}`]);

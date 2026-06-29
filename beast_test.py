@@ -639,8 +639,9 @@ class TestMani100TruthSurfaces:
         assert "Academy" in groups["Knowledge"]
         assert "PIN Strategist" in groups["Knowledge"]
         assert "Admin / Proof" in groups
+        assert "Cross-App Packets" in groups["Admin / Proof"]
         screens = {item["id"]: item for item in data["screens"]}
-        for screen_id in ["today", "dailyLens", "startDay", "checkIn", "endDay", "askGuide", "stuck", "decision", "voiceNotes", "lifeMap", "promises", "projects", "calendar", "academy", "askSources", "sources", "pinStrategist", "insights", "weeklyReview", "memory"]:
+        for screen_id in ["today", "dailyLens", "startDay", "checkIn", "endDay", "askGuide", "stuck", "decision", "voiceNotes", "lifeMap", "promises", "projects", "calendar", "academy", "askSources", "sources", "pinStrategist", "insights", "weeklyReview", "memory", "crossAppPackets"]:
             assert screen_id in screens
             assert screens[screen_id]["tabs"]
             assert screens[screen_id]["buttons"]
@@ -683,9 +684,11 @@ class TestMani100TruthSurfaces:
         assert data["life_manager_v2"]["screen_count"] >= 18
         assert data["life_manager_v2"]["academy_visible_in_knowledge"] is True
         assert data["life_manager_v2"]["pin_visible_in_knowledge"] is True
+        assert data["life_manager_v2"]["cross_app_packets_visible_in_admin_proof"] is True
         assert "life_manager_receipt" in data["buttons"]
         assert "academy_practice" in data["buttons"]
         assert "pin_decision_brief" in data["buttons"]
+        assert "cross_app_packets" in data["buttons"]
         assert "ripple_calendar_write" in data["buttons"]
 
     def test_academy_is_real_local_screen_module(self):
@@ -760,6 +763,40 @@ class TestMani100TruthSurfaces:
         assert review.json()["review"]["external_send"] is False
         receipts = client.get("/api/pin/receipts")
         assert any(item["receipt_id"] == brief_data["receipt"]["receipt_id"] for item in receipts.json()["items"])
+
+    def test_cross_app_packets_are_packet_first_and_local_only(self):
+        rules = client.get("/api/cross-app/notification-rules")
+        assert rules.status_code == 200
+        rules_data = rules.json()
+        assert rules_data["status"] == "implemented_local_internal_packet_first"
+        receivers = {item["receiver"] for item in rules_data["items"]}
+        for receiver in ["Elaine", "Baldrick", "Costanza", "Ripple", "Spark", "Beast / Runtime Supervisor", "Digital Sentinel", "Workshop"]:
+            assert receiver in receivers
+        assert rules_data["boundary"]["external_send"] is False
+        assert rules_data["boundary"]["target_app_write"] is False
+        assert rules_data["boundary"]["silent_write"] is False
+        preview = client.post(
+            "/api/cross-app/packet-preview",
+            json={"receiver": "Elaine", "title": "Calm layout signal", "summary": "Tabbed middle panels reduce overload."},
+        )
+        assert preview.status_code == 200
+        preview_data = preview.json()["preview"]
+        assert preview_data["receiver"] == "Elaine"
+        assert preview_data["external_send"] is False
+        assert preview_data["target_app_write"] is False
+        assert preview_data["silent_write"] is False
+        save = client.post(
+            "/api/cross-app/packets",
+            json={"receiver": "Ripple", "title": "Follow-up signal", "summary": "Ask one person for advice before deciding."},
+        )
+        assert save.status_code == 200
+        save_data = save.json()
+        assert save_data["status"] == "saved_local_packet_only"
+        assert save_data["receipt"]["local_only"] is True
+        assert save_data["receipt"]["external_send"] is False
+        assert save_data["receipt"]["target_app_write"] is False
+        receipts = client.get("/api/cross-app/packets")
+        assert any(item["receipt_id"] == save_data["receipt"]["receipt_id"] for item in receipts.json()["items"])
 
     def test_live_action_gates_return_exact_blockers_without_credentials(self):
         status = client.get("/api/live-actions/status")

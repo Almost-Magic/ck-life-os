@@ -438,6 +438,7 @@ DAILY_LENS_SAVED_FILE = RUNTIME_DIR / "daily-lens-saved.jsonl"
 ACADEMY_RECEIPTS_FILE = RUNTIME_DIR / "academy-receipts.jsonl"
 LIVE_ACTION_RECEIPTS_FILE = RUNTIME_DIR / "live-action-receipts.jsonl"
 PIN_RECEIPTS_FILE = RUNTIME_DIR / "pin-strategist-receipts.jsonl"
+CROSS_APP_PACKET_RECEIPTS_FILE = RUNTIME_DIR / "cross-app-packets.jsonl"
 
 NAS_SOURCE_ROOTS = [r"\\NAS2\amtl-documents", r"\\Nas1\Nas"]
 NAS_EXCLUDED_ROOTS = [
@@ -472,7 +473,7 @@ LIFE_MANAGER_MENU = [
     {"group": "Plans", "items": ["Promises", "Projects", "Calendar"], "default_open": False},
     {"group": "Knowledge", "items": ["Academy", "Ask My Sources", "RAG / Sources", "PIN Strategist", "Insights"], "default_open": False},
     {"group": "Reviews", "items": ["Daily Review", "Weekly Review", "Monthly Report"], "default_open": False},
-    {"group": "Admin / Proof", "items": ["Privacy", "Memory", "Evidence", "Runtime", "Exports", "Dependency Status"], "default_open": False},
+    {"group": "Admin / Proof", "items": ["Privacy", "Memory", "Cross-App Packets", "Evidence", "Runtime", "Exports", "Dependency Status"], "default_open": False},
 ]
 
 LIFE_MANAGER_SCREENS = [
@@ -691,6 +692,150 @@ LIFE_MANAGER_SCREENS = [
         "panels": ["memory rows", "sensitivity", "source", "use toggle"],
         "buttons": ["Inspect", "Edit", "Delete", "Disable", "Export"],
         "workflow": "Let the user inspect and control memory.",
+    },
+    {
+        "id": "crossAppPackets",
+        "label": "Cross-App Packets",
+        "menu_path": "Admin / Proof -> Cross-App Packets",
+        "tabs": ["Rules", "Draft Packet", "Receipts", "Boundaries"],
+        "panels": ["receiver rules", "packet preview", "local packet receipts", "privacy and no-silent-send boundary"],
+        "buttons": ["Load receiver rules", "Preview packet", "Save local packet", "Refresh receipts"],
+        "workflow": "Prepare packet-first app notifications for Elaine, Baldrick, Costanza, Ripple, Spark, Beast, Digital Sentinel, Workshop, and specialist apps without silent sends.",
+    },
+]
+
+CROSS_APP_NOTIFICATION_RULES = [
+    {
+        "receiver": "Elaine",
+        "role": "chief innovation manager",
+        "inform_when": "A CK pattern, PIN insight, Daily Lens, field-level innovation, or repeated friction could improve an AMTL product.",
+        "how": "Product Insight Packet",
+        "why": "Turn lived product friction into better calm design and field-level innovation.",
+        "safe_payload": ["insight", "user pain", "screen/module", "suggested change", "confidence", "privacy level"],
+        "never_send": ["raw journal", "shadow work detail", "voice transcript", "private relationship details"],
+        "approval_required": True,
+        "default_privacy": "sanitised_summary_only",
+    },
+    {
+        "receiver": "Baldrick",
+        "role": "execution and operations partner",
+        "inform_when": "A promise becomes a project, a plan needs decomposition, or a review identifies an operational blocker.",
+        "how": "Execution Packet",
+        "why": "Turn a CK intention into a small, trackable next action without overloading the user.",
+        "safe_payload": ["goal", "next action", "deadline", "blockers", "capacity note", "rollback"],
+        "never_send": ["raw private reason unless explicitly approved"],
+        "approval_required": True,
+        "default_privacy": "capacity_signal_or_sanitised_plan",
+    },
+    {
+        "receiver": "Costanza",
+        "role": "cost and value discipline",
+        "inform_when": "A choice has tool, meeting, model, time, subscription, or opportunity cost.",
+        "how": "Cost/Value Packet",
+        "why": "Check whether the action is worth the money, time, and effort before escalating.",
+        "safe_payload": ["decision", "expected cost", "time cost", "alternatives", "value question"],
+        "never_send": ["private emotional detail", "financial secrets"],
+        "approval_required": True,
+        "default_privacy": "decision_summary_only",
+    },
+    {
+        "receiver": "Ripple",
+        "role": "relationship, follow-up, and revenue truth",
+        "inform_when": "A person needs follow-up, meeting prep, a calendar request, or a PIN people signal should become a relationship action.",
+        "how": "Relationship / Follow-up Packet",
+        "why": "Keep commitments to people without exposing private CK context.",
+        "safe_payload": ["person", "reason", "suggested message", "timing", "importance", "privacy boundary"],
+        "never_send": ["raw journal", "therapy-like material", "unapproved calendar write"],
+        "approval_required": True,
+        "default_privacy": "sanitised_follow_up",
+    },
+    {
+        "receiver": "Spark",
+        "role": "public messaging and campaign surface",
+        "inform_when": "A private insight is approved to become public-facing content, campaign framing, or a visibility signal.",
+        "how": "Content Signal Packet",
+        "why": "Convert approved ideas into safe public messaging while protecting private source material.",
+        "safe_payload": ["idea", "audience", "angle", "approved public framing", "do-not-mention"],
+        "never_send": ["raw private source", "named personal context without approval"],
+        "approval_required": True,
+        "default_privacy": "public_safe_reframe",
+    },
+    {
+        "receiver": "Beast / Runtime Supervisor",
+        "role": "CIO/CTO runtime monitoring",
+        "inform_when": "CK starts, restarts, changes route/port/health, or adds monitorable backend routes.",
+        "how": "Runtime Registration / Monitor Packet",
+        "why": "Let Beast monitor and repair CK without guessing.",
+        "safe_payload": ["product", "port", "direct URL", "friendly route", "health endpoint", "repair command", "rollback", "PID", "evidence path"],
+        "never_send": ["secrets", "private journal data"],
+        "approval_required": False,
+        "default_privacy": "runtime_metadata_only",
+    },
+    {
+        "receiver": "Digital Sentinel",
+        "role": "privacy, compliance, and CISO boundary",
+        "inform_when": "CK changes journal, shadow work, voice, memory, RAG, cross-app packets, external provider, or approval-gated data movement.",
+        "how": "Privacy / Risk Packet",
+        "why": "Verify sensitive personal data is protected before it moves or becomes searchable.",
+        "safe_payload": ["data type", "storage", "encryption", "external send status", "approval gate", "exclusions", "retention/removal path"],
+        "never_send": ["secrets", "raw private content unless explicitly required and approved"],
+        "approval_required": True,
+        "default_privacy": "risk_metadata_only",
+    },
+    {
+        "receiver": "Workshop",
+        "role": "open, inspect, and fix registry",
+        "inform_when": "CK route, source path, health endpoint, repair command, module list, or evidence path changes.",
+        "how": "Workshop Registration Packet",
+        "why": "Make CK openable and repairable from Workshop.",
+        "safe_payload": ["direct URL", "AMTL URL", "source path", "health", "repair command", "last proof", "status"],
+        "never_send": ["private user data", "secrets"],
+        "approval_required": False,
+        "default_privacy": "product_metadata_only",
+    },
+    {
+        "receiver": "Peterman",
+        "role": "public perception and entity clarity",
+        "inform_when": "A CK insight becomes an approved public narrative, author theme, or positioning idea.",
+        "how": "Public Perception Packet",
+        "why": "Check how an approved public idea may be understood.",
+        "safe_payload": ["public idea", "audience", "entity angle", "approved claims", "do-not-claim"],
+        "never_send": ["raw private content"],
+        "approval_required": True,
+        "default_privacy": "approved_public_only",
+    },
+    {
+        "receiver": "CK Writer",
+        "role": "writing and draft production",
+        "inform_when": "The user chooses to turn a reflection, lens, Academy note, or insight into writing.",
+        "how": "Writing Draft Packet",
+        "why": "Move approved thoughts into structured writing without leaking private context.",
+        "safe_payload": ["purpose", "audience", "tone", "allowed details", "forbidden details"],
+        "never_send": ["raw journal or shadow work unless explicitly approved"],
+        "approval_required": True,
+        "default_privacy": "approved_excerpt_or_summary",
+    },
+    {
+        "receiver": "CK Creative Studio / Raw Milk",
+        "role": "visual and creative production",
+        "inform_when": "An approved CK idea should become a visual asset, diagram, workbook, campaign image, or brand artefact.",
+        "how": "Creative Brief Packet",
+        "why": "Turn approved insight into visual production without exposing raw private material.",
+        "safe_payload": ["concept", "audience", "mood", "copy", "asset type", "privacy boundary"],
+        "never_send": ["raw private source material"],
+        "approval_required": True,
+        "default_privacy": "creative_brief_only",
+    },
+    {
+        "receiver": "Opportunity Hunter",
+        "role": "product and offer opportunity detection",
+        "inform_when": "A repeated pain, PIN source pattern, or Elaine-approved innovation may become an offer or product opportunity.",
+        "how": "Opportunity Signal Packet",
+        "why": "Evaluate whether a lived pain or product insight is worth pursuing.",
+        "safe_payload": ["pain", "audience", "evidence type", "urgency", "possible offer", "source sensitivity"],
+        "never_send": ["raw private evidence", "unapproved source contents"],
+        "approval_required": True,
+        "default_privacy": "sanitised_opportunity_signal",
     },
 ]
 
@@ -1180,6 +1325,82 @@ def _read_academy_receipts(limit: int = 50) -> list[dict[str, Any]]:
         return []
     rows = []
     for line in ACADEMY_RECEIPTS_FILE.read_text(encoding="utf-8").splitlines()[-limit:]:
+        try:
+            rows.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    return rows
+
+
+def _cross_app_rule(receiver: str) -> dict[str, Any]:
+    normalised = receiver.strip().lower()
+    for rule in CROSS_APP_NOTIFICATION_RULES:
+        aliases = {rule["receiver"].lower(), rule["receiver"].split("/")[0].strip().lower()}
+        if normalised in aliases:
+            return rule
+    raise HTTPException(status_code=404, detail={"error": "unknown_cross_app_receiver", "receiver": receiver})
+
+
+def _cross_app_preview(payload: dict[str, Any]) -> dict[str, Any]:
+    receiver = str(payload.get("receiver") or "Elaine")
+    rule = _cross_app_rule(receiver)
+    title = str(payload.get("title") or "CK Life OS local packet")[:180]
+    summary = str(payload.get("summary") or rule["inform_when"])[:1000]
+    privacy_level = str(payload.get("privacy_level") or rule["default_privacy"])[:120]
+    return {
+        "packet_id": f"cross-app-preview-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}",
+        "created_at": _utc_now(),
+        "receiver": rule["receiver"],
+        "role": rule["role"],
+        "packet_type": rule["how"],
+        "title": title,
+        "summary": summary,
+        "when": rule["inform_when"],
+        "how": rule["how"],
+        "why": rule["why"],
+        "safe_payload": rule["safe_payload"],
+        "never_send": rule["never_send"],
+        "privacy_level": privacy_level,
+        "approval_required": rule["approval_required"],
+        "approval_state": "draft_local_only",
+        "external_send": False,
+        "target_app_write": False,
+        "silent_write": False,
+        "provider_called": False,
+        "source_write": False,
+        "raw_private_content_allowed": False,
+        "next_action": "Review the redacted packet. Save it locally, or use a future receiver adapter only with exact approval.",
+    }
+
+
+def _append_cross_app_packet(payload: dict[str, Any]) -> dict[str, Any]:
+    RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+    preview = _cross_app_preview(payload)
+    receipt = {
+        "receipt_id": f"cross-app-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}",
+        "created_at": _utc_now(),
+        "receipt_type": "cross_app_packet",
+        "packet": preview,
+        "local_only": True,
+        "storage": str(CROSS_APP_PACKET_RECEIPTS_FILE),
+        "external_send": False,
+        "target_app_write": False,
+        "silent_write": False,
+        "provider_called": False,
+        "source_write": False,
+        "rollback": "Delete this local packet receipt; no target app was touched.",
+    }
+    with CROSS_APP_PACKET_RECEIPTS_FILE.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(receipt, ensure_ascii=True) + "\n")
+    _append_receipt({"practice": "system", "note": f"Cross-app packet saved for {preview['receiver']}", **receipt})
+    return receipt
+
+
+def _read_cross_app_packets(limit: int = 50) -> list[dict[str, Any]]:
+    if not CROSS_APP_PACKET_RECEIPTS_FILE.exists():
+        return []
+    rows = []
+    for line in CROSS_APP_PACKET_RECEIPTS_FILE.read_text(encoding="utf-8").splitlines()[-limit:]:
         try:
             rows.append(json.loads(line))
         except json.JSONDecodeError:
@@ -3348,6 +3569,61 @@ async def pin_receipts():
     return {"count": len(_read_pin_receipts(limit=100000)), "items": rows, "storage": str(PIN_RECEIPTS_FILE), "external_send": False}
 
 
+@app.get("/api/cross-app/notification-rules")
+async def cross_app_notification_rules():
+    return {
+        "status": "implemented_local_internal_packet_first",
+        "where_to_access": "Admin / Proof -> Cross-App Packets",
+        "receiver_count": len(CROSS_APP_NOTIFICATION_RULES),
+        "items": CROSS_APP_NOTIFICATION_RULES,
+        "boundary": {
+            "external_send": False,
+            "target_app_write": False,
+            "silent_write": False,
+            "raw_private_content_allowed": False,
+            "approval_required_for_sensitive_or_target_action": True,
+        },
+        "normal_user_private_screens": "do not expose cross-app packets unless the user opens Admin / Proof",
+    }
+
+
+@app.post("/api/cross-app/packet-preview")
+async def cross_app_packet_preview(request: Request):
+    payload = await request.json()
+    return {
+        "preview": _cross_app_preview(payload),
+        "external_send": False,
+        "target_app_write": False,
+        "silent_write": False,
+    }
+
+
+@app.get("/api/cross-app/packets")
+async def cross_app_packets(limit: int = Query(50, ge=1, le=500)):
+    rows = _read_cross_app_packets(limit=limit)
+    return {
+        "count": len(_read_cross_app_packets(limit=100000)),
+        "items": rows,
+        "storage": str(CROSS_APP_PACKET_RECEIPTS_FILE),
+        "external_send": False,
+        "target_app_write": False,
+        "silent_write": False,
+    }
+
+
+@app.post("/api/cross-app/packets")
+async def save_cross_app_packet(request: Request):
+    payload = await request.json()
+    receipt = _append_cross_app_packet(payload)
+    return {
+        "status": "saved_local_packet_only",
+        "receipt": receipt,
+        "external_send": False,
+        "target_app_write": False,
+        "silent_write": False,
+    }
+
+
 @app.get("/api/life-manager/spec")
 async def life_manager_spec():
     return {
@@ -3378,6 +3654,7 @@ async def life_manager_spec():
             "n8n_preflight_receipts": str(N8N_PREFLIGHT_RECEIPTS_FILE),
             "academy_receipts": str(ACADEMY_RECEIPTS_FILE),
             "pin_receipts": str(PIN_RECEIPTS_FILE),
+            "cross_app_packets": str(CROSS_APP_PACKET_RECEIPTS_FILE),
             "live_action_receipts": str(LIVE_ACTION_RECEIPTS_FILE),
             "journal": str(JOURNAL_FILE),
             "inner_work": str(INNER_WORK_FILE),
@@ -3395,6 +3672,17 @@ async def life_manager_spec():
             "people_count": len(_pin_people()),
             "sources_count": len(_pin_sources()),
             "questions_count": len(_pin_questions()),
+        },
+        "cross_app_packets": {
+            "status": "implemented_local_internal_packet_first",
+            "rules_endpoint": "/api/cross-app/notification-rules",
+            "preview_endpoint": "/api/cross-app/packet-preview",
+            "packet_endpoint": "/api/cross-app/packets",
+            "receiver_count": len(CROSS_APP_NOTIFICATION_RULES),
+            "receipt_count": len(_read_cross_app_packets(limit=100000)),
+            "external_send": False,
+            "target_app_write": False,
+            "silent_write": False,
         },
         "live_action_gates": {
             "status_endpoint": "/api/live-actions/status",
@@ -4018,8 +4306,8 @@ async def product_bible_matrix():
     source_manifest = _source_index_manifest()
     return {
         "summary": {
-            "total_rows": 70,
-            "done": 68,
+            "total_rows": 71,
+            "done": 69,
             "out_of_scope": 2,
             "partial": 0,
             "not_implemented": 0,
@@ -4052,6 +4340,7 @@ async def product_bible_matrix():
         "covers_life_manager_n8n_workflow_pack": True,
         "covers_academy": True,
         "covers_pin_strategist": True,
+        "covers_cross_app_packets": True,
         "covers_live_action_gates": True,
         "life_manager_v2": {
             "menu_groups": len(LIFE_MANAGER_MENU),
@@ -4089,6 +4378,17 @@ async def product_bible_matrix():
             "monthly_review_endpoint": "/api/pin/monthly-review",
             "receipt_endpoint": "/api/pin/receipts",
             "status": "local_internal_personal_intelligence_network_implemented",
+        },
+        "cross_app_packets": {
+            "receiver_count": len(CROSS_APP_NOTIFICATION_RULES),
+            "receipt_count": len(_read_cross_app_packets(limit=100000)),
+            "rules_endpoint": "/api/cross-app/notification-rules",
+            "preview_endpoint": "/api/cross-app/packet-preview",
+            "packet_endpoint": "/api/cross-app/packets",
+            "status": "local_internal_packet_first_no_silent_send",
+            "external_send": False,
+            "target_app_write": False,
+            "silent_write": False,
         },
         "live_action_gates": {
             "status_endpoint": "/api/live-actions/status",
@@ -4134,6 +4434,7 @@ async def product_bible_matrix():
             "Life Manager n8n workflow pack provides disabled importable preflight workflows for paid model execution, voice transcription, calendar writes, and memory sync.",
             "Academy is implemented as Knowledge -> Academy with local programmes, lessons, practice receipts, and readiness checks.",
             "PIN Strategist is implemented as Knowledge -> PIN Strategist with people, sources, questions, decision brief, influence radar, learning queue, monthly review, and local receipts.",
+            "Cross-App Packets is implemented as Admin / Proof -> Cross-App Packets with receiver rules, packet preview, local receipts, and no silent sibling-app writes.",
             "Live voice, Ripple calendar, memory sync, and n8n live execution are callable only through explicit approval gates with configured endpoints and rollback receipts.",
         ],
     }
@@ -4178,6 +4479,7 @@ async def r2d2_equivalent():
         "daily_lens_local_saved_list",
         "academy_local_learning_module",
         "pin_strategist_personal_intelligence_network",
+        "cross_app_packet_first_notification_layer",
         "live_action_approval_gate_receipts",
     ]
     return {
@@ -4215,6 +4517,7 @@ async def ui_truth():
             "daily_lens_visible_in_today": True,
             "academy_visible_in_knowledge": True,
             "pin_visible_in_knowledge": True,
+            "cross_app_packets_visible_in_admin_proof": True,
         },
         "buttons": {
             "record_practice": "POST /api/practices/{practice}/record",
@@ -4265,6 +4568,9 @@ async def ui_truth():
             "pin_influence_radar": "GET /api/pin/influence-radar",
             "pin_learning_queue": "GET /api/pin/learning-queue",
             "pin_monthly_review": "GET /api/pin/monthly-review",
+            "cross_app_rules": "GET /api/cross-app/notification-rules",
+            "cross_app_packet_preview": "POST /api/cross-app/packet-preview",
+            "cross_app_packets": "GET/POST /api/cross-app/packets",
             "live_actions_status": "GET /api/live-actions/status",
             "voice_transcription": "POST /api/voice/transcription",
             "ripple_calendar_write": "POST /api/ripple-calendar/write",
@@ -4293,6 +4599,7 @@ async def ui_truth():
             "Daily Lens current/library/saved detail",
             "Academy program/lesson/practice/readiness detail",
             "PIN decision brief/people/sources/questions/influence/queue/review detail",
+            "Cross-app receiver rules/packet preview/local receipt detail",
             "Live action approval gate and blocker receipts",
         ],
         "button_truth": True,
@@ -4365,6 +4672,20 @@ async def data_truth():
             "rag_relationship": "PIN decides what people/sources/questions should feed thinking; Ask My Sources and RAG / Sources answer/search/manage source material.",
             "excluded_roots": NAS_EXCLUDED_ROOTS,
             "external_send": False,
+            "source_write": False,
+            "provider_called": False,
+        },
+        "cross_app_packets": {
+            "mode": "local_packet_first_receiver_rules_and_jsonl_receipts",
+            "receiver_count": len(CROSS_APP_NOTIFICATION_RULES),
+            "receipt_path": str(CROSS_APP_PACKET_RECEIPTS_FILE),
+            "receipt_count": len(_read_cross_app_packets(limit=100000)),
+            "where_to_access": "Admin / Proof -> Cross-App Packets",
+            "receivers": [item["receiver"] for item in CROSS_APP_NOTIFICATION_RULES],
+            "private_screens_default": "do_not_send_raw_journal_shadow_voice_or_relationship_details",
+            "external_send": False,
+            "target_app_write": False,
+            "silent_write": False,
             "source_write": False,
             "provider_called": False,
         },

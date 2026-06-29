@@ -36,7 +36,7 @@ The app uses the AMTL operating layout:
 
 - Top header with AMTL logo, CK Life OS logo/name, today's local signal, date/time/status, and AMTL seal.
 - Left grouped menu with normal practice work first and Admin / Proof collapsed separately.
-- Middle work area for practice, encrypted journal, Inner work, guide, Academy, PIN Strategist, Innovation lens, RAG / Sources, reports, and proof summaries.
+- Middle work area for practice, encrypted journal, Inner work, guide, Academy, PIN Strategist, Innovation lens, RAG / Sources, Cross-App Packets, reports, and proof summaries.
 - Right context rail showing next action, selected detail, receipt/evidence, and contextual What / Who / Why / When / How / Where / ELI10.
 
 ## Admin / Proof
@@ -81,6 +81,20 @@ PIN means Personal Intelligence Network. It manages people, books, sources, ment
 - Use `PIN Review` to generate a local review of what shaped your thinking.
 
 PIN is local-only by default. It does not call a provider, send externally, or fetch sources silently.
+
+## Cross-App Packets
+
+Open `Admin / Proof`, then `Cross-App Packets`.
+
+This is where CK prepares safe local review packets for other AMTL apps. It answers who should be informed, when, how, why, and what must stay private.
+
+- Use `Rules` to see receiver rules for Elaine, Baldrick, Costanza, Ripple, Spark, Beast, Digital Sentinel, Workshop, Peterman, CK Writer, Creative Studio / Raw Milk, and Opportunity Hunter.
+- Use `Draft Packet` to choose a receiver and create a sanitised packet preview.
+- Use `Save local packet` to save a local receipt only.
+- Use `Receipts` to confirm what was prepared and that no sibling app was touched.
+- Use `Boundaries` to review the no-silent-write and no-raw-private-material rule.
+
+Cross-App Packets does not send to another app, call a provider, write a source system, or expose raw journal/shadow/voice/private relationship material. A future receiver adapter would still need exact approval.
 
 ## Academy
 

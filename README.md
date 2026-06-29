@@ -3,7 +3,7 @@
 **Five Practices for Living - No Gamification, No Pressure, No Comparison**
 
 - **Port:** 5420
-- **Status:** DONE_LOCAL_INTERNAL_REGISTERED_OPENROUTER_ROUTING_ENCRYPTED_JOURNAL_INNER_WORK_RAG_SOURCES_LIFE_MANAGER_V2_CALM_TABBED_LAYOUT for the approved local/internal scope
+- **Status:** DONE_LOCAL_INTERNAL_REGISTERED_OPENROUTER_ROUTING_ENCRYPTED_JOURNAL_INNER_WORK_RAG_SOURCES_LIFE_MANAGER_V2_CALM_TABBED_LAYOUT_ACADEMY_PIN_CROSS_APP_PACKETS for the approved local/internal scope
 - **Tests:** Beast/FastAPI tests, smoke, route, gateway, browser QA, matrix, RAG source-draft/approved-fetch/search proof, and semantic map proof
 - **Practices:** 5 universal practices: Presence, Reflection, Intention, Gratitude, Equanimity
 - **Gamification:** Disabled structurally
@@ -57,8 +57,9 @@ The delivered local/internal app includes:
 - OpenRouter AI routing for approved AI tasks: `openrouter/free` first for low/routine reasoning, a modest paid model for medium reasoning, and a full expensive model for high/deep reasoning. The default modest/full model IDs are configurable with `OPENROUTER_MODEL_MODEST` and `OPENROUTER_MODEL_EXPENSIVE`. Any live call requires `OPENROUTER_API_KEY` and `execute=true`; modest/full paid tiers also require `allow_paid_provider=true`. Without the required key/approval, the app returns a local fallback and records no provider call.
 - AMTL calm operating layout: top header, grouped left menu, middle work area, dynamic right context rail, and Admin/Proof separated from normal use.
 - Knowledge -> RAG / Sources: internal sources use the approved local NAS source index; internal paths and external references can also be staged as local RAG drafts; pasted source text/excerpts become searchable locally. External URLs can be fetched into local RAG only when the user explicitly approves that one URL fetch; no model/provider call, external send, source-system write, deploy, push, or publish happens from RAG.
-- Life Coach / Life Manager v2 local/internal shell: grouped/collapsible left menu, no middle-column scroll, tabbed middle panels, contextual collapsed right rail, state-aware Home, Start My Day, Check In, End My Day, Ask Guide, I Feel Stuck, Decision Help, Deep Inquiry, Voice Notes, Life Map, Promises, Projects, Calendar, Academy, Ask My Sources, RAG / Sources, PIN Strategist, Insights, reviews, privacy, and memory controls.
+- Life Coach / Life Manager v2 local/internal shell: grouped/collapsible left menu, no middle-column scroll, tabbed middle panels, contextual collapsed right rail, state-aware Home, Start My Day, Check In, End My Day, Ask Guide, I Feel Stuck, Decision Help, Deep Inquiry, Voice Notes, Life Map, Promises, Projects, Calendar, Academy, Ask My Sources, RAG / Sources, PIN Strategist, Insights, reviews, privacy, memory controls, and Cross-App Packets.
 - PIN Strategist under `Knowledge -> PIN Strategist`: a local Personal Intelligence Network that manages people, sources, questions, influence radar, learning queue, and decision briefs before the user decides what to read, ask, compare, or ignore.
+- Cross-App Packets under `Admin / Proof -> Cross-App Packets`: a packet-first local notification layer that states what CK may inform Elaine, Baldrick, Costanza, Ripple, Spark, Beast, Digital Sentinel, Workshop, Peterman, CK Writer, Creative Studio/Raw Milk, and Opportunity Hunter, with when/how/why/privacy rules and no silent sibling-app writes.
 - Local v2 workflow receipts for Life Manager buttons. These prove local button truth without performing external sends, calendar writes, source writes, paid provider calls, or cross-device memory sync.
 - CK-owned n8n workflow pack for the four approval-gated automation lanes: OpenRouter paid execution, voice transcription, external calendar writes, and cross-device memory sync. The workflow JSON files are importable and disabled by default; CK exposes local dry-run/preflight endpoints and receipts before any live n8n import or execution.
 - Academy screen/module under `Knowledge -> Academy`, with local CK programmes, lessons, practice receipts, and readiness checks. It is a real app module, not just a concept note.
@@ -146,6 +147,10 @@ GET /api/pin/influence-radar
 GET /api/pin/learning-queue
 GET /api/pin/monthly-review
 GET /api/pin/receipts
+GET /api/cross-app/notification-rules
+POST /api/cross-app/packet-preview
+GET /api/cross-app/packets
+POST /api/cross-app/packets
 GET /api/source-index/status
 POST /api/source-index/build
 GET /api/source-index/search
@@ -168,6 +173,7 @@ GET /api/life-manager/n8n-workflows/receipts
 | Frontend | Static calm AMTL Midnight UI |
 | Receipts | Local JSONL file outside the repo by default |
 | Life Manager v2 Receipts | Local JSONL workflow receipts outside the repo by default |
+| Cross-App Packets | Local JSONL receiver packet receipts outside the repo by default |
 | n8n Workflow Pack | Disabled importable n8n JSON workflows plus CK local preflight receipts |
 | Encrypted Journal | Local encrypted JSONL with Fernet and runtime key file or `CK_LIFE_OS_JOURNAL_KEY` |
 | Database | Optional PostgreSQL 5433 adapter |
@@ -213,6 +219,7 @@ $env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; python -m pytest beast_test.py -q
 - **RAG/Postgres/pgvector truth:** CK Life OS includes a local RAG / Sources surface for approved internal NAS source search, local source drafts, pasted source-text retrieval, and explicit approved one-time external URL fetch into local RAG. PostgreSQL and pgvector remain optional future adapters, not core runtime dependencies.
 - **Life Manager v2 truth:** The local/internal v2 shell and button workflows are implemented with local receipts. Live voice transcription, external calendar writes, paid AI execution, cross-device memory sync, and external automations are approval-gated and not claimed as performed.
 - **n8n/workflow/live-action truth:** CK includes disabled importable n8n workflows in `n8n/workflows` for paid model execution, voice transcription, calendar writes, and memory sync. Dry-run/preflight proof is local. CK also exposes callable approval gates: `/api/voice/transcription`, `/api/ripple-calendar/write`, `/api/memory/sync`, `/api/life-manager/n8n-workflows/{workflow_id}/live-import`, and `/api/life-manager/n8n-workflows/{workflow_id}/live-execute`. Live work still needs exact approval, credentials/endpoints/targets, and rollback acceptance; missing requirements create blocked local receipts instead of fake success.
+- **Cross-app packet truth:** CK can prepare local review packets for sibling apps, but it does not silently write to Elaine, Baldrick, Costanza, Ripple, Spark, or any other app. Packet receipts state receiver, when, how, why, safe payload, never-send fields, privacy level, approval state, and `external_send=false`.
 
 ## Current Evidence
 

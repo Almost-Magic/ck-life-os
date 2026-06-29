@@ -16,7 +16,7 @@ from main import NAS_EXCLUDED_ROOTS, app
 EVIDENCE_DIR = Path(
     r"C:\Users\Mani\AMTL-docs\AMTL-AGENT-CONTROL-CENTER\evidence\ck-life-os-local-internal-270626"
 )
-OUTPUT = EVIDENCE_DIR / "ck-life-os-deep-audit-five-loop-v2-270628.json"
+OUTPUT = EVIDENCE_DIR / "ck-life-os-deep-audit-five-loop-v3-290626.json"
 
 
 DOCS = [
@@ -56,21 +56,38 @@ def audit_loop(loop: int) -> dict:
     life_workflows = client.get("/api/life-manager/workflows").json()
     life_receipts = client.get("/api/life-manager/receipts").json()
     n8n = client.get("/api/life-manager/n8n-workflows").json()
+    cross_rules = client.get("/api/cross-app/notification-rules").json()
+    cross_preview = client.post(
+        "/api/cross-app/packet-preview",
+        json={"receiver": "Elaine", "title": "Audit packet", "summary": "Sanitised audit proof"},
+    ).json()
+    cross_saved = client.post(
+        "/api/cross-app/packets",
+        json={"receiver": "Ripple", "title": "Follow-up audit packet", "summary": "Sanitised follow-up proof"},
+    ).json()
+    cross_receipts = client.get("/api/cross-app/packets").json()
 
     assert_true(findings, client.get("/").status_code == 200, "front door serves UI", "GET /")
     assert_true(findings, client.get("/api/health").json()["runtime_independent"] is True, "runtime independent health", "/api/health")
     assert_true(findings, matrix["covers_features"] and matrix["covers_500_ideas"], "Product Bible matrix coverage", "/api/product-bible-matrix")
+    assert_true(findings, matrix["summary"]["total_rows"] == 71 and matrix["summary"]["done"] == 69, "Product Bible updated row/count truth", "/api/product-bible-matrix")
     assert_true(findings, matrix["covers_nas_source_indexing"] and matrix["covers_rag_postgres_pgvector_truth"], "source/RAG matrix coverage", "/api/product-bible-matrix")
     assert_true(findings, matrix["covers_life_manager_v2_menu_screens_panels_buttons"], "Life Manager v2 matrix coverage", "/api/product-bible-matrix")
+    assert_true(findings, matrix["covers_pin_strategist"], "PIN Strategist matrix coverage", "/api/product-bible-matrix")
+    assert_true(findings, matrix["covers_cross_app_packets"], "Cross-App Packets matrix coverage", "/api/product-bible-matrix")
     assert_true(findings, r2d2["partial"] == 0 and r2d2["blocked"] == 0, "R2D2 no local/internal gaps", "/api/r2d2")
+    assert_true(findings, "pin_strategist_personal_intelligence_network" in r2d2["checks"], "R2D2 PIN check", "/api/r2d2")
+    assert_true(findings, "cross_app_packet_first_notification_layer" in r2d2["checks"], "R2D2 Cross-App Packet check", "/api/r2d2")
     assert_true(findings, ui["button_truth"] and ui["count_truth"], "button/count truth", "/api/ui-truth")
-    for button in ["rag_status", "rag_source_draft", "rag_source_approved_fetch", "rag_source_drafts", "rag_search", "source_index_status", "life_manager_receipt", "life_manager_spec", "life_manager_n8n_workflows", "life_manager_n8n_dry_run", "life_manager_n8n_preflight"]:
+    for button in ["rag_status", "rag_source_draft", "rag_source_approved_fetch", "rag_source_drafts", "rag_search", "source_index_status", "life_manager_receipt", "life_manager_spec", "life_manager_n8n_workflows", "life_manager_n8n_dry_run", "life_manager_n8n_preflight", "pin_decision_brief", "cross_app_rules", "cross_app_packet_preview", "cross_app_packets"]:
         assert_true(findings, button in ui["buttons"], f"{button} button truth", "/api/ui-truth", "add missing UI truth mapping")
 
     assert_true(findings, data["ideas"]["count"] == 500, "500 idea count truth", "/api/data-truth")
     assert_true(findings, ideas["total"] == 500 and ideas["synthetic_data"] is True, "500 ideas synthetic boundary", "/api/ideas")
     assert_true(findings, data["encrypted_journal"]["encrypted_at_rest"] is True, "journal encryption truth", "/api/data-truth")
     assert_true(findings, data["inner_work"]["encrypted_at_rest"] is True, "Inner Work encryption truth", "/api/data-truth")
+    assert_true(findings, data["pin_strategist"]["external_send"] is False and data["pin_strategist"]["provider_called"] is False, "PIN data truth no provider/send", "/api/data-truth")
+    assert_true(findings, data["cross_app_packets"]["external_send"] is False and data["cross_app_packets"]["target_app_write"] is False and data["cross_app_packets"]["silent_write"] is False, "Cross-App Packet data truth no send/write", "/api/data-truth")
     assert_true(findings, data["external_send"] is False and data["source_write"] is False, "no external/source write", "/api/data-truth")
 
     assert_true(findings, rag["where_to_access"] == "Knowledge -> RAG / Sources", "RAG access location", "/api/rag/status")
@@ -82,18 +99,28 @@ def audit_loop(loop: int) -> dict:
     assert_true(findings, dependency["source_index"]["required_for_core_ui"] is False, "source index dependency-down", "/api/dependency-status")
     assert_true(findings, life_spec["version"] == "v2_local_internal_layout", "Life Manager v2 spec version", "/api/life-manager/spec")
     menu_items = [item for group in life_spec["menu"] for item in group["items"]]
-    for item in ["Home", "Start My Day", "Check In", "End My Day", "Ask Guide", "I Feel Stuck", "Decision Help", "Deep Inquiry", "Voice Notes", "Life Map", "Promises", "Projects", "Calendar", "Ask My Sources", "RAG / Sources", "Insights", "Daily Review", "Weekly Review", "Monthly Report", "Privacy", "Memory"]:
+    for item in ["Home", "Daily Lens", "Start My Day", "Check In", "End My Day", "Ask Guide", "I Feel Stuck", "Decision Help", "Deep Inquiry", "Voice Notes", "Life Map", "Promises", "Projects", "Calendar", "Academy", "Ask My Sources", "RAG / Sources", "PIN Strategist", "Insights", "Daily Review", "Weekly Review", "Monthly Report", "Privacy", "Memory", "Cross-App Packets"]:
         assert_true(findings, item in menu_items, f"Life Manager menu item present: {item}", "/api/life-manager/spec", f"add menu item {item}")
-    assert_true(findings, len(life_spec["screens"]) >= 19, "Life Manager screen inventory includes v2 screens", "/api/life-manager/spec")
+    screen_ids = [item["id"] for item in life_spec["screens"]]
+    assert_true(findings, len(life_spec["screens"]) >= 25, "Life Manager screen inventory includes v2 screens", "/api/life-manager/spec")
+    assert_true(findings, "pinStrategist" in screen_ids and "crossAppPackets" in screen_ids, "PIN and Cross-App screens in spec", "/api/life-manager/spec")
     assert_true(findings, life_workflows["external_send"] is False and life_workflows["source_write"] is False, "Life Manager workflows do not external send/write", "/api/life-manager/workflows")
     assert_true(findings, life_receipts["storage"].endswith("life-manager-receipts.jsonl"), "Life Manager local receipt storage", "/api/life-manager/receipts")
     assert_true(findings, n8n["total"] == 4, "n8n workflow pack has four workflows", "/api/life-manager/n8n-workflows")
     assert_true(findings, n8n["live_import_performed"] is False and n8n["live_execution_performed"] is False, "n8n no live import/execution", "/api/life-manager/n8n-workflows")
     assert_true(findings, all(item["exists"] and item["active_by_default"] is False for item in n8n["items"]), "n8n workflow files exist and are disabled", "/api/life-manager/n8n-workflows")
     assert_true(findings, set(item["fixes_boundary"] for item in n8n["items"]) == {"paid_model_execution", "live_voice_transcription", "external_calendar_writes", "cross_device_memory_sync"}, "n8n covers requested approval-gated boundaries", "/api/life-manager/n8n-workflows")
+    assert_true(findings, cross_rules["receiver_count"] >= 12, "Cross-App receiver rules cover named apps", "/api/cross-app/notification-rules")
+    assert_true(findings, {"Elaine", "Baldrick", "Costanza", "Ripple", "Spark"}.issubset({item["receiver"] for item in cross_rules["items"]}), "Cross-App named core receivers", "/api/cross-app/notification-rules")
+    assert_true(findings, cross_rules["boundary"]["external_send"] is False and cross_rules["boundary"]["target_app_write"] is False, "Cross-App no send/write boundary", "/api/cross-app/notification-rules")
+    assert_true(findings, cross_preview["preview"]["receiver"] == "Elaine" and cross_preview["preview"]["silent_write"] is False, "Cross-App preview truth", "/api/cross-app/packet-preview")
+    assert_true(findings, cross_saved["status"] == "saved_local_packet_only" and cross_saved["receipt"]["local_only"] is True, "Cross-App local receipt save", "/api/cross-app/packets")
+    assert_true(findings, any(item["receipt_id"] == cross_saved["receipt"]["receipt_id"] for item in cross_receipts["items"]), "Cross-App receipt listed", "/api/cross-app/packets")
 
     required_ui = [
         "RAG / Sources",
+        "PIN Strategist",
+        "Cross-App Packets",
         "RAG status",
         "Add source",
         "RAG source text",
@@ -117,6 +144,9 @@ def audit_loop(loop: int) -> dict:
         "n8n workflow pack",
         "context-rail",
         "practiceHero",
+        "Load receiver rules",
+        "Preview packet",
+        "Save local packet",
     ]
     for token in required_ui:
         assert_true(findings, token in html, f"UI contains {token}", "index.html", f"add visible/control token {token}")
@@ -129,6 +159,12 @@ def audit_loop(loop: int) -> dict:
         "CK tests `42 passed`",
         "53/53",
         "55 passed",
+        "55/55",
+        "60 passed",
+        "63/63",
+        "63 passed",
+        "64 passed",
+        "66 main rows",
         "Knowledge\", \"Sources\"",
         "| NOT IMPLEMENTED |",
         "| PARTIAL |",
@@ -141,6 +177,8 @@ def audit_loop(loop: int) -> dict:
     evidence_files = [
         EVIDENCE_DIR / "browser-qa-calm-tabs-layout-270628.json",
         EVIDENCE_DIR / "life-manager-v2-calm-layout-proof-270628.json",
+        EVIDENCE_DIR / "pin-strategist-qa-270629" / "browser-qa-pin-strategist-270629.json",
+        EVIDENCE_DIR / "pin-strategist-qa-270629" / "five-loop-pin-strategist-audit-270629.json",
         EVIDENCE_DIR / "ck-life-os-life-manager-home-desktop.png",
         EVIDENCE_DIR / "ck-life-os-life-manager-home-mobile.png",
         EVIDENCE_DIR / "ck-life-os-calm-tabs-desktop.png",
@@ -165,7 +203,7 @@ def main() -> int:
     loops = [audit_loop(loop) for loop in range(1, 6)]
     payload = {
         "product": "CK / Life OS",
-        "scope": "deep UI/Product Bible/chat-artifact comparison after Life Manager v2 calm-layout and n8n workflow-pack repair",
+        "scope": "deep UI/Product Bible/chat-artifact comparison after Life Manager v2, RAG, Academy, PIN Strategist, live-action gates, and Cross-App Packets",
         "generated_at": datetime.now().isoformat(),
         "loops": loops,
         "pass": all(loop["status"] == "pass" for loop in loops),
@@ -173,6 +211,10 @@ def main() -> int:
             str(EVIDENCE_DIR / "ck-life-os-calm-tabs-desktop.png"),
             str(EVIDENCE_DIR / "ck-life-os-calm-tabs-mobile.png"),
             str(EVIDENCE_DIR / "ck-life-os-rag-sources-desktop.png"),
+            str(EVIDENCE_DIR / "pin-strategist-qa-270629" / "desktop-pin-before.png"),
+            str(EVIDENCE_DIR / "cross-app-packets-qa-290626" / "desktop-cross-rules.png"),
+            str(EVIDENCE_DIR / "cross-app-packets-qa-290626" / "desktop-cross-draft.png"),
+            str(EVIDENCE_DIR / "cross-app-packets-qa-290626" / "mobile-cross-receipts.png"),
             str(ROOT / "docx-render-qa" / "ck-life-os-story-flow-270628" / "contact-sheet.png"),
         ],
         "fixes_made_before_final_loop": [
@@ -182,6 +224,7 @@ def main() -> int:
             "Regenerated and visually checked the Word story-flow document.",
             "Implemented and audited Life Manager v2 grouped menu, tabbed screens, contextual collapsed right rail, local workflow receipts, backend spec/workflow endpoints, and visible RAG / Sources naming.",
             "Implemented and audited CK-owned disabled n8n workflow imports and local preflight/dry-run receipts for paid model execution, live voice transcription, external calendar writes, and cross-device memory sync.",
+            "Implemented and audited PIN Strategist and Cross-App Packets as local-only packet/receipt workflows with no provider call, external send, source write, or target-app mutation.",
         ],
     }
     OUTPUT.write_text(json.dumps(payload, indent=2), encoding="utf-8")

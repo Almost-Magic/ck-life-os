@@ -2,7 +2,7 @@
 
 **Updated:** 2026-06-28 07:35 AEST
 **Port:** 5420
-**Status:** DONE_LOCAL_INTERNAL for full approved local/internal CK Life OS, including Life Manager v2 calm layout and local workflow receipts
+**Status:** DONE_LOCAL_INTERNAL for full approved local/internal CK Life OS, including Life Manager v2 calm layout, local workflow receipts, Academy, PIN Strategist, live-action gates, and Cross-App Packets
 **Scope:** Local/internal app only. No deploy, push, publish, external send, source-system write, paid provider call, or production/customer claim. RAG may perform an explicitly approved one-time external URL fetch into local search text.
 
 ## Done
@@ -32,13 +32,14 @@
 - Added CK-owned n8n workflow pack for the four approval-gated lanes Mani asked to fix: paid OpenRouter execution, live voice transcription, external calendar writes, and cross-device memory sync. The workflows live in `n8n/workflows`, are disabled by default, and are backed by `/api/life-manager/n8n-workflows`, detail, dry-run, preflight, and receipt endpoints.
 - Added the real Academy module under `Knowledge -> Academy`: programmes, lessons, lesson detail, practice receipts, and readiness checks, backed by `/api/academy/*`.
 - Added PIN Strategist under `Knowledge -> PIN Strategist`: local Personal Intelligence Network with decision briefs, people map, source library, influence radar, question bank, learning queue, monthly review, and local receipts backed by `/api/pin/*`.
+- Added Cross-App Packets under `Admin / Proof -> Cross-App Packets`: local receiver rules, packet preview, local packet receipt ledger, and no-silent-send/no-target-write boundaries for Elaine, Baldrick, Costanza, Ripple, Spark, Beast, Digital Sentinel, Workshop, Peterman, CK Writer, Creative Studio/Raw Milk, and Opportunity Hunter.
 - Added live-action gates for previously approval-gated work: `/api/voice/transcription`, `/api/ripple-calendar/write`, `/api/memory/sync`, `/api/life-manager/n8n-workflows/{workflow_id}/live-import`, `/api/life-manager/n8n-workflows/{workflow_id}/live-execute`, `/api/live-actions/status`, and `/api/live-actions/receipts`. Missing approval, endpoint, target, or credentials now creates exact local blocker receipts.
 
 ## Proof
 
 - `python -m py_compile main.py config.py` passed.
-- `python -m py_compile main.py beast_test.py` passed after Academy/live-action gates.
-- `$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; pytest -q beast_test.py` passed: 63/63 after Academy/live-action gate tests.
+- `python -m py_compile main.py beast_test.py` passed after Cross-App Packets.
+- `$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; pytest -q beast_test.py` passed: 65/65 after Cross-App Packet tests.
 - `python main.py smoke` passed.
 - Direct route proof passed for `/`, `/health`, `/api/health`, Product Bible matrix, R2D2, data truth, and dependency status.
 - Gateway route proof passed for:
@@ -48,8 +49,8 @@
   - `http://amtl/lifeos/`
 - Desktop and mobile browser QA passed for the calm tabbed layout: grouped/collapsible left menu, tabbed middle workspace, hidden Practice hero outside Practice, RAG source intake, collapsed context rail, no console errors, no failed requests, no middle workspace scroll, and no horizontal overflow.
 - Beast Port Sentinel route-probe receipt was consulted before route/port claims. CK port truth is recorded separately because Beast's current receipt is HOLD for unrelated Beast helper routes.
-- Product Bible delivery matrix result after addenda: 66 main rows total, 65 DONE, 0 PARTIAL, 0 BLOCKED, 0 NOT IMPLEMENTED, 1 OUT OF SCOPE; Life Manager v2 addendum 22/22 local/internal rows DONE.
-- Semantic intent map result after v2 addendum: 30 rows total, 29 DONE, 0 PARTIAL, 0 BLOCKED, 0 NOT IMPLEMENTED, 1 OUT OF SCOPE.
+- Product Bible delivery matrix result after addenda: 71 rows total, 69 DONE, 0 PARTIAL, 0 BLOCKED, 0 NOT IMPLEMENTED, 2 OUT OF SCOPE.
+- Semantic intent map result after addenda: 35 rows total, 34 DONE, 0 PARTIAL, 0 BLOCKED, 0 NOT IMPLEMENTED, 1 OUT OF SCOPE.
 
 ## Evidence
 
@@ -78,7 +79,7 @@ C:\AMTL\repos\ck-life-os\CK-LIFE-OS-SEMANTIC-PRODUCT-INTENT-ACCEPTANCE-MAP-27062
 
 ## Remaining Boundary
 
-No external production claim is made. PostgreSQL, pgvector, and scheduler remain optional upgrade paths, not requirements for the proven local/internal app. RAG / Sources is implemented locally through approved NAS source search plus local source drafts, pasted text, and explicitly approved one-time URL fetches into local text. PIN Strategist is implemented locally to choose what people, sources, questions, and signals should feed thinking before decisions; it does not replace RAG search. The encrypted journal is local-only and encrypted at rest; local decrypt happens only through the local API/UI. Life Manager v2, Academy, and PIN workflows write local receipts. The n8n workflow pack is available for paid model execution, live voice transcription, Ripple/external calendar writes, and cross-device memory sync. CK now also exposes callable approval gates for voice, Ripple calendar, memory sync, and n8n live import/execution; actual live execution still requires exact approval, credentials/endpoints/targets, and rollback acceptance. OpenRouter is implemented for approved AI work, using `openrouter/free` for low/routine tasks and paid modest/full tiers for higher reasoning; no live call occurs without a server-side key and `execute=true`, and paid tiers additionally require `allow_paid_provider=true`. Cross-app handoffs are local staged gates only unless the configured approved gate is used.
+No external production claim is made. PostgreSQL, pgvector, and scheduler remain optional upgrade paths, not requirements for the proven local/internal app. RAG / Sources is implemented locally through approved NAS source search plus local source drafts, pasted text, and explicitly approved one-time URL fetches into local text. PIN Strategist is implemented locally to choose what people, sources, questions, and signals should feed thinking before decisions; it does not replace RAG search. Cross-App Packets prepares local receiver packets only and does not silently write to sibling apps or expose raw private material. The encrypted journal is local-only and encrypted at rest; local decrypt happens only through the local API/UI. Life Manager v2, Academy, PIN, and Cross-App Packet workflows write local receipts. The n8n workflow pack is available for paid model execution, live voice transcription, Ripple/external calendar writes, and cross-device memory sync. CK now also exposes callable approval gates for voice, Ripple calendar, memory sync, and n8n live import/execution; actual live execution still requires exact approval, credentials/endpoints/targets, and rollback acceptance. OpenRouter is implemented for approved AI work, using `openrouter/free` for low/routine tasks and paid modest/full tiers for higher reasoning; no live call occurs without a server-side key and `execute=true`, and paid tiers additionally require `allow_paid_provider=true`. Cross-app handoffs are local staged gates only unless the configured approved gate is used.
 
 ## Workshop And Beast Registration - 2026-06-27
 
@@ -94,4 +95,4 @@ No external production claim is made. PostgreSQL, pgvector, and scheduler remain
 - Rollback: stop only the verified CK-owned `python main.py` listener on port 5420; do not kill any other product process.
 - Last proof: `C:\Users\Mani\AMTL-docs\AMTL-AGENT-CONTROL-CENTER\evidence\ck-life-os-local-internal-270626\workshop-beast-registration-proof-270626.json`.
 
-Latest CK checks pass at `60 passed`; the earlier Workshop/Beast registration slice also passed Workshop tests `112 passed`, Workshop/Beast Python compile, direct route, AMTL aliases, Workshop product row, Beast product-source row, Runtime Supervisor row, dependency-down truth, and desktop/mobile browser QA. No deploy, push, publish, external send, source/customer write, paid provider call, live n8n execution, or secret use occurred.
+Latest CK checks pass at `65 passed`; the earlier Workshop/Beast registration slice also passed Workshop tests `112 passed`, Workshop/Beast Python compile, direct route, AMTL aliases, Workshop product row, Beast product-source row, Runtime Supervisor row, dependency-down truth, and desktop/mobile browser QA. No deploy, push, publish, external send, source/customer write, paid provider call, live n8n execution, or secret use occurred.
