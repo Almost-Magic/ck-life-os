@@ -36,7 +36,7 @@ The app uses the AMTL operating layout:
 
 - Top header with AMTL logo, CK Life OS logo/name, today's local signal, date/time/status, and AMTL seal.
 - Left grouped menu with normal practice work first and Admin / Proof collapsed separately.
-- Middle work area for practice, encrypted journal, Inner work, guide, Academy, Innovation lens, RAG / Sources, reports, and proof summaries.
+- Middle work area for practice, encrypted journal, Inner work, guide, Academy, PIN Strategist, Innovation lens, RAG / Sources, reports, and proof summaries.
 - Right context rail showing next action, selected detail, receipt/evidence, and contextual What / Who / Why / When / How / Where / ELI10.
 
 ## Admin / Proof
@@ -63,6 +63,24 @@ Open `Knowledge`, then `RAG / Sources`.
 - Paste source text or an excerpt when you already have it and want it searchable locally without a fetch.
 - Use `Search` to search the approved local/NAS source index, local RAG drafts with pasted text, and any approved-fetched URL text.
 - Use `Results` to inspect matches. Search does not call OpenRouter, pgvector, or an external provider.
+
+Use `Knowledge -> Ask My Sources` when you want an answer from sources. Use `Knowledge -> RAG / Sources` when you want to add, inspect, index, or search source material. Use `Knowledge -> PIN Strategist` when you want to decide which people, sources, questions, and perspectives should feed your thinking before a decision.
+
+## PIN Strategist
+
+Open `Knowledge`, then `PIN Strategist`.
+
+PIN means Personal Intelligence Network. It manages people, books, sources, mentors, ideas, questions, signals, and patterns that feed thinking.
+
+- Use `Before Deciding` to build an input map for a decision or question.
+- Use `People` to see mentors, trusted voices, counter-voices, and over-influence notes.
+- Use `Sources` to see source trust/use boundaries and jump to RAG / Sources when a source should become searchable.
+- Use `Influence Radar` to check over-used people, ideas, or sources.
+- Use `Questions` for question-bank prompts before deciding.
+- Use `Learning Queue` to choose read, ask, compare, revisit, ignore, or too-much-now lanes.
+- Use `PIN Review` to generate a local review of what shaped your thinking.
+
+PIN is local-only by default. It does not call a provider, send externally, or fetch sources silently.
 
 ## Academy
 

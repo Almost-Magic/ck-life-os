@@ -57,7 +57,8 @@ The delivered local/internal app includes:
 - OpenRouter AI routing for approved AI tasks: `openrouter/free` first for low/routine reasoning, a modest paid model for medium reasoning, and a full expensive model for high/deep reasoning. The default modest/full model IDs are configurable with `OPENROUTER_MODEL_MODEST` and `OPENROUTER_MODEL_EXPENSIVE`. Any live call requires `OPENROUTER_API_KEY` and `execute=true`; modest/full paid tiers also require `allow_paid_provider=true`. Without the required key/approval, the app returns a local fallback and records no provider call.
 - AMTL calm operating layout: top header, grouped left menu, middle work area, dynamic right context rail, and Admin/Proof separated from normal use.
 - Knowledge -> RAG / Sources: internal sources use the approved local NAS source index; internal paths and external references can also be staged as local RAG drafts; pasted source text/excerpts become searchable locally. External URLs can be fetched into local RAG only when the user explicitly approves that one URL fetch; no model/provider call, external send, source-system write, deploy, push, or publish happens from RAG.
-- Life Coach / Life Manager v2 local/internal shell: grouped/collapsible left menu, no middle-column scroll, tabbed middle panels, contextual collapsed right rail, state-aware Home, Start My Day, Check In, End My Day, Ask Guide, I Feel Stuck, Decision Help, Deep Inquiry, Voice Notes, Life Map, Promises, Projects, Calendar, Ask My Sources, RAG / Sources, Insights, reviews, privacy, and memory controls.
+- Life Coach / Life Manager v2 local/internal shell: grouped/collapsible left menu, no middle-column scroll, tabbed middle panels, contextual collapsed right rail, state-aware Home, Start My Day, Check In, End My Day, Ask Guide, I Feel Stuck, Decision Help, Deep Inquiry, Voice Notes, Life Map, Promises, Projects, Calendar, Academy, Ask My Sources, RAG / Sources, PIN Strategist, Insights, reviews, privacy, and memory controls.
+- PIN Strategist under `Knowledge -> PIN Strategist`: a local Personal Intelligence Network that manages people, sources, questions, influence radar, learning queue, and decision briefs before the user decides what to read, ask, compare, or ignore.
 - Local v2 workflow receipts for Life Manager buttons. These prove local button truth without performing external sends, calendar writes, source writes, paid provider calls, or cross-device memory sync.
 - CK-owned n8n workflow pack for the four approval-gated automation lanes: OpenRouter paid execution, voice transcription, external calendar writes, and cross-device memory sync. The workflow JSON files are importable and disabled by default; CK exposes local dry-run/preflight endpoints and receipts before any live n8n import or execution.
 - Academy screen/module under `Knowledge -> Academy`, with local CK programmes, lessons, practice receipts, and readiness checks. It is a real app module, not just a concept note.
@@ -133,6 +134,18 @@ GET /api/rag/status
 POST /api/rag/source-draft
 GET /api/rag/source-drafts
 GET /api/rag/search
+GET /api/pin/status
+POST /api/pin/decision-brief
+GET /api/pin/people
+POST /api/pin/people
+GET /api/pin/sources
+POST /api/pin/sources
+GET /api/pin/questions
+POST /api/pin/questions
+GET /api/pin/influence-radar
+GET /api/pin/learning-queue
+GET /api/pin/monthly-review
+GET /api/pin/receipts
 GET /api/source-index/status
 POST /api/source-index/build
 GET /api/source-index/search

@@ -411,6 +411,7 @@ pre { white-space: pre-wrap; margin: 0; }
             <button data-view="academy">Academy</button>
             <button data-view="askSources">Ask My Sources</button>
             <button data-view="sources">RAG / Sources</button>
+            <button data-view="pinStrategist">PIN Strategist</button>
             <button data-view="ideas">Innovation lens</button>
             <button data-view="insights">Insights</button>
           </div>
@@ -923,6 +924,105 @@ pre { white-space: pre-wrap; margin: 0; }
           <div id="sources-results" class="tab-panel panel list compact-list hidden"><div id="sourceResults">Search results will appear here.</div></div>
         </section>
 
+        <section id="pinStrategist" class="view stack hidden">
+          <div class="panel">
+            <div class="tabbar" aria-label="PIN Strategist tabs">
+              <button data-tab="pin-before" aria-selected="true">Before Deciding</button>
+              <button data-tab="pin-people">People</button>
+              <button data-tab="pin-sources">Sources</button>
+              <button data-tab="pin-radar">Influence Radar</button>
+              <button data-tab="pin-questions">Questions</button>
+              <button data-tab="pin-queue">Learning Queue</button>
+              <button data-tab="pin-review">PIN Review</button>
+            </div>
+          </div>
+          <div id="pin-before" class="tab-panel panel two-col">
+            <div>
+              <h2>PIN Strategist</h2>
+              <p class="muted">Personal Intelligence Network. It helps choose the people, sources, questions, and signals that should feed your thinking before a decision.</p>
+              <label>Decision / question
+                <input id="pinDecision" type="text" maxlength="240" placeholder="What are you deciding, believing, choosing, or researching?">
+              </label>
+              <div class="inline" style="margin-top:12px">
+                <button class="button" id="pinBuildBrief">Build input map</button>
+                <button class="button secondary" id="pinMissingPerspective">Show missing perspective</button>
+                <button class="button secondary" id="pinIgnoreNoise">Ignore noise</button>
+              </div>
+              <div id="pinBriefPanel" class="subtle" style="margin-top:12px">No PIN brief yet.</div>
+            </div>
+            <div class="subtle" id="pinStatusPanel">PIN is local. RAG answers from sources; PIN decides what should feed the question.</div>
+          </div>
+          <div id="pin-people" class="tab-panel panel two-col hidden">
+            <div>
+              <h2>People Map</h2>
+              <p class="muted">Not CRM. This is a thinking influence map: mentors, trusted voices, counter-voices, and people to ask or de-weight.</p>
+              <div class="inline" style="margin-top:12px">
+                <button class="button secondary" id="pinLoadPeople">Find people to ask</button>
+                <button class="button secondary" id="pinAddPerson">Add person</button>
+              </div>
+              <div id="pinPeopleRows" class="list compact-list" style="margin-top:12px">Load people to see thinking inputs.</div>
+            </div>
+            <div class="subtle">
+              <label>Name<input id="pinPersonName" type="text" maxlength="120" placeholder="Person or role"></label>
+              <label>Strong for<input id="pinPersonStrong" type="text" maxlength="180" placeholder="What are they useful for?"></label>
+              <label>Bias / limit<input id="pinPersonBias" type="text" maxlength="180" placeholder="Where might they distort?"></label>
+            </div>
+          </div>
+          <div id="pin-sources" class="tab-panel panel two-col hidden">
+            <div>
+              <h2>Sources</h2>
+              <p class="muted">Books, articles, notes, videos, internal docs, and external drafts. Add to RAG only when you want source search.</p>
+              <div class="inline" style="margin-top:12px">
+                <button class="button secondary" id="pinLoadSources">Find sources to check</button>
+                <button class="button secondary" id="pinAddSource">Add source</button>
+                <button class="button secondary" data-jump-view="sources">Open RAG / Sources</button>
+              </div>
+              <div id="pinSourceRows" class="list compact-list" style="margin-top:12px">Load sources to see trusted and draft inputs.</div>
+            </div>
+            <div class="subtle">
+              <label>Title<input id="pinSourceTitle" type="text" maxlength="160" placeholder="Book, article, note, URL, source"></label>
+              <label>Use for<input id="pinSourceUse" type="text" maxlength="220" placeholder="What should this source help with?"></label>
+              <label>Do not use for<input id="pinSourceAvoid" type="text" maxlength="220" placeholder="Where should we not over-trust it?"></label>
+            </div>
+          </div>
+          <div id="pin-radar" class="tab-panel panel hidden">
+            <h2>Influence Radar</h2>
+            <p class="muted">Shows repeated influences, missing perspectives, and ideas that may be shaping decisions too strongly.</p>
+            <div class="inline" style="margin-top:12px">
+              <button class="button" id="pinInfluenceRadar">Show over-influence</button>
+              <button class="button secondary" id="pinCompareViews">Compare views</button>
+            </div>
+            <div id="pinRadarPanel" class="list compact-list" style="margin-top:12px">Open the radar to see patterns.</div>
+          </div>
+          <div id="pin-questions" class="tab-panel panel two-col hidden">
+            <div>
+              <h2>Question Bank</h2>
+              <p class="muted">Questions before deciding, for mentors, for self-inquiry, for source comparison, and for ignoring noise.</p>
+              <div class="inline" style="margin-top:12px">
+                <button class="button secondary" id="pinLoadQuestions">Load questions</button>
+                <button class="button secondary" id="pinAddQuestion">Add question</button>
+              </div>
+              <div id="pinQuestionRows" class="list compact-list" style="margin-top:12px">Load questions to choose one.</div>
+            </div>
+            <div class="subtle">
+              <label>Question<input id="pinQuestionText" type="text" maxlength="300" placeholder="What should be asked before deciding?"></label>
+              <label>Use when<input id="pinQuestionUse" type="text" maxlength="220" placeholder="When is this question useful?"></label>
+            </div>
+          </div>
+          <div id="pin-queue" class="tab-panel panel hidden">
+            <h2>Learning Queue</h2>
+            <p class="muted">Attention queue, not a giant reading list. Read, ask, compare, revisit, ignore, or park as too much now.</p>
+            <button class="button secondary" id="pinLearningQueue">Open queue</button>
+            <div id="pinQueueRows" class="list compact-list" style="margin-top:12px">Open queue to see what deserves attention.</div>
+          </div>
+          <div id="pin-review" class="tab-panel panel hidden">
+            <h2>PIN Review</h2>
+            <p class="muted">A local review of what shaped your thinking, what helped, what distorted, and what to study next.</p>
+            <button class="button" id="pinMonthlyReview">Generate PIN review</button>
+            <div id="pinReviewPanel" class="subtle" style="margin-top:12px">No PIN review generated yet.</div>
+          </div>
+        </section>
+
         <section id="reports" class="view stack hidden">
           <div class="panel">
             <div class="tabbar" aria-label="Report tabs">
@@ -1194,6 +1294,7 @@ const openView = viewName => {
     academy: ["Academy", "Open a local lesson, practice it, and keep the receipt inside CK.", "local CK learning module"],
     askSources: ["Ask My Sources", "Ask a local source-backed question.", "source-backed guidance"],
     sources: ["RAG / Sources", "Open RAG status, add a source draft, or search the local index.", "local RAG/source retrieval"],
+    pinStrategist: ["PIN Strategist", "Build an input map before deciding.", "personal intelligence network"],
     insights: ["Insights", "Only show patterns when evidence exists.", "evidence-backed insights"],
     dailyReview: ["Daily Review", "Save today's learning without scoring.", "daily review"],
     weeklyReview: ["Weekly Review", "Turn the week into one useful experiment.", "weekly review"],
@@ -1397,6 +1498,125 @@ const searchSources = async () => {
   `).join("");
   openTab("sources-results");
   setContext({ title: "RAG source search", next: data.returned ? "Open the source path locally if needed." : "Try a different source term.", details: `<strong>Query:</strong> ${data.query}<br><strong>Returned:</strong> ${data.returned}`, sixw: `<strong>What:</strong> local RAG/source search<br><strong>Who:</strong> CK reviewer<br><strong>Why:</strong> verify source truth without provider calls<br><strong>When:</strong> after indexing<br><strong>Where:</strong> Knowledge -> RAG / Sources<br><strong>ELI10:</strong> search local file names and safe snippets.`, receipt: "External send: false. Provider called: false." });
+};
+const loadPinStatus = async () => {
+  const data = await api("/api/pin/status");
+  document.getElementById("pinStatusPanel").innerHTML = summaryList([
+    `<strong>${data.name}</strong>`,
+    `<strong>Meaning:</strong> ${data.meaning}`,
+    `<strong>Access:</strong> ${data.where_to_access}`,
+    `<strong>People:</strong> ${data.counts.people}`,
+    `<strong>Sources:</strong> ${data.counts.sources}`,
+    `<strong>Questions:</strong> ${data.counts.questions}`,
+    `<strong>RAG:</strong> ${data.rag_access.ask_answers} / ${data.rag_access.manage_sources}`
+  ]);
+  setContext({ title: "PIN Strategist", next: "Enter a decision and build an input map.", details: `<strong>People:</strong> ${data.counts.people}<br><strong>Sources:</strong> ${data.counts.sources}<br><strong>Questions:</strong> ${data.counts.questions}`, sixw: "<strong>What:</strong> Personal Intelligence Network<br><strong>Who:</strong> Mani/local CK user<br><strong>Why:</strong> choose better inputs before deciding<br><strong>When:</strong> before decisions, beliefs, reading, or research<br><strong>Where:</strong> Knowledge -> PIN Strategist<br><strong>ELI10:</strong> it helps choose what to read, ask, compare, or ignore.", receipt: "No provider call. No external send. PIN receipts are local." });
+};
+const buildPinBrief = async (mode = "brief") => {
+  const payload = { decision: document.getElementById("pinDecision").value || "current decision", mode };
+  const data = await api("/api/pin/decision-brief", { method: "POST", body: JSON.stringify(payload) });
+  const brief = data.brief;
+  document.getElementById("pinBriefPanel").innerHTML = summaryList([
+    `<strong>Next thinking move:</strong> ${escapeHtml(brief.next_thinking_move)}`,
+    `<strong>People to ask:</strong> ${brief.people_to_ask.map(item => escapeHtml(item.name)).join(", ")}`,
+    `<strong>Sources to check:</strong> ${brief.sources_to_check.map(item => escapeHtml(item.title)).join(", ")}`,
+    `<strong>Missing perspectives:</strong><br>${brief.missing_perspectives.map(escapeHtml).join("<br>")}`,
+    `<strong>Ignore for now:</strong><br>${brief.ignore_for_now.map(escapeHtml).join("<br>")}`
+  ]);
+  setResult(`PIN brief saved locally: ${data.receipt.receipt_id}.`);
+  setContext({ title: "PIN decision brief", next: brief.next_thinking_move, details: `<strong>Topic:</strong> ${escapeHtml(brief.topic)}<br><strong>Receipt:</strong> ${escapeHtml(data.receipt.receipt_id)}`, sixw: "<strong>What:</strong> input map before deciding<br><strong>Who:</strong> CK user<br><strong>Why:</strong> improve thinking quality before action<br><strong>When:</strong> before choosing, believing, researching, or acting<br><strong>Where:</strong> Knowledge -> PIN Strategist -> Before Deciding<br><strong>ELI10:</strong> it says who/what to check before deciding.", receipt: "Local PIN receipt. External send: false. Provider called: false." });
+};
+const loadPinPeople = async () => {
+  const data = await api("/api/pin/people");
+  document.getElementById("pinPeopleRows").innerHTML = data.items.map(item => `
+    <div class="row">
+      <strong>${escapeHtml(item.name)}</strong>
+      <p>${escapeHtml(item.strong_for)}</p>
+      <p class="small">Trust: ${escapeHtml(item.trust_level)} - influence ${item.influence_strength}</p>
+      <p class="small"><strong>Bias/limit:</strong> ${escapeHtml(item.bias_or_limit)}</p>
+    </div>
+  `).join("");
+  openTab("pin-people");
+  setContext({ title: "PIN People Map", next: "Ask one relevant person/role, not everyone.", details: `<strong>People:</strong> ${data.count}`, sixw: "<strong>What:</strong> thinking influence map<br><strong>Who:</strong> mentors, trusted voices, counter-voices<br><strong>Why:</strong> avoid over-weighting one person<br><strong>When:</strong> before decisions<br><strong>Where:</strong> PIN -> People<br><strong>ELI10:</strong> choose who to listen to for this question.", receipt: "Loading people writes nothing." });
+};
+const addPinPerson = async () => {
+  const payload = { name: document.getElementById("pinPersonName").value, strong_for: document.getElementById("pinPersonStrong").value, bias_or_limit: document.getElementById("pinPersonBias").value };
+  const data = await api("/api/pin/people", { method: "POST", body: JSON.stringify(payload) });
+  setResult(`PIN person receipt ${data.receipt.receipt_id}.`);
+  await loadPinPeople();
+};
+const loadPinSources = async () => {
+  const data = await api("/api/pin/sources");
+  document.getElementById("pinSourceRows").innerHTML = data.items.map(item => `
+    <div class="row">
+      <strong>${escapeHtml(item.title)}</strong>
+      <p>${escapeHtml(item.use_for)}</p>
+      <p class="small">Type: ${escapeHtml(item.source_type)} - trust: ${escapeHtml(item.trust_level)} - freshness: ${escapeHtml(item.freshness)}</p>
+      <p class="small"><strong>Do not use for:</strong> ${escapeHtml(item.do_not_use_for)}</p>
+    </div>
+  `).join("");
+  openTab("pin-sources");
+  setContext({ title: "PIN Sources", next: "Use RAG / Sources only when a source should become searchable.", details: `<strong>Sources:</strong> ${data.count}<br><strong>RAG endpoint:</strong> ${data.rag_endpoint}`, sixw: "<strong>What:</strong> source influence list<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> know what sources deserve trust<br><strong>When:</strong> before reading or deciding<br><strong>Where:</strong> PIN -> Sources<br><strong>ELI10:</strong> not every source deserves your attention.", receipt: "No external fetch. No provider call." });
+};
+const addPinSource = async () => {
+  const payload = { title: document.getElementById("pinSourceTitle").value, use_for: document.getElementById("pinSourceUse").value, do_not_use_for: document.getElementById("pinSourceAvoid").value };
+  const data = await api("/api/pin/sources", { method: "POST", body: JSON.stringify(payload) });
+  setResult(`PIN source receipt ${data.receipt.receipt_id}.`);
+  await loadPinSources();
+};
+const loadPinQuestions = async () => {
+  const data = await api("/api/pin/questions");
+  document.getElementById("pinQuestionRows").innerHTML = data.items.map(item => `
+    <div class="row">
+      <strong>${escapeHtml(item.question)}</strong>
+      <p class="small">${escapeHtml(item.category)} - ${escapeHtml(item.use_when)}</p>
+    </div>
+  `).join("");
+  openTab("pin-questions");
+  setContext({ title: "PIN Question Bank", next: "Use one question to improve the input, not to delay forever.", details: `<strong>Questions:</strong> ${data.count}`, sixw: "<strong>What:</strong> questions before decisions<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> improve thinking quality<br><strong>When:</strong> before source overload<br><strong>Where:</strong> PIN -> Questions<br><strong>ELI10:</strong> sometimes you need a better question, not more information.", receipt: "Loading questions writes nothing." });
+};
+const addPinQuestion = async () => {
+  const payload = { question: document.getElementById("pinQuestionText").value, use_when: document.getElementById("pinQuestionUse").value };
+  const data = await api("/api/pin/questions", { method: "POST", body: JSON.stringify(payload) });
+  setResult(`PIN question receipt ${data.receipt.receipt_id}.`);
+  await loadPinQuestions();
+};
+const loadPinRadar = async () => {
+  const data = await api("/api/pin/influence-radar");
+  document.getElementById("pinRadarPanel").innerHTML = summaryList([
+    `<strong>Status:</strong> ${data.status}`,
+    `<strong>Strongest influences:</strong><br>${data.strongest_influences.map(item => `${escapeHtml(item.name)} - ${escapeHtml(item.signal)} (${escapeHtml(item.watch)})`).join("<br>")}`,
+    `<strong>Prompts:</strong><br>${data.over_influence_prompts.map(escapeHtml).join("<br>")}`,
+    `<strong>Missing perspectives:</strong> ${data.missing_perspectives.map(escapeHtml).join(", ")}`
+  ]);
+  openTab("pin-radar");
+  setContext({ title: "Influence Radar", next: "Balance any over-used source with lived experience and one counter-source.", details: `<strong>Missing:</strong> ${data.missing_perspectives.join(", ")}`, sixw: "<strong>What:</strong> over-influence check<br><strong>Who:</strong> CK user<br><strong>Why:</strong> avoid borrowed certainty<br><strong>When:</strong> when one source/person dominates<br><strong>Where:</strong> PIN -> Influence Radar<br><strong>ELI10:</strong> it checks whether one idea is getting too loud.", receipt: "Provider called: false. External send: false." });
+};
+const loadPinQueue = async () => {
+  const data = await api("/api/pin/learning-queue");
+  document.getElementById("pinQueueRows").innerHTML = `<h2>${data.tabs.join(" / ")}</h2>` + data.items.map(item => `
+    <div class="row">
+      <strong>${escapeHtml(item.lane)}</strong>
+      <p>${escapeHtml(item.item)}</p>
+      <p class="small">${escapeHtml(item.action)}</p>
+    </div>
+  `).join("");
+  openTab("pin-queue");
+  setContext({ title: "Learning Queue", next: "Choose one lane: read, ask, compare, revisit, ignore, or park.", details: `<strong>Lanes:</strong> ${data.tabs.length}`, sixw: "<strong>What:</strong> attention queue<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> reduce source overwhelm<br><strong>When:</strong> when there is too much to consume<br><strong>Where:</strong> PIN -> Learning Queue<br><strong>ELI10:</strong> decide what deserves attention and what can wait.", receipt: "No provider call." });
+};
+const loadPinReview = async () => {
+  const data = await api("/api/pin/monthly-review");
+  const review = data.review;
+  document.getElementById("pinReviewPanel").innerHTML = summaryList([
+    `<strong>Review:</strong> ${review.review_id}`,
+    `<strong>Shaped thinking:</strong> ${review.what_shaped_thinking.map(escapeHtml).join(", ")}`,
+    `<strong>Helped:</strong> ${review.what_helped.map(escapeHtml).join(", ")}`,
+    `<strong>Stop consuming:</strong> ${review.what_to_stop_consuming.map(escapeHtml).join(", ")}`,
+    `<strong>Study next:</strong> ${review.what_to_study_next.map(escapeHtml).join(", ")}`
+  ]);
+  openTab("pin-review");
+  setResult(`PIN review receipt ${data.receipt.receipt_id}.`);
+  setContext({ title: "PIN Review", next: "Save useful insights to Life Map only if they still feel true.", details: `<strong>Review:</strong> ${review.review_id}<br><strong>Receipt:</strong> ${data.receipt.receipt_id}`, sixw: "<strong>What:</strong> monthly thinking-input review<br><strong>Who:</strong> local CK user<br><strong>Why:</strong> see what shaped thinking<br><strong>When:</strong> weekly or monthly<br><strong>Where:</strong> PIN -> Review<br><strong>ELI10:</strong> it checks what influenced you and what to stop feeding.", receipt: "Local PIN receipt. External send: false." });
 };
 const loadJournal = async () => {
   const status = await api("/api/journal/status");
@@ -1699,6 +1919,19 @@ document.getElementById("sourceBuild").addEventListener("click", buildSourceInde
 document.getElementById("sourceSearch").addEventListener("click", searchSources);
 document.getElementById("askSourcesSearch").addEventListener("click", askMySources);
 document.getElementById("stageRagSource").addEventListener("click", stageRagSource);
+document.getElementById("pinBuildBrief").addEventListener("click", () => buildPinBrief("brief"));
+document.getElementById("pinMissingPerspective").addEventListener("click", () => buildPinBrief("missing_perspective"));
+document.getElementById("pinIgnoreNoise").addEventListener("click", () => buildPinBrief("ignore_noise"));
+document.getElementById("pinLoadPeople").addEventListener("click", loadPinPeople);
+document.getElementById("pinAddPerson").addEventListener("click", addPinPerson);
+document.getElementById("pinLoadSources").addEventListener("click", loadPinSources);
+document.getElementById("pinAddSource").addEventListener("click", addPinSource);
+document.getElementById("pinLoadQuestions").addEventListener("click", loadPinQuestions);
+document.getElementById("pinAddQuestion").addEventListener("click", addPinQuestion);
+document.getElementById("pinInfluenceRadar").addEventListener("click", loadPinRadar);
+document.getElementById("pinCompareViews").addEventListener("click", loadPinRadar);
+document.getElementById("pinLearningQueue").addEventListener("click", loadPinQueue);
+document.getElementById("pinMonthlyReview").addEventListener("click", loadPinReview);
 document.getElementById("openReport").addEventListener("click", async () => {
   const data = await api("/api/reports/local-summary");
   document.getElementById("reportPanel").innerHTML = summaryList([`<strong>Local summary report</strong>`, `Report ID: ${data.report_id}`, `Receipts: ${data.receipt_count}`, `Encrypted journal entries: ${data.encrypted_journal_count}`, `Innovations: ${data.idea_count}`, `External send: ${data.handover_boundary.external_send}`, `Source write: ${data.handover_boundary.source_write}`, `Human review: ${data.handover_boundary.human_review_required}`]);
@@ -1741,6 +1974,7 @@ const boot = async () => {
   await loadDailyLens();
   await loadDailyLensLibrary();
   await loadAcademy();
+  await loadPinStatus();
   openTab("lens-today");
   await loadGuide("practice");
   const practicesPayload = await api("/api/practices");

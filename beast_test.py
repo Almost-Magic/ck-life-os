@@ -637,9 +637,10 @@ class TestMani100TruthSurfaces:
         assert "Plans" in groups
         assert "Knowledge" in groups
         assert "Academy" in groups["Knowledge"]
+        assert "PIN Strategist" in groups["Knowledge"]
         assert "Admin / Proof" in groups
         screens = {item["id"]: item for item in data["screens"]}
-        for screen_id in ["today", "dailyLens", "startDay", "checkIn", "endDay", "askGuide", "stuck", "decision", "voiceNotes", "lifeMap", "promises", "projects", "calendar", "academy", "askSources", "insights", "weeklyReview", "memory"]:
+        for screen_id in ["today", "dailyLens", "startDay", "checkIn", "endDay", "askGuide", "stuck", "decision", "voiceNotes", "lifeMap", "promises", "projects", "calendar", "academy", "askSources", "sources", "pinStrategist", "insights", "weeklyReview", "memory"]:
             assert screen_id in screens
             assert screens[screen_id]["tabs"]
             assert screens[screen_id]["buttons"]
@@ -681,8 +682,10 @@ class TestMani100TruthSurfaces:
         assert layout["right_rail_collapsed_contextual_boxes"] is True
         assert data["life_manager_v2"]["screen_count"] >= 18
         assert data["life_manager_v2"]["academy_visible_in_knowledge"] is True
+        assert data["life_manager_v2"]["pin_visible_in_knowledge"] is True
         assert "life_manager_receipt" in data["buttons"]
         assert "academy_practice" in data["buttons"]
+        assert "pin_decision_brief" in data["buttons"]
         assert "ripple_calendar_write" in data["buttons"]
 
     def test_academy_is_real_local_screen_module(self):
@@ -717,6 +720,46 @@ class TestMani100TruthSurfaces:
         readiness = client.get("/api/academy/readiness")
         assert readiness.status_code == 200
         assert readiness.json()["external_lms_required"] is False
+
+    def test_pin_strategist_personal_intelligence_network_is_real(self):
+        status = client.get("/api/pin/status")
+        assert status.status_code == 200
+        status_data = status.json()
+        assert status_data["status"] == "implemented_local_internal"
+        assert status_data["where_to_access"] == "Knowledge -> PIN Strategist"
+        assert status_data["meaning"] == "Personal Intelligence Network"
+        assert status_data["counts"]["people"] >= 3
+        assert status_data["counts"]["sources"] >= 3
+        assert status_data["counts"]["questions"] >= 4
+        assert status_data["rag_access"]["excluded_roots"] == NAS_EXCLUDED_ROOTS
+        assert status_data["provider_called"] is False
+        people = client.get("/api/pin/people")
+        assert people.status_code == 200
+        assert people.json()["count"] >= 3
+        sources = client.get("/api/pin/sources")
+        assert sources.status_code == 200
+        assert sources.json()["rag_endpoint"] == "/api/rag/source-draft"
+        questions = client.get("/api/pin/questions")
+        assert questions.status_code == 200
+        assert questions.json()["count"] >= 4
+        brief = client.post("/api/pin/decision-brief", json={"decision": "Should I study this source before deciding?"})
+        assert brief.status_code == 200
+        brief_data = brief.json()
+        assert brief_data["brief"]["local_only"] is True
+        assert brief_data["brief"]["provider_called"] is False
+        assert "people_to_ask" in brief_data["brief"]
+        assert brief_data["receipt"]["local_only"] is True
+        radar = client.get("/api/pin/influence-radar")
+        assert radar.status_code == 200
+        assert radar.json()["provider_called"] is False
+        queue = client.get("/api/pin/learning-queue")
+        assert queue.status_code == 200
+        assert "Ignore" in queue.json()["tabs"]
+        review = client.get("/api/pin/monthly-review")
+        assert review.status_code == 200
+        assert review.json()["review"]["external_send"] is False
+        receipts = client.get("/api/pin/receipts")
+        assert any(item["receipt_id"] == brief_data["receipt"]["receipt_id"] for item in receipts.json()["items"])
 
     def test_live_action_gates_return_exact_blockers_without_credentials(self):
         status = client.get("/api/live-actions/status")

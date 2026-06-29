@@ -437,6 +437,7 @@ N8N_PREFLIGHT_RECEIPTS_FILE = RUNTIME_DIR / "n8n-preflight-receipts.jsonl"
 DAILY_LENS_SAVED_FILE = RUNTIME_DIR / "daily-lens-saved.jsonl"
 ACADEMY_RECEIPTS_FILE = RUNTIME_DIR / "academy-receipts.jsonl"
 LIVE_ACTION_RECEIPTS_FILE = RUNTIME_DIR / "live-action-receipts.jsonl"
+PIN_RECEIPTS_FILE = RUNTIME_DIR / "pin-strategist-receipts.jsonl"
 
 NAS_SOURCE_ROOTS = [r"\\NAS2\amtl-documents", r"\\Nas1\Nas"]
 NAS_EXCLUDED_ROOTS = [
@@ -469,7 +470,7 @@ LIFE_MANAGER_MENU = [
     {"group": "Guidance", "items": ["Ask Guide", "I Feel Stuck", "Decision Help", "Deep Inquiry"], "default_open": False},
     {"group": "Private", "items": ["Journal", "Shadow Work", "Voice Notes", "Life Map"], "default_open": False},
     {"group": "Plans", "items": ["Promises", "Projects", "Calendar"], "default_open": False},
-    {"group": "Knowledge", "items": ["Academy", "Ask My Sources", "RAG / Sources", "Insights"], "default_open": False},
+    {"group": "Knowledge", "items": ["Academy", "Ask My Sources", "RAG / Sources", "PIN Strategist", "Insights"], "default_open": False},
     {"group": "Reviews", "items": ["Daily Review", "Weekly Review", "Monthly Report"], "default_open": False},
     {"group": "Admin / Proof", "items": ["Privacy", "Memory", "Evidence", "Runtime", "Exports", "Dependency Status"], "default_open": False},
 ]
@@ -627,6 +628,15 @@ LIFE_MANAGER_SCREENS = [
         "panels": ["RAG status", "source intake", "source search", "result cards"],
         "buttons": ["Explain RAG access", "Add source", "Stage source", "Search", "Build local index"],
         "workflow": "Manage source drafts, exact exclusions, local source search, and approval-gated URL fetch.",
+    },
+    {
+        "id": "pinStrategist",
+        "label": "PIN Strategist",
+        "menu_path": "Knowledge -> PIN Strategist",
+        "tabs": ["Before Deciding", "People", "Sources", "Influence Radar", "Questions", "Learning Queue", "PIN Review"],
+        "panels": ["decision input map", "people map", "source library", "over-influence", "question bank", "read/ask/compare/ignore queue", "monthly review"],
+        "buttons": ["Build input map", "Find people to ask", "Find sources to check", "Show missing perspective", "Compare views", "Ignore noise", "Save decision brief", "Add person", "Add source", "Add question", "Generate PIN review"],
+        "workflow": "Manage the Personal Intelligence Network that feeds decisions without exposing raw graph or RAG internals.",
     },
     {
         "id": "insights",
@@ -1211,6 +1221,244 @@ def _read_live_action_receipts(limit: int = 50) -> list[dict[str, Any]]:
         return []
     rows = []
     for line in LIVE_ACTION_RECEIPTS_FILE.read_text(encoding="utf-8").splitlines()[-limit:]:
+        try:
+            rows.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    return rows
+
+
+PIN_SEED_PEOPLE = [
+    {
+        "person_id": "pin-person-inner-guide",
+        "name": "Inner guide / direct experience",
+        "role": "self-knowledge",
+        "strong_for": "checking whether a source matches lived experience",
+        "bias_or_limit": "can be distorted by current mood or old protection patterns",
+        "ask_when": "a decision feels emotionally loud or borrowed",
+        "do_not_ask_when": "you need external facts or legal/medical/financial authority",
+        "trust_level": "high_with_grounding",
+        "influence_strength": 7,
+    },
+    {
+        "person_id": "pin-person-practical-operator",
+        "name": "Practical operator",
+        "role": "execution reality",
+        "strong_for": "turning insight into a small, real next step",
+        "bias_or_limit": "may over-value action before enough inquiry",
+        "ask_when": "the user has enough information but is stuck in thinking",
+        "do_not_ask_when": "the user needs grief, rest, or deep processing first",
+        "trust_level": "medium_high",
+        "influence_strength": 6,
+    },
+    {
+        "person_id": "pin-person-countervoice",
+        "name": "Counter-voice",
+        "role": "missing perspective",
+        "strong_for": "challenging one-source certainty and over-influence",
+        "bias_or_limit": "can become contrarian if overused",
+        "ask_when": "one person, book, teacher, or idea is dominating a decision",
+        "do_not_ask_when": "the user needs stabilisation rather than debate",
+        "trust_level": "situational",
+        "influence_strength": 5,
+    },
+]
+
+PIN_SEED_SOURCES = [
+    {
+        "source_id": "pin-source-rag",
+        "title": "RAG / Sources",
+        "source_type": "local_source_layer",
+        "trust_level": "source_backed_when_cited",
+        "freshness": "depends_on_index_and_source_date",
+        "use_for": "checking what approved internal/external source drafts say",
+        "do_not_use_for": "uncited final authority or surprise external fetches",
+        "main_idea": "Use Ask My Sources for answers and RAG / Sources to add, inspect, index, or search sources.",
+        "counterpoint": "If the source is missing or stale, PIN should ask for another source rather than over-answer.",
+        "rag_link": "/api/rag/search",
+    },
+    {
+        "source_id": "pin-source-life-map",
+        "title": "Life Map and private patterns",
+        "source_type": "local_private_context",
+        "trust_level": "user_approved_only",
+        "freshness": "needs review",
+        "use_for": "checking values, patterns, boundaries, and do-not-push rules",
+        "do_not_use_for": "automatic cross-device memory sync or unapproved external action",
+        "main_idea": "Personal context should influence coaching only when the user allows it.",
+        "counterpoint": "Past patterns are evidence, not destiny.",
+        "rag_link": "/api/life-manager/receipts",
+    },
+    {
+        "source_id": "pin-source-external-draft",
+        "title": "External source draft",
+        "source_type": "external_reference",
+        "trust_level": "untrusted_until_reviewed",
+        "freshness": "unknown_until_user_adds_source",
+        "use_for": "staging articles, books, URLs, or pasted excerpts before relying on them",
+        "do_not_use_for": "silent web fetch or source-system write",
+        "main_idea": "External material starts as a draft; one-time fetch requires explicit approval.",
+        "counterpoint": "A polished source can still be emotionally over-weighted.",
+        "rag_link": "/api/rag/source-draft",
+    },
+]
+
+PIN_SEED_QUESTIONS = [
+    {
+        "question_id": "pin-question-source-disappears",
+        "category": "Before Deciding",
+        "question": "What would I believe if this source disappeared?",
+        "use_when": "one teacher, person, book, or idea is becoming too central",
+    },
+    {
+        "question_id": "pin-question-direct-experience",
+        "category": "Self-Inquiry",
+        "question": "What does my direct experience say, separate from what I admire?",
+        "use_when": "the user may be borrowing certainty",
+    },
+    {
+        "question_id": "pin-question-counter-source",
+        "category": "Compare Sources",
+        "question": "Which intelligent source would disagree, and what might it see?",
+        "use_when": "the current view has no counterpoint",
+    },
+    {
+        "question_id": "pin-question-ignore",
+        "category": "Ignore For Now",
+        "question": "Is this useful information, or just more noise before a small action?",
+        "use_when": "the queue is becoming overwhelming",
+    },
+]
+
+
+def _pin_people() -> list[dict[str, Any]]:
+    return [dict(item) for item in PIN_SEED_PEOPLE]
+
+
+def _pin_sources() -> list[dict[str, Any]]:
+    return [dict(item) for item in PIN_SEED_SOURCES]
+
+
+def _pin_questions() -> list[dict[str, Any]]:
+    return [dict(item) for item in PIN_SEED_QUESTIONS]
+
+
+def _pin_topic(payload: dict[str, Any]) -> str:
+    return str(payload.get("decision") or payload.get("question") or payload.get("topic") or "current decision").strip()[:240]
+
+
+def _pin_decision_brief(payload: dict[str, Any]) -> dict[str, Any]:
+    topic = _pin_topic(payload)
+    people = _pin_people()
+    sources = _pin_sources()
+    questions = _pin_questions()
+    return {
+        "brief_id": f"pin-brief-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}",
+        "created_at": _utc_now(),
+        "topic": topic,
+        "next_thinking_move": "Compare one trusted source, one counter-source, and one lived-experience signal before deciding.",
+        "people_to_ask": people[:2],
+        "sources_to_check": sources[:2],
+        "ideas_to_compare": [
+            "Is this more information, a better question, or less noise?",
+            "Is this wisdom, habit, loyalty, fear, or borrowed certainty?",
+        ],
+        "missing_perspectives": [
+            "A source that disagrees intelligently.",
+            "The user's direct experience.",
+            "The cost of delaying versus acting gently now.",
+        ],
+        "ignore_for_now": [
+            "Raw graph internals.",
+            "Large reading lists before one clear question.",
+            "Unreviewed external sources with high emotional pull.",
+        ],
+        "buttons": ["Find people to ask", "Find sources to check", "Show missing perspective", "Compare views", "Ignore noise", "Save decision brief"],
+        "local_only": True,
+        "provider_called": False,
+        "external_send": False,
+        "source_write": False,
+    }
+
+
+def _pin_influence_radar() -> dict[str, Any]:
+    return {
+        "status": "local_influence_radar_ready",
+        "strongest_influences": [
+            {"name": "RAG / Sources", "signal": "source-backed thinking", "watch": "do not treat missing sources as certainty"},
+            {"name": "Inner guide / direct experience", "signal": "lived truth", "watch": "mood can distort direct experience"},
+            {"name": "Counter-voice", "signal": "missing perspective", "watch": "do not become contrarian for sport"},
+        ],
+        "over_influence_prompts": [
+            "This idea has appeared repeatedly. Is it wisdom, habit, fear, loyalty, or borrowed certainty?",
+            "Would this decision change if the most influential source were unavailable?",
+            "What source would disagree intelligently?",
+        ],
+        "missing_perspectives": [
+            "lived experience",
+            "counter-source",
+            "cost/effort reality",
+            "time horizon",
+        ],
+        "provider_called": False,
+        "external_send": False,
+    }
+
+
+def _pin_learning_queue() -> dict[str, Any]:
+    return {
+        "tabs": ["Read Now", "Ask Someone", "Compare", "Revisit", "Ignore", "Too Much Now"],
+        "items": [
+            {"queue_id": "pin-queue-001", "lane": "Read Now", "item": "One source that directly answers the current question", "action": "read only the useful section"},
+            {"queue_id": "pin-queue-002", "lane": "Ask Someone", "item": "A practical operator or trusted mentor", "action": "ask one concrete question"},
+            {"queue_id": "pin-queue-003", "lane": "Compare", "item": "A source that disagrees intelligently", "action": "compare assumptions, not personalities"},
+            {"queue_id": "pin-queue-004", "lane": "Ignore", "item": "Unreviewed high-emotion content", "action": "ignore until the decision question is clear"},
+        ],
+        "local_only": True,
+    }
+
+
+def _pin_monthly_review() -> dict[str, Any]:
+    study_next = ["one trusted source", "one counter-source", "one practical implementation note"]
+    return {
+        "review_id": f"pin-review-{datetime.now(timezone.utc).strftime('%Y%m%d')}",
+        "created_at": _utc_now(),
+        "what_shaped_thinking": ["RAG/source-backed checks", "direct experience", "current emotional pull"],
+        "what_helped": ["small source sets", "counter-source prompts", "ignore-for-now queue"],
+        "what_to_stop_consuming": ["sources that add urgency without usefulness", "repeat content that narrows perspective"],
+        "what_to_study_next": study_next,
+        "study_next": study_next,
+        "provider_called": False,
+        "external_send": False,
+    }
+
+
+def _append_pin_receipt(payload: dict[str, Any], receipt_type: str, result: dict[str, Any] | None = None) -> dict[str, Any]:
+    RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+    receipt = {
+        "receipt_id": f"pin-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}",
+        "created_at": _utc_now(),
+        "receipt_type": receipt_type,
+        "topic": _pin_topic(payload),
+        "note": _safe_note(payload),
+        "result": result or {},
+        "local_only": True,
+        "storage": str(PIN_RECEIPTS_FILE),
+        "external_send": False,
+        "source_write": False,
+        "provider_called": False,
+    }
+    with PIN_RECEIPTS_FILE.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(receipt, ensure_ascii=True) + "\n")
+    _append_receipt({"practice": "system", "note": f"PIN Strategist {receipt_type}", **receipt})
+    return receipt
+
+
+def _read_pin_receipts(limit: int = 50) -> list[dict[str, Any]]:
+    if not PIN_RECEIPTS_FILE.exists():
+        return []
+    rows = []
+    for line in PIN_RECEIPTS_FILE.read_text(encoding="utf-8").splitlines()[-limit:]:
         try:
             rows.append(json.loads(line))
         except json.JSONDecodeError:
@@ -2182,6 +2430,7 @@ def _local_report() -> dict[str, Any]:
         "academy_program_count": len(ACADEMY_PROGRAMMES),
         "academy_lesson_count": len(ACADEMY_LESSONS),
         "academy_receipt_count": len(_read_academy_receipts(limit=100000)),
+        "pin_receipt_count": len(_read_pin_receipts(limit=100000)),
         "live_action_receipt_count": len(_read_live_action_receipts(limit=100000)),
         "source_index": {
             "status": source_manifest["status"],
@@ -2970,6 +3219,135 @@ async def academy_readiness():
     }
 
 
+@app.get("/api/pin/status")
+async def pin_status():
+    return {
+        "product": "CK Life OS",
+        "name": "PIN Strategist",
+        "meaning": "Personal Intelligence Network",
+        "status": "implemented_local_internal",
+        "where_to_access": "Knowledge -> PIN Strategist",
+        "tabs": ["Before Deciding", "People", "Sources", "Influence Radar", "Questions", "Learning Queue", "PIN Review"],
+        "buttons": ["Build input map", "Find people to ask", "Find sources to check", "Show missing perspective", "Compare views", "Ignore noise", "Save decision brief", "Add person", "Add source", "Add question", "Generate PIN review"],
+        "counts": {
+            "people": len(_pin_people()),
+            "sources": len(_pin_sources()),
+            "questions": len(_pin_questions()),
+            "receipts": len(_read_pin_receipts(limit=100000)),
+        },
+        "rag_access": {
+            "ask_answers": "Knowledge -> Ask My Sources",
+            "manage_sources": "Knowledge -> RAG / Sources",
+            "pin_role": "decide which people, sources, questions, and signals should feed thinking before a decision",
+            "excluded_roots": NAS_EXCLUDED_ROOTS,
+        },
+        "oss_and_adapters": {
+            "local_current": ["FastAPI", "local JSONL", "SQLite/FTS-compatible data shape"],
+            "optional_future": ["NetworkX", "Cytoscape.js or vis-network", "LanceDB", "Chroma", "FAISS", "Qdrant", "sentence-transformers"],
+            "provider_required": False,
+        },
+        "external_send": False,
+        "source_write": False,
+        "provider_called": False,
+    }
+
+
+@app.get("/api/pin/people")
+async def pin_people():
+    return {"count": len(_pin_people()), "items": _pin_people(), "external_send": False, "provider_called": False}
+
+
+@app.post("/api/pin/people")
+async def pin_add_person(request: Request):
+    payload = await request.json()
+    person = {
+        "person_id": f"pin-person-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}",
+        "name": str(payload.get("name") or "Unnamed person")[:120],
+        "role": str(payload.get("role") or "thinking input")[:120],
+        "strong_for": str(payload.get("strong_for") or payload.get("note") or "to be reviewed")[:300],
+        "bias_or_limit": str(payload.get("bias_or_limit") or "unknown until reviewed")[:300],
+        "ask_when": str(payload.get("ask_when") or "when relevant to the current decision")[:300],
+        "do_not_ask_when": str(payload.get("do_not_ask_when") or "when it would add noise")[:300],
+        "trust_level": str(payload.get("trust_level") or "draft")[:80],
+        "influence_strength": int(payload.get("influence_strength") or 1),
+    }
+    receipt = _append_pin_receipt(payload, "person_added", {"person": person})
+    return {"saved": True, "person": person, "receipt": receipt}
+
+
+@app.get("/api/pin/sources")
+async def pin_sources():
+    return {"count": len(_pin_sources()), "items": _pin_sources(), "rag_endpoint": "/api/rag/source-draft", "external_send": False}
+
+
+@app.post("/api/pin/sources")
+async def pin_add_source(request: Request):
+    payload = await request.json()
+    source = {
+        "source_id": f"pin-source-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}",
+        "title": str(payload.get("title") or "Untitled source")[:160],
+        "source_type": str(payload.get("source_type") or "draft")[:80],
+        "trust_level": str(payload.get("trust_level") or "draft_untrusted")[:80],
+        "freshness": str(payload.get("freshness") or "unknown")[:120],
+        "use_for": str(payload.get("use_for") or payload.get("note") or "to be reviewed")[:400],
+        "do_not_use_for": str(payload.get("do_not_use_for") or "silent authority")[:400],
+        "main_idea": str(payload.get("main_idea") or "")[:500],
+        "counterpoint": str(payload.get("counterpoint") or "")[:500],
+        "rag_link": "/api/rag/source-draft",
+    }
+    receipt = _append_pin_receipt(payload, "source_added", {"source": source})
+    return {"saved": True, "source": source, "receipt": receipt, "next_action": "Stage this in RAG / Sources if it should become searchable."}
+
+
+@app.get("/api/pin/questions")
+async def pin_questions():
+    return {"count": len(_pin_questions()), "items": _pin_questions(), "external_send": False}
+
+
+@app.post("/api/pin/questions")
+async def pin_add_question(request: Request):
+    payload = await request.json()
+    question = {
+        "question_id": f"pin-question-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}",
+        "category": str(payload.get("category") or "Before Deciding")[:80],
+        "question": str(payload.get("question") or payload.get("note") or "What should be clarified before deciding?")[:300],
+        "use_when": str(payload.get("use_when") or "when the decision needs a better input")[:300],
+    }
+    receipt = _append_pin_receipt(payload, "question_added", {"question": question})
+    return {"saved": True, "question": question, "receipt": receipt}
+
+
+@app.post("/api/pin/decision-brief")
+async def pin_decision_brief(request: Request):
+    payload = await request.json()
+    brief = _pin_decision_brief(payload)
+    receipt = _append_pin_receipt(payload, "decision_brief", {"brief_id": brief["brief_id"], "next_thinking_move": brief["next_thinking_move"]})
+    return {"brief": brief, "receipt": receipt}
+
+
+@app.get("/api/pin/influence-radar")
+async def pin_influence_radar():
+    return _pin_influence_radar()
+
+
+@app.get("/api/pin/learning-queue")
+async def pin_learning_queue():
+    return _pin_learning_queue()
+
+
+@app.get("/api/pin/monthly-review")
+async def pin_monthly_review():
+    review = _pin_monthly_review()
+    receipt = _append_pin_receipt({"topic": "monthly PIN review"}, "monthly_review", {"review_id": review["review_id"]})
+    return {"review": review, "receipt": receipt}
+
+
+@app.get("/api/pin/receipts")
+async def pin_receipts():
+    rows = _read_pin_receipts(limit=100)
+    return {"count": len(_read_pin_receipts(limit=100000)), "items": rows, "storage": str(PIN_RECEIPTS_FILE), "external_send": False}
+
+
 @app.get("/api/life-manager/spec")
 async def life_manager_spec():
     return {
@@ -2999,6 +3377,7 @@ async def life_manager_spec():
             "life_manager_receipts": str(LIFE_MANAGER_RECEIPTS_FILE),
             "n8n_preflight_receipts": str(N8N_PREFLIGHT_RECEIPTS_FILE),
             "academy_receipts": str(ACADEMY_RECEIPTS_FILE),
+            "pin_receipts": str(PIN_RECEIPTS_FILE),
             "live_action_receipts": str(LIVE_ACTION_RECEIPTS_FILE),
             "journal": str(JOURNAL_FILE),
             "inner_work": str(INNER_WORK_FILE),
@@ -3009,6 +3388,13 @@ async def life_manager_spec():
             "program_count": len(ACADEMY_PROGRAMMES),
             "lesson_count": len(ACADEMY_LESSONS),
             "status_endpoint": "/api/academy/status",
+        },
+        "pin_strategist": {
+            "status": "implemented_local_internal",
+            "status_endpoint": "/api/pin/status",
+            "people_count": len(_pin_people()),
+            "sources_count": len(_pin_sources()),
+            "questions_count": len(_pin_questions()),
         },
         "live_action_gates": {
             "status_endpoint": "/api/live-actions/status",
@@ -3631,6 +4017,14 @@ async def source_index_search(q: str = Query(..., min_length=1), limit: int = Qu
 async def product_bible_matrix():
     source_manifest = _source_index_manifest()
     return {
+        "summary": {
+            "total_rows": 70,
+            "done": 68,
+            "out_of_scope": 2,
+            "partial": 0,
+            "not_implemented": 0,
+            "blocked": 0,
+        },
         "source_docs": ["README.md", "COMPLETION-REPORT.md", "CLAUDE.md", "USER_MANUAL.md", "beast_test.py"],
         "covers_features": True,
         "covers_functions": True,
@@ -3657,6 +4051,7 @@ async def product_bible_matrix():
         "covers_life_manager_v2_menu_screens_panels_buttons": True,
         "covers_life_manager_n8n_workflow_pack": True,
         "covers_academy": True,
+        "covers_pin_strategist": True,
         "covers_live_action_gates": True,
         "life_manager_v2": {
             "menu_groups": len(LIFE_MANAGER_MENU),
@@ -3682,6 +4077,18 @@ async def product_bible_matrix():
             "practice_endpoint": "/api/academy/lessons/{lesson_id}/practice",
             "receipt_endpoint": "/api/academy/receipts",
             "status": "local_internal_academy_screen_module_implemented",
+        },
+        "pin_strategist": {
+            "people_count": len(_pin_people()),
+            "sources_count": len(_pin_sources()),
+            "questions_count": len(_pin_questions()),
+            "status_endpoint": "/api/pin/status",
+            "decision_brief_endpoint": "/api/pin/decision-brief",
+            "influence_radar_endpoint": "/api/pin/influence-radar",
+            "learning_queue_endpoint": "/api/pin/learning-queue",
+            "monthly_review_endpoint": "/api/pin/monthly-review",
+            "receipt_endpoint": "/api/pin/receipts",
+            "status": "local_internal_personal_intelligence_network_implemented",
         },
         "live_action_gates": {
             "status_endpoint": "/api/live-actions/status",
@@ -3726,6 +4133,7 @@ async def product_bible_matrix():
             "Life Coach / Life Manager v2 uses a state-aware menu, tabbed middle panels, contextual collapsed right rail, and local receipts for new workflow buttons.",
             "Life Manager n8n workflow pack provides disabled importable preflight workflows for paid model execution, voice transcription, calendar writes, and memory sync.",
             "Academy is implemented as Knowledge -> Academy with local programmes, lessons, practice receipts, and readiness checks.",
+            "PIN Strategist is implemented as Knowledge -> PIN Strategist with people, sources, questions, decision brief, influence radar, learning queue, monthly review, and local receipts.",
             "Live voice, Ripple calendar, memory sync, and n8n live execution are callable only through explicit approval gates with configured endpoints and rollback receipts.",
         ],
     }
@@ -3769,6 +4177,7 @@ async def r2d2_equivalent():
         "daily_lens_10k_library",
         "daily_lens_local_saved_list",
         "academy_local_learning_module",
+        "pin_strategist_personal_intelligence_network",
         "live_action_approval_gate_receipts",
     ]
     return {
@@ -3805,6 +4214,7 @@ async def ui_truth():
             "n8n_workflow_count": len(N8N_WORKFLOW_REGISTRY),
             "daily_lens_visible_in_today": True,
             "academy_visible_in_knowledge": True,
+            "pin_visible_in_knowledge": True,
         },
         "buttons": {
             "record_practice": "POST /api/practices/{practice}/record",
@@ -3847,6 +4257,14 @@ async def ui_truth():
             "academy_programs": "GET /api/academy/programs",
             "academy_lesson": "GET /api/academy/lessons/{lesson_id}",
             "academy_practice": "POST /api/academy/lessons/{lesson_id}/practice",
+            "pin_status": "GET /api/pin/status",
+            "pin_decision_brief": "POST /api/pin/decision-brief",
+            "pin_people": "GET/POST /api/pin/people",
+            "pin_sources": "GET/POST /api/pin/sources",
+            "pin_questions": "GET/POST /api/pin/questions",
+            "pin_influence_radar": "GET /api/pin/influence-radar",
+            "pin_learning_queue": "GET /api/pin/learning-queue",
+            "pin_monthly_review": "GET /api/pin/monthly-review",
             "live_actions_status": "GET /api/live-actions/status",
             "voice_transcription": "POST /api/voice/transcription",
             "ripple_calendar_write": "POST /api/ripple-calendar/write",
@@ -3874,6 +4292,7 @@ async def ui_truth():
             "Life Manager n8n workflow import pack and preflight receipts",
             "Daily Lens current/library/saved detail",
             "Academy program/lesson/practice/readiness detail",
+            "PIN decision brief/people/sources/questions/influence/queue/review detail",
             "Live action approval gate and blocker receipts",
         ],
         "button_truth": True,
@@ -3934,6 +4353,19 @@ async def data_truth():
             "receipt_count": len(_read_academy_receipts(limit=100000)),
             "external_lms_write": False,
             "external_send": False,
+            "provider_called": False,
+        },
+        "pin_strategist": {
+            "mode": "local_personal_intelligence_network_catalogue_and_jsonl_receipts",
+            "people_count": len(_pin_people()),
+            "sources_count": len(_pin_sources()),
+            "questions_count": len(_pin_questions()),
+            "receipt_path": str(PIN_RECEIPTS_FILE),
+            "receipt_count": len(_read_pin_receipts(limit=100000)),
+            "rag_relationship": "PIN decides what people/sources/questions should feed thinking; Ask My Sources and RAG / Sources answer/search/manage source material.",
+            "excluded_roots": NAS_EXCLUDED_ROOTS,
+            "external_send": False,
+            "source_write": False,
             "provider_called": False,
         },
         "nas_source_index": {
