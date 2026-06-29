@@ -59,7 +59,7 @@ The delivered local/internal app includes:
 - Knowledge -> RAG / Sources: internal sources use the approved local NAS source index; internal paths and external references can also be staged as local RAG drafts; pasted source text/excerpts become searchable locally. External URLs can be fetched into local RAG only when the user explicitly approves that one URL fetch; no model/provider call, external send, source-system write, deploy, push, or publish happens from RAG.
 - Life Coach / Life Manager v2 local/internal shell: grouped/collapsible left menu, no middle-column scroll, tabbed middle panels, contextual collapsed right rail, state-aware Home, Start My Day, Check In, End My Day, Ask Guide, I Feel Stuck, Decision Help, Deep Inquiry, Voice Notes, Life Map, Promises, Projects, Calendar, Academy, Ask My Sources, RAG / Sources, PIN Strategist, Insights, reviews, privacy, memory controls, and Cross-App Packets.
 - PIN Strategist under `Knowledge -> PIN Strategist`: a local Personal Intelligence Network that manages people, sources, questions, influence radar, learning queue, and decision briefs before the user decides what to read, ask, compare, or ignore.
-- Cross-App Packets under `Admin / Proof -> Cross-App Packets`: a packet-first local notification layer that states what CK may inform Elaine, Baldrick, Costanza, Ripple, Spark, Beast, Digital Sentinel, Workshop, Peterman, CK Writer, Creative Studio/Raw Milk, and Opportunity Hunter, with when/how/why/privacy rules and no silent sibling-app writes.
+- Cross-App Packets under `Admin / Proof -> Cross-App Packets`: an automated, packet-first local notification layer that states what CK may inform Elaine, Baldrick, Costanza, Ripple, Spark, Beast, Digital Sentinel, Workshop, Peterman, CK Writer, Creative Studio/Raw Milk, and Opportunity Hunter, with when/how/why/privacy rules, event-to-packet automation, and no silent sibling-app writes.
 - Local v2 workflow receipts for Life Manager buttons. These prove local button truth without performing external sends, calendar writes, source writes, paid provider calls, or cross-device memory sync.
 - CK-owned n8n workflow pack for the four approval-gated automation lanes: OpenRouter paid execution, voice transcription, external calendar writes, and cross-device memory sync. The workflow JSON files are importable and disabled by default; CK exposes local dry-run/preflight endpoints and receipts before any live n8n import or execution.
 - Academy screen/module under `Knowledge -> Academy`, with local CK programmes, lessons, practice receipts, and readiness checks. It is a real app module, not just a concept note.
@@ -174,6 +174,7 @@ GET /api/life-manager/n8n-workflows/receipts
 | Receipts | Local JSONL file outside the repo by default |
 | Life Manager v2 Receipts | Local JSONL workflow receipts outside the repo by default |
 | Cross-App Packets | Local JSONL receiver packet receipts outside the repo by default |
+| Cross-App Automation | Local JSONL automation-run receipts plus linked local packet receipts |
 | n8n Workflow Pack | Disabled importable n8n JSON workflows plus CK local preflight receipts |
 | Encrypted Journal | Local encrypted JSONL with Fernet and runtime key file or `CK_LIFE_OS_JOURNAL_KEY` |
 | Database | Optional PostgreSQL 5433 adapter |

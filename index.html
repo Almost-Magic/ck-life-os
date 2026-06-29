@@ -681,6 +681,7 @@ pre { white-space: pre-wrap; margin: 0; }
           <div class="panel">
             <div class="tabbar" aria-label="Cross-App Packets tabs">
               <button data-tab="cross-rules" aria-selected="true">Rules</button>
+              <button data-tab="cross-automation">Automation</button>
               <button data-tab="cross-draft">Draft Packet</button>
               <button data-tab="cross-receipts">Receipts</button>
               <button data-tab="cross-boundaries">Boundaries</button>
@@ -691,6 +692,15 @@ pre { white-space: pre-wrap; margin: 0; }
             <p class="muted">CK prepares local review packets for other AMTL apps. It does not silently write to Elaine, Baldrick, Costanza, Ripple, Spark, or any other app.</p>
             <button class="button" id="loadCrossRules">Load receiver rules</button>
             <div id="crossRuleRows" class="list compact-list" style="margin-top:12px">Load rules to see who CK can inform, when, how, and why.</div>
+          </div>
+          <div id="cross-automation" class="tab-panel panel hidden">
+            <h2>Automation</h2>
+            <p class="muted">CK can automatically create local packet receipts from events. Automation still does not send, silently write, or mutate another app.</p>
+            <div class="inline">
+              <button class="button" id="loadCrossAutomation">Load automation policy</button>
+              <button class="button secondary" id="runCrossAutomationTests">Run 3 automation tests</button>
+            </div>
+            <div id="crossAutomationRows" class="list compact-list" style="margin-top:12px">Load policy or run tests to see automated packet proof.</div>
           </div>
           <div id="cross-draft" class="tab-panel panel two-col hidden">
             <div>
@@ -1713,6 +1723,52 @@ const loadCrossRules = async () => {
   openTab("cross-rules");
   setContext({ title: "Cross-App Packet Rules", next: "Draft a packet only when a sanitised summary is useful outside CK.", details: `<strong>Receivers:</strong> ${data.receiver_count}<br><strong>External send:</strong> ${data.boundary.external_send}`, sixw: "<strong>What:</strong> receiver rules<br><strong>Who:</strong> CK and AMTL apps<br><strong>Why:</strong> avoid silent or over-sharing handoffs<br><strong>When:</strong> only after a useful signal exists<br><strong>Where:</strong> Admin / Proof -> Cross-App Packets<br><strong>ELI10:</strong> it says who may need a safe note and what must stay private.", receipt: "Rules load writes nothing." });
 };
+const loadCrossAutomation = async () => {
+  const data = await api("/api/cross-app/automation");
+  document.getElementById("crossAutomationRows").innerHTML = summaryList([
+    `<strong>Status:</strong> ${escapeHtml(data.status)}`,
+    `<strong>Rules:</strong> ${data.rule_count}`,
+    `<strong>Runs:</strong> ${data.run_count}`,
+    `<strong>Automated action:</strong> ${escapeHtml(data.automated_action)}`,
+    `<strong>External send:</strong> ${data.external_send}`,
+    `<strong>Target app write:</strong> ${data.target_app_write}`,
+    `<strong>Silent write:</strong> ${data.silent_write}`
+  ]) + data.automation_rules.map(rule => `
+    <div class="row">
+      <strong>${escapeHtml(rule.event_type)}</strong>
+      <p>${escapeHtml(rule.why)}</p>
+      <p class="small"><strong>Receivers:</strong> ${rule.receivers.map(escapeHtml).join(", ")}</p>
+      <p class="small"><strong>Keywords:</strong> ${rule.keywords.map(escapeHtml).join(", ")}</p>
+    </div>
+  `).join("");
+  openTab("cross-automation");
+  setContext({ title: "Cross-App Automation", next: "Run the 3-test proof when you want to verify local automation.", details: `<strong>Rules:</strong> ${data.rule_count}<br><strong>Runs:</strong> ${data.run_count}`, sixw: "<strong>What:</strong> event-to-packet automation<br><strong>Who:</strong> CK and receiver apps<br><strong>Why:</strong> avoid manually drafting every safe packet<br><strong>When:</strong> when a CK event matches a receiver rule<br><strong>Where:</strong> Cross-App Packets -> Automation<br><strong>ELI10:</strong> it creates local notes for the right apps, but sends nothing.", receipt: "Automation creates local packet receipts only." });
+};
+const runCrossAutomationTests = async () => {
+  const cases = [
+    { event_type: "product_improvement", title: "Calm layout field-level innovation", summary: "Tabbed middle panels reduce overwhelm and should inform product design.", source_screen: "Cross-App Packets" },
+    { event_type: "relationship_followup", title: "Follow-up signal", summary: "A person needs a gentle follow-up after a decision review.", source_screen: "PIN Strategist" },
+    { event_type: "runtime_change", title: "Route proof updated", summary: "CK route, health, and monitor proof changed after local validation.", source_screen: "Runtime" }
+  ];
+  const results = [];
+  for (const payload of cases) {
+    const data = await api("/api/cross-app/automation/run", { method: "POST", body: JSON.stringify(payload) });
+    results.push(data.receipt);
+  }
+  document.getElementById("crossAutomationRows").innerHTML = `<h2>3 automation tests passed locally</h2>` + results.map(item => `
+    <div class="row">
+      <strong>${escapeHtml(item.receipt_id)}</strong>
+      <p>${escapeHtml(item.event_type)} - packets: ${item.packet_count}</p>
+      <p class="small">Receivers: ${item.matched_receivers.map(escapeHtml).join(", ")}</p>
+      <p class="small">External send: ${item.external_send} - target app write: ${item.target_app_write} - silent write: ${item.silent_write}</p>
+    </div>
+  `).join("");
+  openTab("cross-automation");
+  setResult(`Cross-app automation tested 3 times. Runs: ${results.map(item => item.receipt_id).join(", ")}.`);
+  setContext({ title: "3 Automation Tests", next: "Review generated local packet receipts; nothing was sent.", details: `<strong>Runs:</strong> ${results.length}<br><strong>Packets:</strong> ${results.reduce((sum, item) => sum + item.packet_count, 0)}`, sixw: "<strong>What:</strong> automation proof<br><strong>Who:</strong> CK receiver packet layer<br><strong>Why:</strong> prove automation works without silent writes<br><strong>When:</strong> after implementation or audit<br><strong>Where:</strong> Cross-App Packets -> Automation<br><strong>ELI10:</strong> three sample events made local packet receipts for the right apps.", receipt: "External send: false. Target app write: false. Provider called: false." });
+  await loadCrossReceipts();
+  openTab("cross-automation");
+};
 const previewCrossPacket = async () => {
   const data = await api("/api/cross-app/packet-preview", { method: "POST", body: JSON.stringify(crossPacketPayload()) });
   document.getElementById("crossPreviewPanel").innerHTML = renderCrossPreview(data.preview);
@@ -2060,6 +2116,8 @@ document.getElementById("pinCompareViews").addEventListener("click", loadPinRada
 document.getElementById("pinLearningQueue").addEventListener("click", loadPinQueue);
 document.getElementById("pinMonthlyReview").addEventListener("click", loadPinReview);
 document.getElementById("loadCrossRules").addEventListener("click", loadCrossRules);
+document.getElementById("loadCrossAutomation").addEventListener("click", loadCrossAutomation);
+document.getElementById("runCrossAutomationTests").addEventListener("click", runCrossAutomationTests);
 document.getElementById("previewCrossPacket").addEventListener("click", previewCrossPacket);
 document.getElementById("saveCrossPacket").addEventListener("click", saveCrossPacket);
 document.getElementById("refreshCrossReceipts").addEventListener("click", loadCrossReceipts);

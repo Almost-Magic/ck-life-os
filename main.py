@@ -439,6 +439,7 @@ ACADEMY_RECEIPTS_FILE = RUNTIME_DIR / "academy-receipts.jsonl"
 LIVE_ACTION_RECEIPTS_FILE = RUNTIME_DIR / "live-action-receipts.jsonl"
 PIN_RECEIPTS_FILE = RUNTIME_DIR / "pin-strategist-receipts.jsonl"
 CROSS_APP_PACKET_RECEIPTS_FILE = RUNTIME_DIR / "cross-app-packets.jsonl"
+CROSS_APP_AUTOMATION_RECEIPTS_FILE = RUNTIME_DIR / "cross-app-automation-runs.jsonl"
 
 NAS_SOURCE_ROOTS = [r"\\NAS2\amtl-documents", r"\\Nas1\Nas"]
 NAS_EXCLUDED_ROOTS = [
@@ -697,10 +698,10 @@ LIFE_MANAGER_SCREENS = [
         "id": "crossAppPackets",
         "label": "Cross-App Packets",
         "menu_path": "Admin / Proof -> Cross-App Packets",
-        "tabs": ["Rules", "Draft Packet", "Receipts", "Boundaries"],
-        "panels": ["receiver rules", "packet preview", "local packet receipts", "privacy and no-silent-send boundary"],
-        "buttons": ["Load receiver rules", "Preview packet", "Save local packet", "Refresh receipts"],
-        "workflow": "Prepare packet-first app notifications for Elaine, Baldrick, Costanza, Ripple, Spark, Beast, Digital Sentinel, Workshop, and specialist apps without silent sends.",
+        "tabs": ["Rules", "Automation", "Draft Packet", "Receipts", "Boundaries"],
+        "panels": ["receiver rules", "automation policy and run proof", "packet preview", "local packet receipts", "privacy and no-silent-send boundary"],
+        "buttons": ["Load receiver rules", "Load automation policy", "Run 3 automation tests", "Preview packet", "Save local packet", "Refresh receipts"],
+        "workflow": "Automate packet-first local app notifications for Elaine, Baldrick, Costanza, Ripple, Spark, Beast, Digital Sentinel, Workshop, and specialist apps without silent sends.",
     },
 ]
 
@@ -836,6 +837,69 @@ CROSS_APP_NOTIFICATION_RULES = [
         "never_send": ["raw private evidence", "unapproved source contents"],
         "approval_required": True,
         "default_privacy": "sanitised_opportunity_signal",
+    },
+]
+
+CROSS_APP_AUTOMATION_RULES = [
+    {
+        "event_type": "product_improvement",
+        "keywords": ["field-level", "friction", "calm", "layout", "innovation", "product"],
+        "receivers": ["Elaine"],
+        "why": "A CK observation may improve an AMTL product or field-level utility.",
+    },
+    {
+        "event_type": "execution_blocker",
+        "keywords": ["blocked", "next action", "project", "promise", "decompose", "execution"],
+        "receivers": ["Baldrick"],
+        "why": "A CK promise or blocker needs operational decomposition.",
+    },
+    {
+        "event_type": "cost_value",
+        "keywords": ["cost", "subscription", "meeting", "model", "time", "value"],
+        "receivers": ["Costanza"],
+        "why": "A CK decision has cost, effort, or value risk.",
+    },
+    {
+        "event_type": "relationship_followup",
+        "keywords": ["follow-up", "person", "meeting", "calendar", "relationship", "reply"],
+        "receivers": ["Ripple"],
+        "why": "A CK people signal may need a relationship or calendar follow-up.",
+    },
+    {
+        "event_type": "public_content",
+        "keywords": ["public", "campaign", "content", "visibility", "post", "story"],
+        "receivers": ["Spark", "Peterman"],
+        "why": "A private CK idea may be approved for public-safe framing.",
+    },
+    {
+        "event_type": "runtime_change",
+        "keywords": ["route", "port", "health", "runtime", "repair", "monitor"],
+        "receivers": ["Beast / Runtime Supervisor", "Workshop"],
+        "why": "A CK runtime change should be monitorable and inspectable.",
+    },
+    {
+        "event_type": "privacy_risk",
+        "keywords": ["journal", "shadow", "voice", "memory", "rag", "privacy", "sensitive"],
+        "receivers": ["Digital Sentinel"],
+        "why": "A CK sensitive-data change needs privacy and risk review.",
+    },
+    {
+        "event_type": "writing",
+        "keywords": ["write", "draft", "essay", "article", "note", "voice"],
+        "receivers": ["CK Writer"],
+        "why": "An approved CK insight is ready to become structured writing.",
+    },
+    {
+        "event_type": "creative_asset",
+        "keywords": ["visual", "diagram", "workbook", "brand", "asset", "image"],
+        "receivers": ["CK Creative Studio / Raw Milk"],
+        "why": "An approved CK idea is ready for visual or creative production.",
+    },
+    {
+        "event_type": "opportunity_signal",
+        "keywords": ["opportunity", "offer", "product", "market", "pain", "pattern"],
+        "receivers": ["Opportunity Hunter"],
+        "why": "A repeated pain or pattern may be worth evaluating as an opportunity.",
     },
 ]
 
@@ -1396,11 +1460,107 @@ def _append_cross_app_packet(payload: dict[str, Any]) -> dict[str, Any]:
     return receipt
 
 
+def _cross_app_automation_matches(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    event_type = str(payload.get("event_type") or "").strip().lower()
+    text = " ".join(
+        str(payload.get(key) or "")
+        for key in ["event_type", "title", "summary", "source_screen", "tags"]
+    ).lower()
+    matched: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for rule in CROSS_APP_AUTOMATION_RULES:
+        event_hit = event_type == rule["event_type"]
+        keyword_hit = False if event_type else any(f" {keyword} " in f" {text} " for keyword in rule["keywords"])
+        if not keyword_hit and not event_hit:
+            continue
+        for receiver in rule["receivers"]:
+            if receiver in seen:
+                continue
+            seen.add(receiver)
+            matched.append(
+                {
+                    "receiver": receiver,
+                    "event_type": rule["event_type"],
+                    "why": rule["why"],
+                    "matched_by": "event_type" if event_hit else "keyword",
+                }
+            )
+    if not matched:
+        matched.append(
+            {
+                "receiver": "Elaine",
+                "event_type": event_type or "general_ck_signal",
+                "why": "Default safe product-insight review when no narrower receiver rule matches.",
+                "matched_by": "default",
+            }
+        )
+    return matched
+
+
+def _append_cross_app_automation_run(payload: dict[str, Any]) -> dict[str, Any]:
+    RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+    matches = _cross_app_automation_matches(payload)
+    max_receivers = int(payload.get("max_receivers") or 6)
+    summary = str(payload.get("summary") or "Automated CK local packet signal.")[:1000]
+    title = str(payload.get("title") or "Automated CK cross-app packet")[:180]
+    source_screen = str(payload.get("source_screen") or "CK Life OS")[:120]
+    privacy_level = str(payload.get("privacy_level") or "sanitised_summary_only")[:120]
+    packet_receipts = []
+    for match in matches[: max(1, min(max_receivers, len(CROSS_APP_NOTIFICATION_RULES)))]:
+        packet_receipts.append(
+            _append_cross_app_packet(
+                {
+                    "receiver": match["receiver"],
+                    "title": title,
+                    "summary": f"{summary}\n\nAutomation reason: {match['why']}\nSource screen: {source_screen}",
+                    "privacy_level": privacy_level,
+                    "automation_event_type": match["event_type"],
+                }
+            )
+        )
+    receipt = {
+        "receipt_id": f"cross-app-auto-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}",
+        "created_at": _utc_now(),
+        "receipt_type": "cross_app_automation_run",
+        "event_type": str(payload.get("event_type") or "general_ck_signal")[:120],
+        "title": title,
+        "source_screen": source_screen,
+        "matched_receivers": [item["receiver"] for item in matches],
+        "packet_receipt_ids": [item["receipt_id"] for item in packet_receipts],
+        "packet_count": len(packet_receipts),
+        "local_only": True,
+        "automated": True,
+        "external_send": False,
+        "target_app_write": False,
+        "silent_write": False,
+        "provider_called": False,
+        "source_write": False,
+        "storage": str(CROSS_APP_AUTOMATION_RECEIPTS_FILE),
+        "rollback": "Delete this automation run receipt and the linked local packet receipts; no target app was touched.",
+    }
+    with CROSS_APP_AUTOMATION_RECEIPTS_FILE.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(receipt, ensure_ascii=True) + "\n")
+    _append_receipt({"practice": "system", "note": f"Cross-app automation run {receipt['receipt_id']}", **receipt})
+    return receipt
+
+
 def _read_cross_app_packets(limit: int = 50) -> list[dict[str, Any]]:
     if not CROSS_APP_PACKET_RECEIPTS_FILE.exists():
         return []
     rows = []
     for line in CROSS_APP_PACKET_RECEIPTS_FILE.read_text(encoding="utf-8").splitlines()[-limit:]:
+        try:
+            rows.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    return rows
+
+
+def _read_cross_app_automation_runs(limit: int = 50) -> list[dict[str, Any]]:
+    if not CROSS_APP_AUTOMATION_RECEIPTS_FILE.exists():
+        return []
+    rows = []
+    for line in CROSS_APP_AUTOMATION_RECEIPTS_FILE.read_text(encoding="utf-8").splitlines()[-limit:]:
         try:
             rows.append(json.loads(line))
         except json.JSONDecodeError:
@@ -3611,6 +3771,53 @@ async def cross_app_packets(limit: int = Query(50, ge=1, le=500)):
     }
 
 
+@app.get("/api/cross-app/automation")
+async def cross_app_automation_status():
+    return {
+        "status": "automated_local_packet_generation_enabled",
+        "where_to_access": "Admin / Proof -> Cross-App Packets -> Automation",
+        "automation_rules": CROSS_APP_AUTOMATION_RULES,
+        "rule_count": len(CROSS_APP_AUTOMATION_RULES),
+        "run_count": len(_read_cross_app_automation_runs(limit=100000)),
+        "packet_receipt_count": len(_read_cross_app_packets(limit=100000)),
+        "run_endpoint": "/api/cross-app/automation/run",
+        "receipts_endpoint": "/api/cross-app/automation/runs",
+        "automated_action": "create_local_packet_receipts_only",
+        "external_send": False,
+        "target_app_write": False,
+        "silent_write": False,
+        "provider_called": False,
+        "approval_required_for_target_action": True,
+    }
+
+
+@app.get("/api/cross-app/automation/runs")
+async def cross_app_automation_runs(limit: int = Query(50, ge=1, le=500)):
+    rows = _read_cross_app_automation_runs(limit=limit)
+    return {
+        "count": len(_read_cross_app_automation_runs(limit=100000)),
+        "items": rows,
+        "storage": str(CROSS_APP_AUTOMATION_RECEIPTS_FILE),
+        "external_send": False,
+        "target_app_write": False,
+        "silent_write": False,
+    }
+
+
+@app.post("/api/cross-app/automation/run")
+async def run_cross_app_automation(request: Request):
+    payload = await request.json()
+    receipt = _append_cross_app_automation_run(payload)
+    return {
+        "status": "automated_local_packets_created",
+        "receipt": receipt,
+        "external_send": False,
+        "target_app_write": False,
+        "silent_write": False,
+        "provider_called": False,
+    }
+
+
 @app.post("/api/cross-app/packets")
 async def save_cross_app_packet(request: Request):
     payload = await request.json()
@@ -3655,6 +3862,7 @@ async def life_manager_spec():
             "academy_receipts": str(ACADEMY_RECEIPTS_FILE),
             "pin_receipts": str(PIN_RECEIPTS_FILE),
             "cross_app_packets": str(CROSS_APP_PACKET_RECEIPTS_FILE),
+            "cross_app_automation_runs": str(CROSS_APP_AUTOMATION_RECEIPTS_FILE),
             "live_action_receipts": str(LIVE_ACTION_RECEIPTS_FILE),
             "journal": str(JOURNAL_FILE),
             "inner_work": str(INNER_WORK_FILE),
@@ -4306,8 +4514,8 @@ async def product_bible_matrix():
     source_manifest = _source_index_manifest()
     return {
         "summary": {
-            "total_rows": 71,
-            "done": 69,
+            "total_rows": 72,
+            "done": 70,
             "out_of_scope": 2,
             "partial": 0,
             "not_implemented": 0,
@@ -4385,7 +4593,9 @@ async def product_bible_matrix():
             "rules_endpoint": "/api/cross-app/notification-rules",
             "preview_endpoint": "/api/cross-app/packet-preview",
             "packet_endpoint": "/api/cross-app/packets",
-            "status": "local_internal_packet_first_no_silent_send",
+            "automation_endpoint": "/api/cross-app/automation/run",
+            "automation_run_count": len(_read_cross_app_automation_runs(limit=100000)),
+            "status": "automated_local_internal_packet_first_no_silent_send",
             "external_send": False,
             "target_app_write": False,
             "silent_write": False,
@@ -4434,7 +4644,7 @@ async def product_bible_matrix():
             "Life Manager n8n workflow pack provides disabled importable preflight workflows for paid model execution, voice transcription, calendar writes, and memory sync.",
             "Academy is implemented as Knowledge -> Academy with local programmes, lessons, practice receipts, and readiness checks.",
             "PIN Strategist is implemented as Knowledge -> PIN Strategist with people, sources, questions, decision brief, influence radar, learning queue, monthly review, and local receipts.",
-            "Cross-App Packets is implemented as Admin / Proof -> Cross-App Packets with receiver rules, packet preview, local receipts, and no silent sibling-app writes.",
+            "Cross-App Packets is implemented as Admin / Proof -> Cross-App Packets with receiver rules, automated local packet generation, packet preview, local receipts, and no silent sibling-app writes.",
             "Live voice, Ripple calendar, memory sync, and n8n live execution are callable only through explicit approval gates with configured endpoints and rollback receipts.",
         ],
     }
@@ -4480,6 +4690,7 @@ async def r2d2_equivalent():
         "academy_local_learning_module",
         "pin_strategist_personal_intelligence_network",
         "cross_app_packet_first_notification_layer",
+        "cross_app_automated_local_packet_generation",
         "live_action_approval_gate_receipts",
     ]
     return {
@@ -4569,6 +4780,9 @@ async def ui_truth():
             "pin_learning_queue": "GET /api/pin/learning-queue",
             "pin_monthly_review": "GET /api/pin/monthly-review",
             "cross_app_rules": "GET /api/cross-app/notification-rules",
+            "cross_app_automation": "GET /api/cross-app/automation",
+            "cross_app_automation_run": "POST /api/cross-app/automation/run",
+            "cross_app_automation_runs": "GET /api/cross-app/automation/runs",
             "cross_app_packet_preview": "POST /api/cross-app/packet-preview",
             "cross_app_packets": "GET/POST /api/cross-app/packets",
             "live_actions_status": "GET /api/live-actions/status",
@@ -4599,6 +4813,7 @@ async def ui_truth():
             "Daily Lens current/library/saved detail",
             "Academy program/lesson/practice/readiness detail",
             "PIN decision brief/people/sources/questions/influence/queue/review detail",
+            "Cross-app automation rules/run/local packet receipt detail",
             "Cross-app receiver rules/packet preview/local receipt detail",
             "Live action approval gate and blocker receipts",
         ],
@@ -4676,10 +4891,14 @@ async def data_truth():
             "provider_called": False,
         },
         "cross_app_packets": {
-            "mode": "local_packet_first_receiver_rules_and_jsonl_receipts",
+            "mode": "automated_local_packet_first_receiver_rules_and_jsonl_receipts",
             "receiver_count": len(CROSS_APP_NOTIFICATION_RULES),
             "receipt_path": str(CROSS_APP_PACKET_RECEIPTS_FILE),
             "receipt_count": len(_read_cross_app_packets(limit=100000)),
+            "automation_rules": len(CROSS_APP_AUTOMATION_RULES),
+            "automation_receipt_path": str(CROSS_APP_AUTOMATION_RECEIPTS_FILE),
+            "automation_run_count": len(_read_cross_app_automation_runs(limit=100000)),
+            "automation_endpoint": "/api/cross-app/automation/run",
             "where_to_access": "Admin / Proof -> Cross-App Packets",
             "receivers": [item["receiver"] for item in CROSS_APP_NOTIFICATION_RULES],
             "private_screens_default": "do_not_send_raw_journal_shadow_voice_or_relationship_details",

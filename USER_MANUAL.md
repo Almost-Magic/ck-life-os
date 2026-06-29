@@ -89,12 +89,14 @@ Open `Admin / Proof`, then `Cross-App Packets`.
 This is where CK prepares safe local review packets for other AMTL apps. It answers who should be informed, when, how, why, and what must stay private.
 
 - Use `Rules` to see receiver rules for Elaine, Baldrick, Costanza, Ripple, Spark, Beast, Digital Sentinel, Workshop, Peterman, CK Writer, Creative Studio / Raw Milk, and Opportunity Hunter.
+- Use `Automation` to see event-to-receiver rules and run the local automation proof.
+- Use `Run 3 automation tests` to create three automated local packet runs and linked packet receipts without sending anything.
 - Use `Draft Packet` to choose a receiver and create a sanitised packet preview.
 - Use `Save local packet` to save a local receipt only.
 - Use `Receipts` to confirm what was prepared and that no sibling app was touched.
 - Use `Boundaries` to review the no-silent-write and no-raw-private-material rule.
 
-Cross-App Packets does not send to another app, call a provider, write a source system, or expose raw journal/shadow/voice/private relationship material. A future receiver adapter would still need exact approval.
+Cross-App automation creates local packet receipts only. It does not send to another app, call a provider, write a source system, or expose raw journal/shadow/voice/private relationship material. A future receiver adapter would still need exact approval.
 
 ## Academy
 

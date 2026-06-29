@@ -66,11 +66,24 @@ def audit_loop(loop: int) -> dict:
         json={"receiver": "Ripple", "title": "Follow-up audit packet", "summary": "Sanitised follow-up proof"},
     ).json()
     cross_receipts = client.get("/api/cross-app/packets").json()
+    cross_automation = client.get("/api/cross-app/automation").json()
+    automation_runs = [
+        client.post(
+            "/api/cross-app/automation/run",
+            json={"event_type": event_type, "title": title, "summary": summary, "source_screen": "deep audit"},
+        ).json()
+        for event_type, title, summary in [
+            ("product_improvement", "Automation audit product signal", "Calm product friction should inform Elaine."),
+            ("relationship_followup", "Automation audit follow-up signal", "A person needs a follow-up after a decision."),
+            ("runtime_change", "Automation audit runtime signal", "Route and health proof changed."),
+        ]
+    ]
+    cross_automation_receipts = client.get("/api/cross-app/automation/runs").json()
 
     assert_true(findings, client.get("/").status_code == 200, "front door serves UI", "GET /")
     assert_true(findings, client.get("/api/health").json()["runtime_independent"] is True, "runtime independent health", "/api/health")
     assert_true(findings, matrix["covers_features"] and matrix["covers_500_ideas"], "Product Bible matrix coverage", "/api/product-bible-matrix")
-    assert_true(findings, matrix["summary"]["total_rows"] == 71 and matrix["summary"]["done"] == 69, "Product Bible updated row/count truth", "/api/product-bible-matrix")
+    assert_true(findings, matrix["summary"]["total_rows"] == 72 and matrix["summary"]["done"] == 70, "Product Bible updated row/count truth", "/api/product-bible-matrix")
     assert_true(findings, matrix["covers_nas_source_indexing"] and matrix["covers_rag_postgres_pgvector_truth"], "source/RAG matrix coverage", "/api/product-bible-matrix")
     assert_true(findings, matrix["covers_life_manager_v2_menu_screens_panels_buttons"], "Life Manager v2 matrix coverage", "/api/product-bible-matrix")
     assert_true(findings, matrix["covers_pin_strategist"], "PIN Strategist matrix coverage", "/api/product-bible-matrix")
@@ -78,8 +91,9 @@ def audit_loop(loop: int) -> dict:
     assert_true(findings, r2d2["partial"] == 0 and r2d2["blocked"] == 0, "R2D2 no local/internal gaps", "/api/r2d2")
     assert_true(findings, "pin_strategist_personal_intelligence_network" in r2d2["checks"], "R2D2 PIN check", "/api/r2d2")
     assert_true(findings, "cross_app_packet_first_notification_layer" in r2d2["checks"], "R2D2 Cross-App Packet check", "/api/r2d2")
+    assert_true(findings, "cross_app_automated_local_packet_generation" in r2d2["checks"], "R2D2 Cross-App automation check", "/api/r2d2")
     assert_true(findings, ui["button_truth"] and ui["count_truth"], "button/count truth", "/api/ui-truth")
-    for button in ["rag_status", "rag_source_draft", "rag_source_approved_fetch", "rag_source_drafts", "rag_search", "source_index_status", "life_manager_receipt", "life_manager_spec", "life_manager_n8n_workflows", "life_manager_n8n_dry_run", "life_manager_n8n_preflight", "pin_decision_brief", "cross_app_rules", "cross_app_packet_preview", "cross_app_packets"]:
+    for button in ["rag_status", "rag_source_draft", "rag_source_approved_fetch", "rag_source_drafts", "rag_search", "source_index_status", "life_manager_receipt", "life_manager_spec", "life_manager_n8n_workflows", "life_manager_n8n_dry_run", "life_manager_n8n_preflight", "pin_decision_brief", "cross_app_rules", "cross_app_automation", "cross_app_automation_run", "cross_app_automation_runs", "cross_app_packet_preview", "cross_app_packets"]:
         assert_true(findings, button in ui["buttons"], f"{button} button truth", "/api/ui-truth", "add missing UI truth mapping")
 
     assert_true(findings, data["ideas"]["count"] == 500, "500 idea count truth", "/api/data-truth")
@@ -88,6 +102,7 @@ def audit_loop(loop: int) -> dict:
     assert_true(findings, data["inner_work"]["encrypted_at_rest"] is True, "Inner Work encryption truth", "/api/data-truth")
     assert_true(findings, data["pin_strategist"]["external_send"] is False and data["pin_strategist"]["provider_called"] is False, "PIN data truth no provider/send", "/api/data-truth")
     assert_true(findings, data["cross_app_packets"]["external_send"] is False and data["cross_app_packets"]["target_app_write"] is False and data["cross_app_packets"]["silent_write"] is False, "Cross-App Packet data truth no send/write", "/api/data-truth")
+    assert_true(findings, data["cross_app_packets"]["automation_rules"] >= 10 and data["cross_app_packets"]["automation_run_count"] >= 3, "Cross-App automation data truth", "/api/data-truth")
     assert_true(findings, data["external_send"] is False and data["source_write"] is False, "no external/source write", "/api/data-truth")
 
     assert_true(findings, rag["where_to_access"] == "Knowledge -> RAG / Sources", "RAG access location", "/api/rag/status")
@@ -116,11 +131,17 @@ def audit_loop(loop: int) -> dict:
     assert_true(findings, cross_preview["preview"]["receiver"] == "Elaine" and cross_preview["preview"]["silent_write"] is False, "Cross-App preview truth", "/api/cross-app/packet-preview")
     assert_true(findings, cross_saved["status"] == "saved_local_packet_only" and cross_saved["receipt"]["local_only"] is True, "Cross-App local receipt save", "/api/cross-app/packets")
     assert_true(findings, any(item["receipt_id"] == cross_saved["receipt"]["receipt_id"] for item in cross_receipts["items"]), "Cross-App receipt listed", "/api/cross-app/packets")
+    assert_true(findings, cross_automation["status"] == "automated_local_packet_generation_enabled" and cross_automation["rule_count"] >= 10, "Cross-App automation enabled", "/api/cross-app/automation")
+    assert_true(findings, all(run["status"] == "automated_local_packets_created" and run["receipt"]["packet_count"] >= 1 for run in automation_runs), "Cross-App automation tested three times", "/api/cross-app/automation/run")
+    assert_true(findings, all(run["receipt"]["external_send"] is False and run["receipt"]["target_app_write"] is False and run["receipt"]["silent_write"] is False for run in automation_runs), "Cross-App automation no send/write", "/api/cross-app/automation/run")
+    assert_true(findings, len(cross_automation_receipts["items"]) >= 3, "Cross-App automation receipts listed", "/api/cross-app/automation/runs")
 
     required_ui = [
         "RAG / Sources",
         "PIN Strategist",
         "Cross-App Packets",
+        "Automation",
+        "Run 3 automation tests",
         "RAG status",
         "Add source",
         "RAG source text",
@@ -203,7 +224,7 @@ def main() -> int:
     loops = [audit_loop(loop) for loop in range(1, 6)]
     payload = {
         "product": "CK / Life OS",
-        "scope": "deep UI/Product Bible/chat-artifact comparison after Life Manager v2, RAG, Academy, PIN Strategist, live-action gates, and Cross-App Packets",
+        "scope": "deep UI/Product Bible/chat-artifact comparison after Life Manager v2, RAG, Academy, PIN Strategist, live-action gates, Cross-App Packets, and Cross-App Automation",
         "generated_at": datetime.now().isoformat(),
         "loops": loops,
         "pass": all(loop["status"] == "pass" for loop in loops),
@@ -224,7 +245,7 @@ def main() -> int:
             "Regenerated and visually checked the Word story-flow document.",
             "Implemented and audited Life Manager v2 grouped menu, tabbed screens, contextual collapsed right rail, local workflow receipts, backend spec/workflow endpoints, and visible RAG / Sources naming.",
             "Implemented and audited CK-owned disabled n8n workflow imports and local preflight/dry-run receipts for paid model execution, live voice transcription, external calendar writes, and cross-device memory sync.",
-            "Implemented and audited PIN Strategist and Cross-App Packets as local-only packet/receipt workflows with no provider call, external send, source write, or target-app mutation.",
+            "Implemented and audited PIN Strategist plus automated Cross-App Packets as local-only packet/receipt workflows with no provider call, external send, source write, or target-app mutation.",
         ],
     }
     OUTPUT.write_text(json.dumps(payload, indent=2), encoding="utf-8")

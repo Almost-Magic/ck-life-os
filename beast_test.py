@@ -798,6 +798,57 @@ class TestMani100TruthSurfaces:
         receipts = client.get("/api/cross-app/packets")
         assert any(item["receipt_id"] == save_data["receipt"]["receipt_id"] for item in receipts.json()["items"])
 
+    def test_cross_app_automation_runs_three_local_packet_tests(self):
+        status = client.get("/api/cross-app/automation")
+        assert status.status_code == 200
+        status_data = status.json()
+        assert status_data["status"] == "automated_local_packet_generation_enabled"
+        assert status_data["external_send"] is False
+        assert status_data["target_app_write"] is False
+        cases = [
+            {
+                "event_type": "product_improvement",
+                "title": "Calm layout field-level innovation",
+                "summary": "Tabbed middle panels reduce overwhelm.",
+                "source_screen": "Cross-App Packets",
+            },
+            {
+                "event_type": "relationship_followup",
+                "title": "Follow-up signal",
+                "summary": "A person needs a gentle follow-up after a decision review.",
+                "source_screen": "PIN Strategist",
+            },
+            {
+                "event_type": "runtime_change",
+                "title": "Route proof updated",
+                "summary": "CK route, health, and monitor proof changed.",
+                "source_screen": "Runtime",
+            },
+        ]
+        receipt_ids = []
+        for payload in cases:
+            run = client.post("/api/cross-app/automation/run", json=payload)
+            assert run.status_code == 200
+            data = run.json()
+            assert data["status"] == "automated_local_packets_created"
+            receipt = data["receipt"]
+            receipt_ids.append(receipt["receipt_id"])
+            assert receipt["automated"] is True
+            assert receipt["packet_count"] >= 1
+            assert receipt["external_send"] is False
+            assert receipt["target_app_write"] is False
+            assert receipt["silent_write"] is False
+            assert receipt["provider_called"] is False
+        runs = client.get("/api/cross-app/automation/runs")
+        assert runs.status_code == 200
+        run_ids = {item["receipt_id"] for item in runs.json()["items"]}
+        assert set(receipt_ids).issubset(run_ids)
+        packets = client.get("/api/cross-app/packets")
+        packet_ids = {item["receipt_id"] for item in packets.json()["items"]}
+        for receipt in runs.json()["items"]:
+            if receipt["receipt_id"] in receipt_ids:
+                assert set(receipt["packet_receipt_ids"]).issubset(packet_ids)
+
     def test_live_action_gates_return_exact_blockers_without_credentials(self):
         status = client.get("/api/live-actions/status")
         assert status.status_code == 200
